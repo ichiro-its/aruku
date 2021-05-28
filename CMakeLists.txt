@@ -17,9 +17,14 @@ find_package(ament_cmake REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 add_library(${PROJECT_NAME}
-  "src/${PROJECT_NAME}/walking.cpp")
+  "src/${PROJECT_NAME}/walking.cpp"
+  "src/${PROJECT_NAME}/imu_filter.cpp"
+  "src/${PROJECT_NAME}/imu.cpp"
+  "src/${PROJECT_NAME}/stateless_orientation.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -28,7 +33,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   tachimawari
   framework_math
-  framework_common)
+  framework_common
+  geometry_msgs
+  tf2)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -46,7 +53,9 @@ endif()
 ament_export_dependencies(
   tachimawari
   framework_math
-  framework_common)
+  framework_common
+  geometry_msgs
+  tf2)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

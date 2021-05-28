@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #include <aruku/walking.hpp>
+#include <tachimawari/joint.hpp>
 
 #include "common/algebra.h"
 #include "math/matrix.h"
@@ -108,6 +109,39 @@ Walking::Walking()
 
   dynamic_left_kick_ = 0.0;
   dynamic_right_kick_ = 0.0;
+
+  std::vector<std::string> ids = {
+    // right leg motors
+    "right_hip_yaw",
+    "right_hip_roll",
+    "right_hip_pitch",
+    "right_knee",
+    "right_ankle_roll",
+    "right_ankle_pitch",
+
+    // left leg motors
+    "left_hip_yaw",
+    "left_hip_roll",
+    "left_hip_pitch",
+    "left_knee",
+    "left_ankle_roll",
+    "left_ankle_pitch",
+
+    // right arm motors
+    "right_shoulder_pitch",
+    "right_shoulder_roll",
+    "right_elbow",
+
+    // left arm motors
+    "left_shoulder_pitch",
+    "left_shoulder_roll",
+    "left_elbow",
+  };
+
+  for (auto id : ids) {
+    tachimawari::Joint joint(id);
+    joints->push_back(joint);
+  }
 }
 
 double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)
@@ -115,7 +149,7 @@ double Walking::wsin(double time, double period, double period_shift, double mag
 	return mag * sin(2 * 3.141592 / period * time - period_shift) + mag_shift;
 }
 
-bool Walking::computeIK(double *out, double x, double y, double z, double a, double b, double c)
+bool Walking::compute_ik(double *out, double x, double y, double z, double a, double b, double c)
 {
 	Robot::Matrix3D Tad, Tda, Tcd, Tdc, Tac;
 	Robot::Vector3D vec;
@@ -187,7 +221,7 @@ bool Walking::computeIK(double *out, double x, double y, double z, double a, dou
   return true;
 }
 
-void Walking::computeOdometry()
+void Walking::compute_odometry()
 {
   ORIENTATION = MPU::getInstance()->getAngle();
 
@@ -378,7 +412,7 @@ void Walking::Process()
       dynamic_left_kick_ = dynamic_left_kick_ * 0.9;
     }
 
-    computeOdometry();
+    compute_odometry();
   }
   else if (m_Time >= (m_Phase_Time2 - TIME_UNIT / 2) && m_Time < (m_Phase_Time2 + TIME_UNIT / 2))
   {
@@ -419,7 +453,7 @@ void Walking::Process()
       dynamic_right_kick_ = dynamic_right_kick_ * 0.9;
     }
 
-    computeOdometry();
+    compute_odometry();
   }
 
 	m_X_Offset = X_OFFSET;
@@ -557,12 +591,12 @@ void Walking::Process()
   }
 
 	// Compute angles
-  if (computeIK(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false)
+  if (compute_ik(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false)
   {
     return;
   }
 
-  if (computeIK(&angle[6], l_x, l_y, l_z, l_a, l_b, l_c) == false)
+  if (compute_ik(&angle[6], l_x, l_y, l_z, l_a, l_b, l_c) == false)
   {
     return;
   }
@@ -662,32 +696,10 @@ void Walking::Process()
     outValue[11] -= (int)(dir[11] * rlGyroErr * BALANCE_ANKLE_ROLL_GAIN * 4);
   }
 
-  m_Joint.SetValue(JointData::ID_R_HIP_YAW, outValue[0]);
-	m_Joint.SetValue(JointData::ID_R_HIP_ROLL, outValue[1]);
-	m_Joint.SetValue(JointData::ID_R_HIP_PITCH, outValue[2]);
-	m_Joint.SetValue(JointData::ID_R_KNEE, outValue[3]);
-	m_Joint.SetValue(JointData::ID_R_ANKLE_PITCH, outValue[4]);
-	m_Joint.SetValue(JointData::ID_R_ANKLE_ROLL, outValue[5]);
-	m_Joint.SetValue(JointData::ID_L_HIP_YAW, outValue[6]);
-	m_Joint.SetValue(JointData::ID_L_HIP_ROLL, outValue[7]);
-	m_Joint.SetValue(JointData::ID_L_HIP_PITCH, outValue[8]);
-	m_Joint.SetValue(JointData::ID_L_KNEE, outValue[9]);
-	m_Joint.SetValue(JointData::ID_L_ANKLE_PITCH, outValue[10]);
-	m_Joint.SetValue(JointData::ID_L_ANKLE_ROLL, outValue[11]);
-	m_Joint.SetValue(JointData::ID_R_SHOULDER_PITCH, outValue[12]);
-	m_Joint.SetValue(JointData::ID_R_SHOULDER_ROLL, outValue[13]);
-	m_Joint.SetValue(JointData::ID_R_ELBOW, outValue[14]);
-	m_Joint.SetValue(JointData::ID_L_SHOULDER_PITCH, outValue[15]);
-	m_Joint.SetValue(JointData::ID_L_SHOULDER_ROLL, outValue[16]);
-	m_Joint.SetValue(JointData::ID_L_ELBOW, outValue[17]);
-	m_Joint.SetValue(JointData::ID_R_GRIPPER, outValue[20]);
-	m_Joint.SetValue(JointData::ID_L_GRIPPER, outValue[21]);
-
-	for (int id = JointData::ID_R_HIP_YAW; id <= JointData::ID_L_ANKLE_ROLL; id++)
+	for (int id = 0; id < joints->size(); id++)
 	{
-    m_Joint.SetPGain(id, P_GAIN);
-    m_Joint.SetIGain(id, I_GAIN);
-    m_Joint.SetDGain(id, D_GAIN);
+    joints->at(id).set_target_position(outValue[id]);
+    joints->at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);
 	}
 }
 

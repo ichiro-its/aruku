@@ -21,9 +21,12 @@
 #ifndef ARUKU__WALKING_HPP_
 #define ARUKU__WALKING_HPP_
 
+#include <tachimawari/joint.hpp>
+
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace aruku
 {
@@ -54,7 +57,6 @@ public:
   void setDynamicRightKick(double speed) { dynamic_right_kick_ = speed; }
   double getDynamicKick() { return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_); }
 
-  // Walking initial pose
   double X_OFFSET;
   double Y_OFFSET;
   double Z_OFFSET;
@@ -62,7 +64,6 @@ public:
   double P_OFFSET;
   double R_OFFSET;
 
-  // Walking control
   double PERIOD_TIME;
   double DSP_RATIO;
   double STEP_FB_RATIO;
@@ -72,7 +73,6 @@ public:
   double A_MOVE_AMPLITUDE;
   bool A_MOVE_AIM_ON;
 
-  // Balance control
   bool BALANCE_ENABLE;
   double BALANCE_KNEE_GAIN;
   double BALANCE_ANKLE_PITCH_GAIN;
@@ -139,29 +139,36 @@ public:
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift);
-  bool computeIK(double *out, double x, double y, double z, double a, double b, double c);
-  void computeOdometry();
+  bool compute_ik(double *out, double x, double y, double z, double a, double b, double c);
+
+  void compute_odometry();
   void update_param_time();
   void update_param_move();
   void update_param_balance();
 
-  std::string config_name_;
-
   double m_PeriodTime;
   double m_DSP_Ratio;
   double m_SSP_Ratio;
+
   double m_X_Swap_PeriodTime;
   double m_X_Move_PeriodTime;
+
   double m_Y_Swap_PeriodTime;
   double m_Y_Move_PeriodTime;
+
   double m_Z_Swap_PeriodTime;
   double m_Z_Move_PeriodTime;
+
   double m_A_Move_PeriodTime;
+
   double m_SSP_Time;
+
   double m_SSP_Time_Start_L;
   double m_SSP_Time_End_L;
+
   double m_SSP_Time_Start_R;
   double m_SSP_Time_End_R;
+
   double m_Phase_Time1;
   double m_Phase_Time2;
   double m_Phase_Time3;
@@ -169,6 +176,7 @@ private:
   double m_X_Offset;
   double m_Y_Offset;
   double m_Z_Offset;
+
   double m_R_Offset;
   double m_P_Offset;
   double m_A_Offset;
@@ -176,28 +184,35 @@ private:
   double m_X_Swap_Phase_Shift;
   double m_X_Swap_Amplitude;
   double m_X_Swap_Amplitude_Shift;
+
   double m_X_Move_Phase_Shift;
   double m_X_Move_Amplitude;
   double m_X_Move_Amplitude_Shift;
+
   double m_Y_Swap_Phase_Shift;
   double m_Y_Swap_Amplitude;
   double m_Y_Swap_Amplitude_Shift;
+
   double m_Y_Move_Phase_Shift;
   double m_Y_Move_Amplitude;
   double m_Y_Move_Amplitude_Shift;
+
   double m_Z_Swap_Phase_Shift;
   double m_Z_Swap_Amplitude;
   double m_Z_Swap_Amplitude_Shift;
+
   double m_Z_Move_Phase_Shift;
   double m_Z_Move_Amplitude;
   double m_Z_Move_Amplitude_Goal;
   double m_Z_Move_Amplitude_Shift;
+
   double m_A_Move_Phase_Shift;
   double m_A_Move_Amplitude;
   double m_A_Move_Amplitude_Shift;
 
   double m_Pelvis_Offset;
   double m_Pelvis_Swing;
+
   double m_Arm_Swing_Gain;
   double m_Arm_Roll_Gain;
 
@@ -206,7 +221,10 @@ private:
 
   bool m_Ctrl_Running;
   bool m_Real_Running;
+
   double m_Time;
+
+  std::shared_ptr<std::vector<tachimawari::Joint>> joints;
 };
 
 }  // namespace aruku

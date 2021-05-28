@@ -24,9 +24,6 @@
 #include "common/algebra.h"
 #include "math/matrix.h"
 #include "math/vector.h"
-#include "motion/motion_status.h"
-#include "motion/mpu.h"
-#include "motion/mx28.h"
 
 #include <map>
 #include <string>
@@ -106,6 +103,8 @@ Walking::Walking()
 
   HIP_COMP = 0.0;
   FOOT_COMP = 0.0;
+
+  TIME_UNIT = 8.0;
 
   dynamic_left_kick_ = 0.0;
   dynamic_right_kick_ = 0.0;
@@ -223,7 +222,7 @@ bool Walking::compute_ik(double *out, double x, double y, double z, double a, do
 
 void Walking::compute_odometry()
 {
-  ORIENTATION = MPU::getInstance()->getAngle();
+  // ORIENTATION = MPU::getInstance()->getAngle();
 
   if (fabs(m_X_Move_Amplitude) >= 5 || fabs(m_Y_Move_Amplitude) >= 5)
   {
@@ -269,7 +268,7 @@ void Walking::update_param_time()
   m_Phase_Time2 = (m_SSP_Time_End_L + m_SSP_Time_Start_R) / 2;
   m_Phase_Time3 = (m_SSP_Time_Start_R + m_SSP_Time_End_R) / 2;
 
-  m_Pelvis_Offset = PELVIS_OFFSET * MX28::RATIO_ANGLE2VALUE;
+  m_Pelvis_Offset = PELVIS_OFFSET * mx.RATIO_ANGLE2VALUE;
   m_Pelvis_Swing = m_Pelvis_Offset * 0.35;
   m_Arm_Swing_Gain = ARM_SWING_GAIN;
 
@@ -322,7 +321,12 @@ void Walking::update_param_move()
   }
 }
 
-void Walking::Initialize()
+void Walking::update_orientation(double orientation)
+{
+  ORIENTATION = orientation;
+}
+
+void Walking::initialize()
 {
   X_MOVE_AMPLITUDE = 0;
   Y_MOVE_AMPLITUDE = 0;
@@ -341,21 +345,21 @@ void Walking::Initialize()
   update_param_time();
   update_param_move();
 
-  Process();
+  process();
 }
 
-void Walking::Start()
+void Walking::start()
 {
   m_Ctrl_Running = true;
   m_Real_Running = true;
 }
 
-void Walking::Stop()
+void Walking::stop()
 {
   m_Ctrl_Running = false;
 }
 
-void Walking::forceStop()
+void Walking::force_stop()
 {
   m_Ctrl_Running = false;
   m_Real_Running = false;
@@ -369,11 +373,8 @@ void Walking::forceStop()
   update_param_move();
 }
 
-void Walking::Process()
+void Walking::process()
 {
-  // Update walk parameters
-	double TIME_UNIT = MotionModule::TIME_UNIT;
-
   if (m_Time == 0)
   {
     update_param_time();
@@ -657,7 +658,7 @@ void Walking::Process()
   int outValue[22];
   for (int i = 0; i < 22; i++)
   {
-    double offset = (double)dir[i] * angle[i] * MX28::RATIO_ANGLE2VALUE;
+    double offset = (double)dir[i] * angle[i] * mx.RATIO_ANGLE2VALUE;
 
     switch (i)
     {
@@ -671,17 +672,17 @@ void Walking::Process()
 
     case 2:
     case 8:
-      offset -= (double)dir[i] * (HIP_PITCH_OFFSET + HIP_COMP) * MX28::RATIO_ANGLE2VALUE;
+      offset -= (double)dir[i] * (HIP_PITCH_OFFSET + HIP_COMP) * mx.RATIO_ANGLE2VALUE;
     }
 
-    outValue[i] = MX28::Angle2Value(initAngle[i]) + (int)offset;
+    outValue[i] = mx.angle_to_value(initAngle[i]) + (int)offset;
   }
 
   // adjust balance offset
   if (BALANCE_ENABLE == true)
   {
-    double rlGyroErr = MotionStatus::RL_GYRO;
-    double fbGyroErr = MotionStatus::FB_GYRO;
+    double rlGyroErr = 0.0; // MotionStatus::RL_GYRO
+    double fbGyroErr = 0.0; // MotionStatus::FB_GYRO
 
     outValue[1] += (int)(dir[1] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);
     outValue[7] += (int)(dir[7] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);
@@ -696,7 +697,7 @@ void Walking::Process()
     outValue[11] -= (int)(dir[11] * rlGyroErr * BALANCE_ANKLE_ROLL_GAIN * 4);
   }
 
-	for (int id = 0; id < joints->size(); id++)
+	for (int id = 0; id < static_cast<int>(joints->size()); id++)
 	{
     joints->at(id).set_target_position(outValue[id]);
     joints->at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);

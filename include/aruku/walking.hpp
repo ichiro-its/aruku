@@ -23,6 +23,8 @@
 
 #include <tachimawari/joint.hpp>
 
+#include "common/algebra.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -34,28 +36,36 @@ namespace aruku
 class Walking
 {
 public:
+  struct mx28 {
+		const int CENTER_VALUE = 2048;
+    const double RATIO_ANGLE2VALUE = 11.378;
+
+    int angle_to_value(double angle) {
+      return static_cast<int>((angle * RATIO_ANGLE2VALUE) + CENTER_VALUE);
+    }
+  };
+
   explicit Walking();
 
-  void jointEnable() { jointDisable(); m_Joint.SetEnableBodyWithoutHead(true, true); }
-  void jointEnableWithoutArm() { jointDisable(); m_Joint.SetEnableLowerBody(true, true); }
-  void jointEnableAll() { m_Joint.SetEnableBody(true, true); }
-  void jointDisable() { m_Joint.SetEnableBody(false); }
+  void initialize();
+  void start();
+  void stop();
+  void force_stop();
 
-  void Initialize();
-  void Start();
-  void Stop();
-  void forceStop();
+  void process();
+  bool is_running() { return m_Real_Running; }
 
-  void Process();
-  bool IsRunning() { return m_Real_Running; }
+  double get_mx_move_amplitude() { return m_X_Move_Amplitude; }
+  double get_my_move_amplitude() { return m_Y_Move_Amplitude; }
+  double get_ma_move_amplitude() { return m_A_Move_Amplitude; }
 
-  double Get_M_X_MOVE_AMPLITUDE() { return m_X_Move_Amplitude; }
-  double Get_M_Y_MOVE_AMPLITUDE() { return m_Y_Move_Amplitude; }
-  double Get_M_A_MOVE_AMPLITUDE() { return m_A_Move_Amplitude; }
+  void set_dynamic_left_kick(double speed) { dynamic_left_kick_ = speed; }
+  void set_dynamic_right_kick(double speed) { dynamic_right_kick_ = speed; }
+  double set_dynamic_kick() { return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_); }
 
-  void setDynamicLeftKick(double speed) { dynamic_left_kick_ = speed; }
-  void setDynamicRightKick(double speed) { dynamic_right_kick_ = speed; }
-  double getDynamicKick() { return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_); }
+  void update_orientation(double orientation);
+
+  mx28 mx;
 
   double X_OFFSET;
   double Y_OFFSET;
@@ -223,6 +233,7 @@ private:
   bool m_Real_Running;
 
   double m_Time;
+	double TIME_UNIT;
 
   std::shared_ptr<std::vector<tachimawari::Joint>> joints;
 };

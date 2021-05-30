@@ -15,4 +15,4 @@ jobs:
         with:
           pre-build: |
             git clone https://github.com/ichiro-its/tachimawari /ws/tachimawari && \
-              git clone https://github.com/ichiro-its/framework-ros2 /ws
+              git clone https://github.com/ichiro-its/framework-ros2 /ws/framework-ros2

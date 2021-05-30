@@ -90,12 +90,12 @@ Walking::Walking()
   m_Arm_Swing_Gain = 0;
   m_Arm_Roll_Gain = 0;
 
-	X_MOVE_AMPLITUDE = 0;
-	Y_MOVE_AMPLITUDE = 0;
-	A_MOVE_AMPLITUDE = 0;
-	A_MOVE_AIM_ON = false;
+  X_MOVE_AMPLITUDE = 0;
+  Y_MOVE_AMPLITUDE = 0;
+  A_MOVE_AMPLITUDE = 0;
+  A_MOVE_AIM_ON = false;
 
-	BALANCE_ENABLE = true;
+  BALANCE_ENABLE = true;
 
   POSITION_X = 0;
   POSITION_Y = 0;
@@ -110,34 +110,35 @@ Walking::Walking()
   dynamic_right_kick_ = 0.0;
 
   std::vector<std::string> ids = {
-    // right leg motors
-    "right_hip_yaw",
-    "right_hip_roll",
-    "right_hip_pitch",
-    "right_knee",
-    "right_ankle_roll",
-    "right_ankle_pitch",
+      // right leg motors
+      "right_hip_yaw",
+      "right_hip_roll",
+      "right_hip_pitch",
+      "right_knee",
+      "right_ankle_roll",
+      "right_ankle_pitch",
 
-    // left leg motors
-    "left_hip_yaw",
-    "left_hip_roll",
-    "left_hip_pitch",
-    "left_knee",
-    "left_ankle_roll",
-    "left_ankle_pitch",
+      // left leg motors
+      "left_hip_yaw",
+      "left_hip_roll",
+      "left_hip_pitch",
+      "left_knee",
+      "left_ankle_roll",
+      "left_ankle_pitch",
 
-    // right arm motors
-    "right_shoulder_pitch",
-    "right_shoulder_roll",
-    "right_elbow",
+      // right arm motors
+      "right_shoulder_pitch",
+      "right_shoulder_roll",
+      "right_elbow",
 
-    // left arm motors
-    "left_shoulder_pitch",
-    "left_shoulder_roll",
-    "left_elbow",
+      // left arm motors
+      "left_shoulder_pitch",
+      "left_shoulder_roll",
+      "left_elbow",
   };
 
-  for (auto id : ids) {
+  for (auto id : ids)
+  {
     tachimawari::Joint joint(id);
     joints->push_back(joint);
   }
@@ -145,74 +146,74 @@ Walking::Walking()
 
 double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)
 {
-	return mag * sin(2 * 3.141592 / period * time - period_shift) + mag_shift;
+  return mag * sin(2 * 3.141592 / period * time - period_shift) + mag_shift;
 }
 
 bool Walking::compute_ik(double *out, double x, double y, double z, double a, double b, double c)
 {
-	Robot::Matrix3D Tad, Tda, Tcd, Tdc, Tac;
-	Robot::Vector3D vec;
+  Robot::Matrix3D Tad, Tda, Tcd, Tdc, Tac;
+  Robot::Vector3D vec;
   double _Rac, _Acos, _Atan, _k, _l, _m, _n, _s, _c, _theta;
 
-	Tad.SetTransform(Robot::Point3D(x, y, z - LEG_LENGTH), Robot::Vector3D(a * alg::rad2Deg(), b * alg::rad2Deg(), c * alg::rad2Deg()));
+  Tad.SetTransform(Robot::Point3D(x, y, z - LEG_LENGTH), Robot::Vector3D(a * alg::rad2Deg(), b * alg::rad2Deg(), c * alg::rad2Deg()));
 
-	vec.X = x + Tad.m[2] * ANKLE_LENGTH;
+  vec.X = x + Tad.m[2] * ANKLE_LENGTH;
   vec.Y = y + Tad.m[6] * ANKLE_LENGTH;
   vec.Z = (z - LEG_LENGTH) + Tad.m[10] * ANKLE_LENGTH;
 
-	_Rac = vec.Length();
+  _Rac = vec.Length();
   _Acos = acos((_Rac * _Rac - THIGH_LENGTH * THIGH_LENGTH - CALF_LENGTH * CALF_LENGTH) / (2 * THIGH_LENGTH * CALF_LENGTH));
-  if(std::isnan(_Acos) == 1)
-  return false;
+  if (std::isnan(_Acos) == 1)
+    return false;
   *(out + 3) = _Acos;
 
   Tda = Tad;
-	if(Tda.Inverse() == false)
+  if (Tda.Inverse() == false)
     return false;
   _k = sqrt(Tda.m[7] * Tda.m[7] + Tda.m[11] * Tda.m[11]);
   _l = sqrt(Tda.m[7] * Tda.m[7] + (Tda.m[11] - ANKLE_LENGTH) * (Tda.m[11] - ANKLE_LENGTH));
   _m = (_k * _k - _l * _l - ANKLE_LENGTH * ANKLE_LENGTH) / (2 * _l * ANKLE_LENGTH);
-  if(_m > 1.0)
+  if (_m > 1.0)
     _m = 1.0;
-  else if(_m < -1.0)
+  else if (_m < -1.0)
     _m = -1.0;
   _Acos = acos(_m);
-  if(std::isnan(_Acos) == 1)
+  if (std::isnan(_Acos) == 1)
     return false;
-  if(Tda.m[7] < 0.0)
+  if (Tda.m[7] < 0.0)
     *(out + 5) = -_Acos;
   else
     *(out + 5) = _Acos;
 
-	Tcd.SetTransform(Robot::Point3D(0, 0, -ANKLE_LENGTH), Robot::Vector3D(*(out + 5) * alg::rad2Deg(), 0, 0));
-	Tdc = Tcd;
-	if(Tdc.Inverse() == false)
+  Tcd.SetTransform(Robot::Point3D(0, 0, -ANKLE_LENGTH), Robot::Vector3D(*(out + 5) * alg::rad2Deg(), 0, 0));
+  Tdc = Tcd;
+  if (Tdc.Inverse() == false)
     return false;
-	Tac = Tad * Tdc;
-  _Atan = atan2(-Tac.m[1] , Tac.m[5]);
-  if(std::isinf(_Atan) == 1)
+  Tac = Tad * Tdc;
+  _Atan = atan2(-Tac.m[1], Tac.m[5]);
+  if (std::isinf(_Atan) == 1)
     return false;
   *(out) = _Atan;
 
   // Get Hip Roll
   _Atan = atan2(Tac.m[9], -Tac.m[1] * sin(*(out)) + Tac.m[5] * cos(*(out)));
-  if(std::isinf(_Atan) == 1)
+  if (std::isinf(_Atan) == 1)
     return false;
   *(out + 1) = _Atan;
 
   // Get Hip Pitch and Ankle Pitch
   _Atan = atan2(Tac.m[2] * cos(*(out)) + Tac.m[6] * sin(*(out)), Tac.m[0] * cos(*(out)) + Tac.m[4] * sin(*(out)));
-  if(std::isinf(_Atan) == 1)
+  if (std::isinf(_Atan) == 1)
     return false;
   _theta = _Atan;
   _k = sin(*(out + 3)) * CALF_LENGTH;
   _l = -THIGH_LENGTH - cos(*(out + 3)) * CALF_LENGTH;
-	_m = cos(*(out)) * vec.X + sin(*(out)) * vec.Y;
-	_n = cos(*(out + 1)) * vec.Z + sin(*(out)) * sin(*(out + 1)) * vec.X - cos(*(out)) * sin(*(out + 1)) * vec.Y;
+  _m = cos(*(out)) * vec.X + sin(*(out)) * vec.Y;
+  _n = cos(*(out + 1)) * vec.Z + sin(*(out)) * sin(*(out + 1)) * vec.X - cos(*(out)) * sin(*(out + 1)) * vec.Y;
   _s = (_k * _n + _l * _m) / (_k * _k + _l * _l);
   _c = (_n - _k * _s) / _l;
   _Atan = atan2(_s, _c);
-  if(std::isinf(_Atan) == 1)
+  if (std::isinf(_Atan) == 1)
     return false;
   *(out + 2) = _Atan;
   *(out + 4) = _theta - *(out + 3) - *(out + 2);
@@ -245,7 +246,7 @@ void Walking::update_param_time()
 {
   DSP_COMP = fabs(m_X_Move_Amplitude) * DSP_COMP_RATIO * 0.001;
 
-	m_PeriodTime = PERIOD_TIME - (fabs(m_X_Move_Amplitude) * PERIOD_COMP_RATIO);
+  m_PeriodTime = PERIOD_TIME - (fabs(m_X_Move_Amplitude) * PERIOD_COMP_RATIO);
 
   m_DSP_Ratio = DSP_RATIO + DSP_COMP;
   m_SSP_Ratio = 1 - m_DSP_Ratio;
@@ -420,7 +421,7 @@ void Walking::process()
     update_param_time();
     m_Time = m_Phase_Time2;
 
-    if(m_Ctrl_Running == false)
+    if (m_Ctrl_Running == false)
     {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_X_Move_Amplitude) <= 5.0);
@@ -457,7 +458,7 @@ void Walking::process()
     compute_odometry();
   }
 
-	m_X_Offset = X_OFFSET;
+  m_X_Offset = X_OFFSET;
   m_Y_Offset = Y_OFFSET;
   m_Z_Offset = Z_OFFSET;
   m_R_Offset = R_OFFSET * alg::deg2Rad();
@@ -567,7 +568,7 @@ void Walking::process()
     angle[i] = 0;
   }
 
-  if(m_X_Move_Amplitude == 0)
+  if (m_X_Move_Amplitude == 0)
   {
     angle[12] = 0; // Right
     angle[15] = 0; // Left
@@ -591,7 +592,7 @@ void Walking::process()
     m_Time = 0;
   }
 
-	// Compute angles
+  // Compute angles
   if (compute_ik(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false)
   {
     return;
@@ -697,11 +698,11 @@ void Walking::process()
     outValue[11] -= (int)(dir[11] * rlGyroErr * BALANCE_ANKLE_ROLL_GAIN * 4);
   }
 
-	for (int id = 0; id < static_cast<int>(joints->size()); id++)
-	{
+  for (int id = 0; id < static_cast<int>(joints->size()); id++)
+  {
     joints->at(id).set_target_position(outValue[id]);
     joints->at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);
-	}
+  }
 }
 
-}  // namespace aruku
+} // namespace aruku

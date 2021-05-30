@@ -36,11 +36,13 @@ namespace aruku
 class Walking
 {
 public:
-  struct mx28 {
-		const int CENTER_VALUE = 2048;
+  struct mx28
+  {
+    const int CENTER_VALUE = 2048;
     const double RATIO_ANGLE2VALUE = 11.378;
 
-    int angle_to_value(double angle) {
+    int angle_to_value(double angle)
+    {
       return static_cast<int>((angle * RATIO_ANGLE2VALUE) + CENTER_VALUE);
     }
   };
@@ -233,11 +235,11 @@ private:
   bool m_Real_Running;
 
   double m_Time;
-	double TIME_UNIT;
+  double TIME_UNIT;
 
   std::shared_ptr<std::vector<tachimawari::Joint>> joints;
 };
 
-}  // namespace aruku
+} // namespace aruku
 
-#endif  // ARUKU__WALKING_HPP_
+#endif // ARUKU__WALKING_HPP_

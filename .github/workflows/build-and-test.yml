@@ -8,11 +8,16 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checking out
+      - name: Checkout this repository
         uses: actions/checkout@v2.3.4
+        with:
+          path: aruku
+
+      - name: Add nightly Debian repository and rosdep sources list
+        run: |
+          sudo apt update && sudo apt install curl
+          curl -s http://repository.ichiro-its.org/debian/setup-nightly.bash | bash -s
+          curl -s http://repository.ichiro-its.org/rosdep/setup.bash | bash -s
+
       - name: Build and test workspace
         uses: ichiro-its/ros2-build-and-test-action@main
-        with:
-          pre-build: |
-            git clone https://github.com/ichiro-its/tachimawari /ws/tachimawari && \
-              git clone https://github.com/ichiro-its/framework-ros2 /ws 

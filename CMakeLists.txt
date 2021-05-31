@@ -17,6 +17,7 @@ find_package(ament_cmake REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
+find_package(kansei REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/walking.cpp")
@@ -28,7 +29,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   tachimawari
   framework_math
-  framework_common)
+  framework_common
+  kansei)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -38,6 +40,16 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
+add_executable(walking_main "src/walking_main.cpp")
+target_include_directories(walking_main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(walking_main ${PROJECT_NAME})
+
+install(TARGETS
+  walking_main
+  DESTINATION lib/${PROJECT_NAME})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
@@ -46,7 +58,8 @@ endif()
 ament_export_dependencies(
   tachimawari
   framework_math
-  framework_common)
+  framework_common
+  kansei)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

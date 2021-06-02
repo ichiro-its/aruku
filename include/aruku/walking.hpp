@@ -65,7 +65,10 @@ public:
   void set_dynamic_right_kick(double speed) { dynamic_right_kick_ = speed; }
   double set_dynamic_kick() { return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_); }
 
+  void load_data();
   void update_orientation(double orientation);
+
+  std::vector<tachimawari::Joint> get_joints();
 
   mx28 mx;
 
@@ -237,7 +240,7 @@ private:
   double m_Time;
   double TIME_UNIT;
 
-  std::shared_ptr<std::vector<tachimawari::Joint>> joints;
+  std::vector<tachimawari::Joint> joints;
 };
 
 } // namespace aruku

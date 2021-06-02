@@ -6,7 +6,7 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -15,9 +15,11 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(tachimawari REQUIRED)
+find_package(robocup_client REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
 find_package(kansei REQUIRED)
+find_package(Protobuf REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/walking.cpp")
@@ -28,9 +30,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   tachimawari
+  robocup_client
   framework_math
   framework_common
-  kansei)
+  kansei
+  Protobuf)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -57,9 +61,11 @@ endif()
 
 ament_export_dependencies(
   tachimawari
+  robocup_client
   framework_math
   framework_common
-  kansei)
+  kansei
+  Protobuf)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

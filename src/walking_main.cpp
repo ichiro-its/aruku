@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   robocup_client::MessageHandler message;
   message.add_sensor_time_step("gyro", 8);
   message.add_sensor_time_step("accelerometer", 8);
-  client.send(*message.get_actuator_request());
+  client.send(* message.get_actuator_request());
 
   kansei::Imu imu;
   aruku::Walking walking;
@@ -85,12 +85,12 @@ int main(int argc, char *argv[])
       walking.update_orientation(imu.get_yaw());
       walking.process();
 
-      robocup_client::MessageHandler message;
+      message.clear_actuator_request();
       for (auto joint : walking.get_joints())
       {
         message.add_motor_position(joint.get_joint_name(), joint.get_goal_position());
       }
-      client.send(*message.get_actuator_request());
+      client.send(* message.get_actuator_request());
     }
     catch (const std::runtime_error &exc)
     {

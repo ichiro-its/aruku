@@ -20,7 +20,6 @@ find_package(robocup_client REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
 find_package(kansei REQUIRED)
-find_package(Protobuf REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/walking.cpp")
@@ -35,8 +34,7 @@ ament_target_dependencies(${PROJECT_NAME}
   robocup_client
   framework_math
   framework_common
-  kansei
-  Protobuf)
+  kansei)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -67,8 +65,7 @@ ament_export_dependencies(
   robocup_client
   framework_math
   framework_common
-  kansei
-  Protobuf)
+  kansei)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

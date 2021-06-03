@@ -25,6 +25,7 @@
 #include <iostream>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
+#include <memory>
 #include <unistd.h>
 
 int main(int argc, char *argv[])
@@ -45,15 +46,15 @@ int main(int argc, char *argv[])
   }
 
   robocup_client::MessageHandler message;
-  // message.add_sensor_time_step("gyro", 8);
-  // message.add_sensor_time_step("accelerometer", 8);
-  // client.send(* message.get_actuator_request());
+  message.add_sensor_time_step("gyro", 8);
+  message.add_sensor_time_step("accelerometer", 8);
+  client.send(* message.get_actuator_request());
 
-  kansei::Imu imu;
-  aruku::Walking walking;
+  std::shared_ptr<aruku::Walking> walking = std::make_shared<aruku::Walking>();
+  walking->initialize();
+  walking->start();
 
-  walking.initialize();
-  walking.start();
+  std::shared_ptr<kansei::Imu> imu = std::make_shared<kansei::Imu>();
 
   while (client.get_tcp_socket()->is_connected())
   {
@@ -79,12 +80,12 @@ int main(int argc, char *argv[])
 
       float seconds = sensors.get()->time();
 
-      imu.compute_rpy(gy, acc, seconds);
-      walking.update_orientation(imu.get_yaw());
-      walking.process();
+      imu->compute_rpy(gy, acc, seconds);
+      walking->update_orientation(imu->get_yaw());
+      walking->process();
 
       message.clear_actuator_request();
-      for (auto joint : walking.get_joints())
+      for (auto joint : walking->get_joints())
       {
         message.add_motor_position(joint.get_joint_name(), joint.get_goal_position());
       }
@@ -96,5 +97,5 @@ int main(int argc, char *argv[])
     }
   }
 
-  walking.stop();
+  walking->stop();
 }

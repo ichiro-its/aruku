@@ -25,15 +25,15 @@
 #include "math/matrix.h"
 #include "math/vector.h"
 
-#include <map>
-#include <iostream>
-#include <string>
-#include <vector>
 #include <cmath>
 #include <cstdlib>
-#include <memory>
 #include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 namespace aruku
 {
@@ -333,7 +333,6 @@ void Walking::update_orientation(double orientation)
 
 void Walking::load_data()
 {
-  std::cout << "load_data" << std::endl;
   std::string file_name =
       "/home/maroqi/Projects/RobotProjects/ROS2Projects/ros2_workspace/src/aruku/config/aruku.json";
   std::ifstream file(file_name);
@@ -345,19 +344,19 @@ void Walking::load_data()
     {
       try
       {
-        PERIOD_TIME = static_cast<double>(walking_data[key]["period_time"].get<double>());
-        DSP_RATIO = static_cast<double>(walking_data[key]["dsp_ratio"].get<double>());
-        Z_MOVE_AMPLITUDE = static_cast<double>(walking_data[key]["foot_height"].get<double>());
-        Y_SWAP_AMPLITUDE = static_cast<double>(walking_data[key]["swing_right_left"].get<double>());
-        Z_SWAP_AMPLITUDE = static_cast<double>(walking_data[key]["swing_up_down"].get<double>());
-        ARM_SWING_GAIN = static_cast<double>(walking_data[key]["arm_swing_gain"].get<double>());
-        BACKWARD_HIP_COMP_RATIO = static_cast<double>(walking_data[key]["backward_hip_comp_ratio"].get<double>());
-        FORWARD_HIP_COMP_RATIO = static_cast<double>(walking_data[key]["forward_hip_comp_ratio"].get<double>());
-        FOOT_COMP_RATIO = static_cast<double>(walking_data[key]["foot_comp_ratio"].get<double>());
-        DSP_COMP_RATIO = static_cast<double>(walking_data[key]["dsp_comp_ratio"].get<double>());
-        PERIOD_COMP_RATIO = static_cast<double>(walking_data[key]["period_comp_ratio"].get<double>());
-        MOVE_ACCEL_RATIO = static_cast<double>(walking_data[key]["move_accel_ratio"].get<double>());
-        FOOT_ACCEL_RATIO = static_cast<double>(walking_data[key]["foot_accel_ratio"].get<double>());
+        val.at("period_time").get_to(PERIOD_TIME);
+        val.at("dsp_ratio").get_to(DSP_RATIO);
+        val.at("foot_height").get_to(Z_MOVE_AMPLITUDE);
+        val.at("swing_right_left").get_to(Y_SWAP_AMPLITUDE);
+        val.at("swing_up_down").get_to(Z_SWAP_AMPLITUDE);
+        val.at("arm_swing_gain").get_to(ARM_SWING_GAIN);
+        val.at("backward_hip_comp_ratio").get_to(BACKWARD_HIP_COMP_RATIO);
+        val.at("forward_hip_comp_ratio").get_to(FORWARD_HIP_COMP_RATIO);
+        val.at("foot_comp_ratio").get_to(FOOT_COMP_RATIO);
+        val.at("dsp_comp_ratio").get_to(DSP_COMP_RATIO);
+        val.at("period_comp_ratio").get_to(PERIOD_COMP_RATIO);
+        val.at("move_accel_ratio").get_to(MOVE_ACCEL_RATIO);
+        val.at("foot_accel_ratio").get_to(FOOT_ACCEL_RATIO);
       }
       catch (nlohmann::json::parse_error &ex)
       {
@@ -368,10 +367,10 @@ void Walking::load_data()
     {
       try
       {
-        BALANCE_KNEE_GAIN = static_cast<double>(walking_data[key]["balance_knee_gain"].get<double>());
-        BALANCE_ANKLE_PITCH_GAIN = static_cast<double>(walking_data[key]["balance_ankle_pitch_gain"].get<double>());
-        BALANCE_HIP_ROLL_GAIN = static_cast<double>(walking_data[key]["balance_hip_roll_gain"].get<double>());
-        BALANCE_ANKLE_ROLL_GAIN = static_cast<double>(walking_data[key]["balance_ankle_roll_gain"].get<double>());
+        val.at("balance_knee_gain").get_to(BALANCE_KNEE_GAIN);
+        val.at("balance_ankle_pitch_gain").get_to(BALANCE_ANKLE_PITCH_GAIN);
+        val.at("balance_hip_roll_gain").get_to(BALANCE_HIP_ROLL_GAIN);
+        val.at("balance_ankle_roll_gain").get_to(BALANCE_ANKLE_ROLL_GAIN);
       }
       catch (nlohmann::json::parse_error &ex)
       {
@@ -382,9 +381,9 @@ void Walking::load_data()
     {
       try
       {
-        P_GAIN = static_cast<int>(walking_data[key]["p_gain"].get<int>());
-        I_GAIN = static_cast<int>(walking_data[key]["i_gain"].get<int>());
-        D_GAIN = static_cast<int>(walking_data[key]["d_gain"].get<int>());
+        val.at("p_gain").get_to(P_GAIN);
+        val.at("i_gain").get_to(I_GAIN);
+        val.at("d_gain").get_to(D_GAIN);
       }
       catch (nlohmann::json::parse_error &ex)
       {
@@ -395,9 +394,9 @@ void Walking::load_data()
     {
       try
       {
-        ODOMETRY_FX_COEFFICIENT = static_cast<double>(walking_data[key]["fx_coefficient"].get<double>());
-        ODOMETRY_LY_COEFFICIENT = static_cast<double>(walking_data[key]["ly_coefficient"].get<double>());
-        ODOMETRY_RY_COEFFICIENT = static_cast<double>(walking_data[key]["ry_coefficient"].get<double>());
+        val.at("fx_coefficient").get_to(ODOMETRY_FX_COEFFICIENT);
+        val.at("ly_coefficient").get_to(ODOMETRY_LY_COEFFICIENT);
+        val.at("ry_coefficient").get_to(ODOMETRY_RY_COEFFICIENT);
       }
       catch (nlohmann::json::parse_error &ex)
       {
@@ -408,10 +407,10 @@ void Walking::load_data()
     {
       try
       {
-        THIGH_LENGTH = static_cast<double>(walking_data[key]["thigh_length"].get<double>());
-        CALF_LENGTH = static_cast<double>(walking_data[key]["calf_length"].get<double>());
-        ANKLE_LENGTH = static_cast<double>(walking_data[key]["ankle_length"].get<double>());
-        LEG_LENGTH = static_cast<double>(walking_data[key]["leg_length"].get<double>());
+        val.at("thigh_length").get_to(THIGH_LENGTH);
+        val.at("calf_length").get_to(CALF_LENGTH);
+        val.at("ankle_length").get_to(ANKLE_LENGTH);
+        val.at("leg_length").get_to(LEG_LENGTH);
       }
       catch (nlohmann::json::parse_error &ex)
       {
@@ -422,24 +421,24 @@ void Walking::load_data()
     {
       try
       {
-        INIT_R_HIP_YAW = static_cast<double>(walking_data[key]["right_hip_yaw"].get<double>());
-        INIT_R_HIP_PITCH = static_cast<double>(walking_data[key]["right_hip_pitch"].get<double>());
-        INIT_R_HIP_ROLL = static_cast<double>(walking_data[key]["right_hip_roll"].get<double>());
-        INIT_R_KNEE = static_cast<double>(walking_data[key]["right_knee"].get<double>());
-        INIT_R_ANKLE_PITCH = static_cast<double>(walking_data[key]["right_ankle_pitch"].get<double>());
-        INIT_R_ANKLE_ROLL = static_cast<double>(walking_data[key]["right_ankle_roll"].get<double>());
-        INIT_L_HIP_YAW = static_cast<double>(walking_data[key]["left_hip_yaw"].get<double>());
-        INIT_L_HIP_PITCH = static_cast<double>(walking_data[key]["left_hip_pitch"].get<double>());
-        INIT_L_HIP_ROLL = static_cast<double>(walking_data[key]["left_hip_roll"].get<double>());
-        INIT_L_KNEE = static_cast<double>(walking_data[key]["left_knee"].get<double>());
-        INIT_L_ANKLE_PITCH = static_cast<double>(walking_data[key]["left_ankle_pitch"].get<double>());
-        INIT_L_ANKLE_ROLL = static_cast<double>(walking_data[key]["left_ankle_roll"].get<double>());
-        INIT_R_SHOULDER_PITCH = static_cast<double>(walking_data[key]["right_shoulder_pitch"].get<double>());
-        INIT_R_SHOULDER_ROLL = static_cast<double>(walking_data[key]["right_shoulder_roll"].get<double>());
-        INIT_R_ELBOW = static_cast<double>(walking_data[key]["right_elbow"].get<double>());
-        INIT_L_SHOULDER_PITCH = static_cast<double>(walking_data[key]["left_shoulder_pitch"].get<double>());
-        INIT_L_SHOULDER_ROLL = static_cast<double>(walking_data[key]["left_shoulder_roll"].get<double>());
-        INIT_L_ELBOW = static_cast<double>(walking_data[key]["left_elbow"].get<double>());
+        val.at("right_hip_yaw").get_to(INIT_R_HIP_YAW);
+        val.at("right_hip_pitch").get_to(INIT_R_HIP_PITCH);
+        val.at("right_hip_roll").get_to(INIT_R_HIP_ROLL);
+        val.at("right_knee").get_to(INIT_R_KNEE);
+        val.at("right_ankle_pitch").get_to(INIT_R_ANKLE_PITCH);
+        val.at("right_ankle_roll").get_to(INIT_R_ANKLE_ROLL);
+        val.at("left_hip_yaw").get_to(INIT_L_HIP_YAW);
+        val.at("left_hip_pitch").get_to(INIT_L_HIP_PITCH);
+        val.at("left_hip_roll").get_to(INIT_L_HIP_ROLL);
+        val.at("left_knee").get_to(INIT_L_KNEE);
+        val.at("left_ankle_pitch").get_to(INIT_L_ANKLE_PITCH);
+        val.at("left_ankle_roll").get_to(INIT_L_ANKLE_ROLL);
+        val.at("right_shoulder_pitch").get_to(INIT_R_SHOULDER_PITCH);
+        val.at("right_shoulder_roll").get_to(INIT_R_SHOULDER_ROLL);
+        val.at("right_elbow").get_to(INIT_R_ELBOW);
+        val.at("left_shoulder_pitch").get_to(INIT_L_SHOULDER_PITCH);
+        val.at("left_shoulder_roll").get_to(INIT_L_SHOULDER_ROLL);
+        val.at("left_elbow").get_to(INIT_L_ELBOW);
       }
       catch (nlohmann::json::parse_error &ex)
       {

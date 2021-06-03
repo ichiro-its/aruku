@@ -18,16 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <robocup_client/robocup_client.hpp>
-
 #include <aruku/walking.hpp>
 #include <kansei/imu.hpp>
+#include <robocup_client/robocup_client.hpp>
 
+#include <iostream>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
 #include <unistd.h>
-
-#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -47,9 +45,9 @@ int main(int argc, char *argv[])
   }
 
   robocup_client::MessageHandler message;
-  message.add_sensor_time_step("gyro", 8);
-  message.add_sensor_time_step("accelerometer", 8);
-  client.send(* message.get_actuator_request());
+  // message.add_sensor_time_step("gyro", 8);
+  // message.add_sensor_time_step("accelerometer", 8);
+  // client.send(* message.get_actuator_request());
 
   kansei::Imu imu;
   aruku::Walking walking;

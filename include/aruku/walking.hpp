@@ -26,9 +26,9 @@
 #include "common/algebra.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace aruku
 {

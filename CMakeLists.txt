@@ -15,11 +15,11 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-find_package(tachimawari REQUIRED)
-find_package(robocup_client REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
 find_package(kansei REQUIRED)
+find_package(robocup_client REQUIRED)
+find_package(tachimawari REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/walking.cpp")
@@ -30,11 +30,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
-  tachimawari
-  robocup_client
-  framework_math
   framework_common
-  kansei)
+  framework_math
+  kansei
+  robocup_client
+  tachimawari)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -61,11 +61,11 @@ endif()
 
 ament_export_dependencies(
   ament_index_cpp
-  tachimawari
-  robocup_client
-  framework_math
   framework_common
-  kansei)
+  framework_math
+  kansei
+  robocup_client
+  tachimawari)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

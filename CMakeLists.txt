@@ -14,6 +14,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(robocup_client REQUIRED)
 find_package(framework_common REQUIRED)
@@ -29,6 +30,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 ament_target_dependencies(${PROJECT_NAME}
+  ament_index_cpp
   tachimawari
   robocup_client
   framework_math
@@ -60,6 +62,7 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_dependencies(
+  ament_index_cpp
   tachimawari
   robocup_client
   framework_math

@@ -6,7 +6,7 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -14,9 +14,12 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(tachimawari REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
+find_package(kansei REQUIRED)
+find_package(robocup_client REQUIRED)
+find_package(tachimawari REQUIRED)
 
 add_library(${PROJECT_NAME}
   "src/${PROJECT_NAME}/walking.cpp")
@@ -26,9 +29,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 ament_target_dependencies(${PROJECT_NAME}
-  tachimawari
+  ament_index_cpp
+  framework_common
   framework_math
-  framework_common)
+  kansei
+  robocup_client
+  tachimawari)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -38,15 +44,28 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
+add_executable(walking_main "src/walking_main.cpp")
+target_include_directories(walking_main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(walking_main ${PROJECT_NAME})
+
+install(TARGETS
+  walking_main
+  DESTINATION lib/${PROJECT_NAME})
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_export_dependencies(
-  tachimawari
+  ament_index_cpp
+  framework_common
   framework_math
-  framework_common)
+  kansei
+  robocup_client
+  tachimawari)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

@@ -25,11 +25,15 @@
 #include "math/matrix.h"
 #include "math/vector.h"
 
-#include <map>
-#include <string>
-#include <vector>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 namespace aruku
 {
@@ -140,7 +144,7 @@ Walking::Walking()
   for (auto id : ids)
   {
     tachimawari::Joint joint(id);
-    joints->push_back(joint);
+    joints.push_back(joint);
   }
 }
 
@@ -327,6 +331,123 @@ void Walking::update_orientation(double orientation)
   ORIENTATION = orientation;
 }
 
+void Walking::load_data()
+{
+  std::string file_name =
+      "/home/maroqi/Projects/RobotProjects/ROS2Projects/ros2_workspace/src/aruku/config/aruku.json";
+  std::ifstream file(file_name);
+  nlohmann::json walking_data = nlohmann::json::parse(file);
+
+  for (auto &[key, val] : walking_data.items())
+  {
+    if (key == "Ratio")
+    {
+      try
+      {
+        val.at("period_time").get_to(PERIOD_TIME);
+        val.at("dsp_ratio").get_to(DSP_RATIO);
+        val.at("foot_height").get_to(Z_MOVE_AMPLITUDE);
+        val.at("swing_right_left").get_to(Y_SWAP_AMPLITUDE);
+        val.at("swing_up_down").get_to(Z_SWAP_AMPLITUDE);
+        val.at("arm_swing_gain").get_to(ARM_SWING_GAIN);
+        val.at("backward_hip_comp_ratio").get_to(BACKWARD_HIP_COMP_RATIO);
+        val.at("forward_hip_comp_ratio").get_to(FORWARD_HIP_COMP_RATIO);
+        val.at("foot_comp_ratio").get_to(FOOT_COMP_RATIO);
+        val.at("dsp_comp_ratio").get_to(DSP_COMP_RATIO);
+        val.at("period_comp_ratio").get_to(PERIOD_COMP_RATIO);
+        val.at("move_accel_ratio").get_to(MOVE_ACCEL_RATIO);
+        val.at("foot_accel_ratio").get_to(FOOT_ACCEL_RATIO);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+    else if (key == "Balance")
+    {
+      try
+      {
+        val.at("balance_knee_gain").get_to(BALANCE_KNEE_GAIN);
+        val.at("balance_ankle_pitch_gain").get_to(BALANCE_ANKLE_PITCH_GAIN);
+        val.at("balance_hip_roll_gain").get_to(BALANCE_HIP_ROLL_GAIN);
+        val.at("balance_ankle_roll_gain").get_to(BALANCE_ANKLE_ROLL_GAIN);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+    else if (key == "PID")
+    {
+      try
+      {
+        val.at("p_gain").get_to(P_GAIN);
+        val.at("i_gain").get_to(I_GAIN);
+        val.at("d_gain").get_to(D_GAIN);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+    else if (key == "Odometry")
+    {
+      try
+      {
+        val.at("fx_coefficient").get_to(ODOMETRY_FX_COEFFICIENT);
+        val.at("ly_coefficient").get_to(ODOMETRY_LY_COEFFICIENT);
+        val.at("ry_coefficient").get_to(ODOMETRY_RY_COEFFICIENT);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+    else if (key == "Kinematic")
+    {
+      try
+      {
+        val.at("thigh_length").get_to(THIGH_LENGTH);
+        val.at("calf_length").get_to(CALF_LENGTH);
+        val.at("ankle_length").get_to(ANKLE_LENGTH);
+        val.at("leg_length").get_to(LEG_LENGTH);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+    else if (key == "InitAngles")
+    {
+      try
+      {
+        val.at("right_hip_yaw").get_to(INIT_R_HIP_YAW);
+        val.at("right_hip_pitch").get_to(INIT_R_HIP_PITCH);
+        val.at("right_hip_roll").get_to(INIT_R_HIP_ROLL);
+        val.at("right_knee").get_to(INIT_R_KNEE);
+        val.at("right_ankle_pitch").get_to(INIT_R_ANKLE_PITCH);
+        val.at("right_ankle_roll").get_to(INIT_R_ANKLE_ROLL);
+        val.at("left_hip_yaw").get_to(INIT_L_HIP_YAW);
+        val.at("left_hip_pitch").get_to(INIT_L_HIP_PITCH);
+        val.at("left_hip_roll").get_to(INIT_L_HIP_ROLL);
+        val.at("left_knee").get_to(INIT_L_KNEE);
+        val.at("left_ankle_pitch").get_to(INIT_L_ANKLE_PITCH);
+        val.at("left_ankle_roll").get_to(INIT_L_ANKLE_ROLL);
+        val.at("right_shoulder_pitch").get_to(INIT_R_SHOULDER_PITCH);
+        val.at("right_shoulder_roll").get_to(INIT_R_SHOULDER_ROLL);
+        val.at("right_elbow").get_to(INIT_R_ELBOW);
+        val.at("left_shoulder_pitch").get_to(INIT_L_SHOULDER_PITCH);
+        val.at("left_shoulder_roll").get_to(INIT_L_SHOULDER_ROLL);
+        val.at("left_elbow").get_to(INIT_L_ELBOW);
+      }
+      catch (nlohmann::json::parse_error &ex)
+      {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
+}
+
 void Walking::initialize()
 {
   X_MOVE_AMPLITUDE = 0;
@@ -342,6 +463,8 @@ void Walking::initialize()
   m_Ctrl_Running = false;
   m_Real_Running = false;
   m_Time = 0;
+
+  load_data();
 
   update_param_time();
   update_param_move();
@@ -372,6 +495,11 @@ void Walking::force_stop()
 
   update_param_time();
   update_param_move();
+}
+
+std::vector<tachimawari::Joint> Walking::get_joints()
+{
+  return joints;
 }
 
 void Walking::process()
@@ -698,10 +826,10 @@ void Walking::process()
     outValue[11] -= (int)(dir[11] * rlGyroErr * BALANCE_ANKLE_ROLL_GAIN * 4);
   }
 
-  for (int id = 0; id < static_cast<int>(joints->size()); id++)
+  for (int id = 0; id < static_cast<int>(joints.size()); id++)
   {
-    joints->at(id).set_target_position(outValue[id]);
-    joints->at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);
+    joints.at(id).set_target_position(outValue[id]);
+    joints.at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);
   }
 }
 

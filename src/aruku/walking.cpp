@@ -828,7 +828,7 @@ void Walking::process()
 
   for (int id = 0; id < static_cast<int>(joints.size()); id++)
   {
-    joints.at(id).set_target_position(mx.value_to_angle(outValue[id]));
+    joints.at(id).set_target_position(mx.value_to_angle(outValue[id]) * alg::deg2Rad());
     joints.at(id).set_pid_gain(P_GAIN, I_GAIN, D_GAIN);
   }
 }

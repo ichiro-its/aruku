@@ -21,6 +21,8 @@
 #include <aruku/walking.hpp>
 #include <tachimawari/joint.hpp>
 
+#include <nlohmann/json.hpp>
+
 #include "common/algebra.h"
 #include "math/matrix.h"
 #include "math/vector.h"
@@ -31,7 +33,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 

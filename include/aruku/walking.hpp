@@ -23,12 +23,12 @@
 
 #include <tachimawari/joint.hpp>
 
-#include "common/algebra.h"
-
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "common/algebra.h"
 
 namespace aruku
 {
@@ -53,7 +53,7 @@ public:
     }
   };
 
-  explicit Walking();
+  Walking();
 
   void initialize();
   void start();
@@ -61,15 +61,15 @@ public:
   void force_stop();
 
   void process();
-  bool is_running() { return m_Real_Running; }
+  bool is_running() {return m_Real_Running;}
 
-  double get_mx_move_amplitude() { return m_X_Move_Amplitude; }
-  double get_my_move_amplitude() { return m_Y_Move_Amplitude; }
-  double get_ma_move_amplitude() { return m_A_Move_Amplitude; }
+  double get_mx_move_amplitude() {return m_X_Move_Amplitude;}
+  double get_my_move_amplitude() {return m_Y_Move_Amplitude;}
+  double get_ma_move_amplitude() {return m_A_Move_Amplitude;}
 
-  void set_dynamic_left_kick(double speed) { dynamic_left_kick_ = speed; }
-  void set_dynamic_right_kick(double speed) { dynamic_right_kick_ = speed; }
-  double set_dynamic_kick() { return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_); }
+  void set_dynamic_left_kick(double speed) {dynamic_left_kick_ = speed;}
+  void set_dynamic_right_kick(double speed) {dynamic_right_kick_ = speed;}
+  double set_dynamic_kick() {return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_);}
 
   void load_data();
   void update_orientation(double orientation);
@@ -160,7 +160,7 @@ public:
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift);
-  bool compute_ik(double *out, double x, double y, double z, double a, double b, double c);
+  bool compute_ik(double * out, double x, double y, double z, double a, double b, double c);
 
   void compute_odometry();
   void update_param_time();
@@ -249,6 +249,6 @@ private:
   std::vector<tachimawari::Joint> joints;
 };
 
-} // namespace aruku
+}  // namespace aruku
 
-#endif // ARUKU__WALKING_HPP_
+#endif  // ARUKU__WALKING_HPP_

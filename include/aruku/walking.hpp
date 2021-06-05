@@ -40,10 +40,16 @@ public:
   {
     const int CENTER_VALUE = 2048;
     const double RATIO_ANGLE2VALUE = 11.378;
+    const double RATIO_VALUE2ANGLE = 0.088;
 
     int angle_to_value(double angle)
     {
       return static_cast<int>((angle * RATIO_ANGLE2VALUE) + CENTER_VALUE);
+    }
+
+    double value_to_angle(int value)
+    {
+      return static_cast<double>((value - CENTER_VALUE) * RATIO_VALUE2ANGLE);
     }
   };
 

@@ -88,11 +88,11 @@ int main(int argc, char *argv[])
       for (auto joint : walking->get_joints())
       {
         if (joint.get_joint_name().find("shoulder_pitch") != std::string::npos) {
-          message.add_motor_position(joint.get_joint_name() + " [shouder]", joint.get_goal_position());
+          message.add_motor_position_in_radian(joint.get_joint_name() + " [shouder]", joint.get_goal_position());
         } else if (joint.get_joint_name().find("hip_yaw") != std::string::npos) {
-          message.add_motor_position(joint.get_joint_name() + " [hip]", joint.get_goal_position());
+          message.add_motor_position_in_radian(joint.get_joint_name() + " [hip]", joint.get_goal_position());
         } else {
-          message.add_motor_position(joint.get_joint_name(), joint.get_goal_position());
+          message.add_motor_position_in_radian(joint.get_joint_name(), joint.get_goal_position());
         }
       }
       client.send(* message.get_actuator_request());

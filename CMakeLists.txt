@@ -18,6 +18,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(framework_common REQUIRED)
 find_package(framework_math REQUIRED)
 find_package(kansei REQUIRED)
+find_package(keisan REQUIRED)
 find_package(robocup_client REQUIRED)
 find_package(tachimawari REQUIRED)
 
@@ -33,6 +34,7 @@ ament_target_dependencies(${PROJECT_NAME}
   framework_common
   framework_math
   kansei
+  keisan
   robocup_client
   tachimawari)
 
@@ -64,6 +66,7 @@ ament_export_dependencies(
   framework_common
   framework_math
   kansei
+  keisan
   robocup_client
   tachimawari)
 ament_export_include_directories("include")

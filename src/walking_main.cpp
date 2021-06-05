@@ -18,20 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/text_format.h>
+#include <unistd.h>
+
 #include <aruku/walking.hpp>
 #include <kansei/imu.hpp>
 #include <robocup_client/robocup_client.hpp>
 
 #include <iostream>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/text_format.h>
 #include <memory>
-#include <unistd.h>
+#include <string>
 
-int main(int argc, char *argv[])
+int main(int argc, char * argv[])
 {
-  if (argc < 3)
-  {
+  if (argc < 3) {
     std::cerr << "Please specify the host and the port!" << std::endl;
     return 0;
   }
@@ -39,8 +40,7 @@ int main(int argc, char *argv[])
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
   robocup_client::RobotClient client(host, port);
-  if (!client.connect())
-  {
+  if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
     return 1;
   }
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   robocup_client::MessageHandler message;
   message.add_sensor_time_step("gyro", 8);
   message.add_sensor_time_step("accelerometer", 8);
-  client.send(* message.get_actuator_request());
+  client.send(*message.get_actuator_request());
 
   std::shared_ptr<aruku::Walking> walking = std::make_shared<aruku::Walking>();
   walking->initialize();
@@ -56,10 +56,8 @@ int main(int argc, char *argv[])
 
   std::shared_ptr<kansei::Imu> imu = std::make_shared<kansei::Imu>();
 
-  while (client.get_tcp_socket()->is_connected())
-  {
-    try
-    {
+  while (client.get_tcp_socket()->is_connected()) {
+    try {
       auto sensors = client.receive();
 
       float gy[3];
@@ -85,14 +83,19 @@ int main(int argc, char *argv[])
       walking->process();
 
       message.clear_actuator_request();
-      for (auto joint : walking->get_joints())
-      {
-        message.add_motor_position(joint.get_joint_name(), joint.get_goal_position());
+      for (auto joint : walking->get_joints()) {
+        if (joint.get_joint_name().find("shoulder_pitch") != std::string::npos) {
+          message.add_motor_position_in_radian(
+            joint.get_joint_name() + " [shouder]", joint.get_goal_position());
+        } else if (joint.get_joint_name().find("hip_yaw") != std::string::npos) {
+          message.add_motor_position_in_radian(
+            joint.get_joint_name() + " [hip]", joint.get_goal_position());
+        } else {
+          message.add_motor_position_in_radian(joint.get_joint_name(), joint.get_goal_position());
+        }
       }
-      client.send(* message.get_actuator_request());
-    }
-    catch (const std::runtime_error &exc)
-    {
+      client.send(*message.get_actuator_request());
+    } catch (const std::runtime_error & exc) {
       std::cerr << "Runtime error: " << exc.what() << std::endl;
     }
   }

@@ -11,6 +11,7 @@
   <depend>framework_common</depend>
   <depend>framework_math</depend>
   <depend>kansei</depend>
+  <depend>keisan</depend>
   <depend>nlohmann-json3-dev</depend>
   <depend>robocup_client</depend>
   <depend>tachimawari</depend>

@@ -21,6 +21,7 @@
 #ifndef ARUKU__WALKING_HPP_
 #define ARUKU__WALKING_HPP_
 
+#include <kansei/imu.hpp>
 #include <tachimawari/joint.hpp>
 
 #include <map>
@@ -53,7 +54,7 @@ public:
     }
   };
 
-  Walking();
+  Walking(std::shared_ptr<kansei::Imu> imu);
 
   void initialize();
   void start();
@@ -72,7 +73,6 @@ public:
   double set_dynamic_kick() {return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_);}
 
   void load_data();
-  void update_orientation(double orientation);
 
   std::vector<tachimawari::Joint> get_joints();
 
@@ -247,6 +247,8 @@ private:
   double TIME_UNIT;
 
   std::vector<tachimawari::Joint> joints;
+
+  std::shared_ptr<kansei::Imu> imu;
 };
 
 }  // namespace aruku

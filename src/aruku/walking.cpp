@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #include <aruku/walking.hpp>
+#include <kansei/imu.hpp>
 #include <tachimawari/joint.hpp>
 
 #include <nlohmann/json.hpp>
@@ -39,8 +40,10 @@
 namespace aruku
 {
 
-Walking::Walking()
+Walking::Walking(std::shared_ptr<kansei::Imu> imu)
 {
+  imu = imu;
+
   m_PeriodTime = 0;
   m_DSP_Ratio = 0;
   m_SSP_Ratio = 0;
@@ -247,7 +250,7 @@ bool Walking::compute_ik(double * out, double x, double y, double z, double a, d
 
 void Walking::compute_odometry()
 {
-  // ORIENTATION = MPU::getInstance()->getAngle();
+  ORIENTATION = imu->get_yaw();
 
   if (fabs(m_X_Move_Amplitude) >= 5 || fabs(m_Y_Move_Amplitude) >= 5) {
     float dx = m_X_Move_Amplitude * ODOMETRY_FX_COEFFICIENT / 30.0;
@@ -348,11 +351,6 @@ void Walking::update_param_move()
       (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = -fabs(m_A_Move_Amplitude);
   }
-}
-
-void Walking::update_orientation(double orientation)
-{
-  ORIENTATION = orientation;
 }
 
 void Walking::load_data()

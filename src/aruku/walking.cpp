@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 
 #include <aruku/walking.hpp>
+#include <kansei/imu.hpp>
 #include <tachimawari/joint.hpp>
 
 #include <nlohmann/json.hpp>
@@ -39,8 +40,10 @@
 namespace aruku
 {
 
-Walking::Walking()
+Walking::Walking(std::shared_ptr<kansei::Imu> imu)
 {
+  imu = imu;
+
   m_PeriodTime = 0;
   m_DSP_Ratio = 0;
   m_SSP_Ratio = 0;
@@ -247,7 +250,7 @@ bool Walking::compute_ik(double * out, double x, double y, double z, double a, d
 
 void Walking::compute_odometry()
 {
-  // ORIENTATION = MPU::getInstance()->getAngle();
+  ORIENTATION = imu->get_yaw();
 
   if (fabs(m_X_Move_Amplitude) >= 5 || fabs(m_Y_Move_Amplitude) >= 5) {
     float dx = m_X_Move_Amplitude * ODOMETRY_FX_COEFFICIENT / 30.0;
@@ -348,11 +351,6 @@ void Walking::update_param_move()
       (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = -fabs(m_A_Move_Amplitude);
   }
-}
-
-void Walking::update_orientation(double orientation)
-{
-  ORIENTATION = orientation;
 }
 
 void Walking::load_data()
@@ -907,8 +905,8 @@ void Walking::process()
 
   // adjust balance offset
   if (BALANCE_ENABLE == true) {
-    double rlGyroErr = 0.0;  // MotionStatus::RL_GYRO
-    double fbGyroErr = 0.0;  // MotionStatus::FB_GYRO
+    double rlGyroErr = imu->get_rl_gyro();
+    double fbGyroErr = imu->get_fb_gyro();
 
     outValue[1] += static_cast<int>(dir[1] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);
     outValue[7] += static_cast<int>(dir[7] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);

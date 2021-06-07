@@ -50,11 +50,11 @@ int main(int argc, char * argv[])
   message.add_sensor_time_step("accelerometer", 8);
   client.send(*message.get_actuator_request());
 
-  std::shared_ptr<aruku::Walking> walking = std::make_shared<aruku::Walking>();
+  auto imu = std::make_shared<kansei::Imu>();
+
+  auto walking = std::make_shared<aruku::Walking>(imu);
   walking->initialize();
   walking->start();
-
-  std::shared_ptr<kansei::Imu> imu = std::make_shared<kansei::Imu>();
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
@@ -79,7 +79,6 @@ int main(int argc, char * argv[])
       float seconds = sensors.get()->time();
 
       imu->compute_rpy(gy, acc, seconds);
-      walking->update_orientation(imu->get_yaw());
       walking->process();
 
       message.clear_actuator_request();

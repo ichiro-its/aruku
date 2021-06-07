@@ -54,7 +54,7 @@ public:
     }
   };
 
-  Walking(std::shared_ptr<kansei::Imu> imu);
+  explicit Walking(std::shared_ptr<kansei::Imu> imu);
 
   void initialize();
   void start();

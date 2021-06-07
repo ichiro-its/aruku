@@ -905,8 +905,8 @@ void Walking::process()
 
   // adjust balance offset
   if (BALANCE_ENABLE == true) {
-    double rlGyroErr = 0.0;  // MotionStatus::RL_GYRO
-    double fbGyroErr = 0.0;  // MotionStatus::FB_GYRO
+    double rlGyroErr = imu->get_rl_gyro();
+    double fbGyroErr = imu->get_fb_gyro();
 
     outValue[1] += static_cast<int>(dir[1] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);
     outValue[7] += static_cast<int>(dir[7] * rlGyroErr * BALANCE_HIP_ROLL_GAIN * 4);

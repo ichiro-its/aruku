@@ -1,9 +1,4 @@
 {
-  "Start": true,
-  "X": 100.0,
-  "Y": 0.0,
-  "A": 5.0,
-  "Aim": false,
   "Ratio": {
     "forward_hip_comp_ratio": 0.0,
     "dsp_comp_ratio": 0.0,

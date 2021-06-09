@@ -148,6 +148,8 @@ Walking::Walking(std::shared_ptr<kansei::Imu> imu)
     tachimawari::Joint joint(id);
     joints.push_back(joint);
   }
+
+  load_data();
 }
 
 double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)
@@ -167,7 +169,7 @@ bool Walking::compute_ik(double * out, double x, double y, double z, double a, d
   vec.Y = y + Tad.m[6] * ANKLE_LENGTH;
   vec.Z = (z - LEG_LENGTH) + Tad.m[10] * ANKLE_LENGTH;
 
-    // Get Knee
+  // Get Knee
 	_Rac = vec.Length();
   _Acos = acos((_Rac * _Rac - THIGH_LENGTH * THIGH_LENGTH - CALF_LENGTH * CALF_LENGTH) / (2 * THIGH_LENGTH * CALF_LENGTH));
   if(std::isnan(_Acos) == 1)
@@ -330,29 +332,11 @@ void Walking::update_param_move()
 void Walking::load_data()
 {
   std::string file_name =
-    "/home/ichiro/ROS2Project/ros2_ws/src/aruku/config/aruku.json";
+    "/home/ichiro/ROS2Project/ros2_ws/src/aruku/data/aruku.json";
   std::ifstream file(file_name);
   nlohmann::json walking_data = nlohmann::json::parse(file);
 
-  float target_x;
-  float target_y;
-
   for (auto &[key, val] : walking_data.items()) {
-    if (key == "Start") {
-      (val == true) ? start() : stop();
-    }
-    if (key == "X") {
-      X_MOVE_AMPLITUDE = val;
-    }
-    if (key == "Y") {
-      Y_MOVE_AMPLITUDE = val;
-    }
-    // if (key == "A") {
-    //   A_MOVE_AMPLITUDE = val;
-    // }
-    // if (key == "Aim") {
-    //   A_MOVE_AIM_ON = val;
-    // }
     if (key == "Ratio") {
       try {
         val.at("period_time").get_to(PERIOD_TIME);
@@ -407,69 +391,29 @@ void Walking::load_data()
       }
     } else if (key == "InitAngles") {
       try {
-        val.at("right_hip_yaw").get_to(INIT_R_HIP_YAW); joints.at(0).set_target_position(INIT_R_HIP_YAW);
-        val.at("right_hip_pitch").get_to(INIT_R_HIP_PITCH); joints.at(2).set_target_position(INIT_R_HIP_PITCH);
-        val.at("right_hip_roll").get_to(INIT_R_HIP_ROLL); joints.at(1).set_target_position(INIT_R_HIP_ROLL);
-        val.at("right_knee").get_to(INIT_R_KNEE); joints.at(3).set_target_position(INIT_R_KNEE);
-        val.at("right_ankle_pitch").get_to(INIT_R_ANKLE_PITCH); joints.at(4).set_target_position(INIT_R_ANKLE_PITCH);
-        val.at("right_ankle_roll").get_to(INIT_R_ANKLE_ROLL); joints.at(5).set_target_position(INIT_R_ANKLE_ROLL);
-        val.at("left_hip_yaw").get_to(INIT_L_HIP_YAW); joints.at(6).set_target_position(INIT_L_HIP_YAW);
-        val.at("left_hip_pitch").get_to(INIT_L_HIP_PITCH); joints.at(8).set_target_position(INIT_L_HIP_PITCH);
-        val.at("left_hip_roll").get_to(INIT_L_HIP_ROLL); joints.at(7).set_target_position(INIT_L_HIP_ROLL);
-        val.at("left_knee").get_to(INIT_L_KNEE); joints.at(9).set_target_position(INIT_L_KNEE);
-        val.at("left_ankle_pitch").get_to(INIT_L_ANKLE_PITCH); joints.at(10).set_target_position(INIT_L_ANKLE_PITCH);
-        val.at("left_ankle_roll").get_to(INIT_L_ANKLE_ROLL); joints.at(11).set_target_position(INIT_L_ANKLE_ROLL);
-        val.at("right_shoulder_pitch").get_to(INIT_R_SHOULDER_PITCH); joints.at(12).set_target_position(INIT_R_SHOULDER_PITCH);
-        val.at("right_shoulder_roll").get_to(INIT_R_SHOULDER_ROLL); joints.at(13).set_target_position(INIT_R_SHOULDER_ROLL);
-        val.at("right_elbow").get_to(INIT_R_ELBOW); joints.at(14).set_target_position(INIT_R_ELBOW);
-        val.at("left_shoulder_pitch").get_to(INIT_L_SHOULDER_PITCH); joints.at(15).set_target_position(INIT_L_SHOULDER_PITCH);
-        val.at("left_shoulder_roll").get_to(INIT_L_SHOULDER_ROLL); joints.at(16).set_target_position(INIT_L_SHOULDER_ROLL);
-        val.at("left_elbow").get_to(INIT_L_ELBOW); joints.at(17).set_target_position(INIT_L_ELBOW);
+        val.at("right_hip_yaw").get_to(INIT_R_HIP_YAW);
+        val.at("right_hip_pitch").get_to(INIT_R_HIP_PITCH);
+        val.at("right_hip_roll").get_to(INIT_R_HIP_ROLL);
+        val.at("right_knee").get_to(INIT_R_KNEE);
+        val.at("right_ankle_pitch").get_to(INIT_R_ANKLE_PITCH);
+        val.at("right_ankle_roll").get_to(INIT_R_ANKLE_ROLL);
+        val.at("left_hip_yaw").get_to(INIT_L_HIP_YAW);
+        val.at("left_hip_pitch").get_to(INIT_L_HIP_PITCH);
+        val.at("left_hip_roll").get_to(INIT_L_HIP_ROLL);
+        val.at("left_knee").get_to(INIT_L_KNEE);
+        val.at("left_ankle_pitch").get_to(INIT_L_ANKLE_PITCH);
+        val.at("left_ankle_roll").get_to(INIT_L_ANKLE_ROLL);
+        val.at("right_shoulder_pitch").get_to(INIT_R_SHOULDER_PITCH);
+        val.at("right_shoulder_roll").get_to(INIT_R_SHOULDER_ROLL);
+        val.at("right_elbow").get_to(INIT_R_ELBOW);
+        val.at("left_shoulder_pitch").get_to(INIT_L_SHOULDER_PITCH);
+        val.at("left_shoulder_roll").get_to(INIT_L_SHOULDER_ROLL);
+        val.at("left_elbow").get_to(INIT_L_ELBOW);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
     }
   }
-
-  float delta_x = (target_x - POSITION_X);
-  float delta_y = (target_y - POSITION_Y);
-
-  float target_distance = alg::distance(delta_x, delta_y);
-
-  std::cout << "delta: " << delta_x << " " << delta_y << std::endl;
-
-  bool move_finished_ = (target_distance < ((move_finished_) ? 30.0 : 20.0));
-  if (move_finished_)
-  {
-    return;
-  }
-
-  float target_direction = alg::direction(delta_x, delta_y) * alg::rad2Deg();
-  float delta_direction = alg::deltaAngle(target_direction, imu->get_yaw());
-
-  std::cout << "direction: " << target_direction << " " << delta_direction << std::endl;
-
-  float x_speed = alg::mapValue(fabs(delta_direction), 0, 15, 50, -15);
-  if (target_distance < 100.0)
-  {
-      x_speed = alg::mapValue(target_distance, 0.0, 100.0, 50 * 0.25, 50);
-  }
-
-  float a_speed = alg::mapValue(delta_direction, -25, 25, 15, -15);
-  float y_speed = 0;
-  // if (fabs(delta_direction) > 15.0)
-  // {
-  //     y_speed = 0;
-  //     a_speed = (delta_direction < 0.0) ? 15: -15;
-  //     x_speed = 0.0;
-  // }
-
-  std::cout << "speed: " << x_speed << " " << y_speed << " " << a_speed << std::endl;
-
-  // X_MOVE_AMPLITUDE = x_speed;
-  // Y_MOVE_AMPLITUDE = y_speed;
-  // A_MOVE_AMPLITUDE = a_speed;
-  A_MOVE_AIM_ON = false;
 }
 
 void Walking::initialize()
@@ -488,7 +432,24 @@ void Walking::initialize()
   m_Real_Running = false;
   m_Time = 0;
 
-  load_data();
+  joints.at(0).set_target_position(INIT_R_HIP_YAW);
+  joints.at(2).set_target_position(INIT_R_HIP_PITCH);
+  joints.at(1).set_target_position(INIT_R_HIP_ROLL);
+  joints.at(3).set_target_position(INIT_R_KNEE);
+  joints.at(4).set_target_position(INIT_R_ANKLE_PITCH);
+  joints.at(5).set_target_position(INIT_R_ANKLE_ROLL);
+  joints.at(6).set_target_position(INIT_L_HIP_YAW);
+  joints.at(8).set_target_position(INIT_L_HIP_PITCH);
+  joints.at(7).set_target_position(INIT_L_HIP_ROLL);
+  joints.at(9).set_target_position(INIT_L_KNEE);
+  joints.at(10).set_target_position(INIT_L_ANKLE_PITCH);
+  joints.at(11).set_target_position(INIT_L_ANKLE_ROLL);
+  joints.at(12).set_target_position(INIT_R_SHOULDER_PITCH);
+  joints.at(13).set_target_position(INIT_R_SHOULDER_ROLL);
+  joints.at(14).set_target_position(INIT_R_ELBOW);
+  joints.at(15).set_target_position(INIT_L_SHOULDER_PITCH);
+  joints.at(16).set_target_position(INIT_L_SHOULDER_ROLL);
+  joints.at(17).set_target_position(INIT_L_ELBOW);
 
   update_param_time();
   update_param_move();
@@ -714,8 +675,8 @@ void Walking::process()
 
   if(m_X_Move_Amplitude == 0)
   {
-    angle[12] = 0; // Right
-    angle[15] = 0; // Left
+    angle[12] = 0;  // Right
+    angle[15] = 0;  // Left
   }
   else
   {
@@ -800,43 +761,11 @@ void Walking::process()
   dir[20] = 1;
   dir[21] = 1;
 
-  // int dir[22];
-  // dir[0] = -1;
-  // dir[1] = -1;
-  // dir[2] = 1;
-  // dir[3] = 1;
-  // dir[4] = -1;
-  // dir[5] = 1;
-  // dir[6] = -1;
-  // dir[7] = -1;
-  // dir[8] = -1;
-  // dir[9] = -1;
-  // dir[10] = 1;
-  // dir[11] = 1;
-  // dir[12] = 1;
-  // dir[13] = 1;
-  // dir[14] = 1;
-  // dir[15] = -1;
-  // dir[16] = -1;
-  // dir[17] = -1;
-  // dir[18] = 1;
-  // dir[19] = 1;
-  // dir[20] = 1;
-  // dir[21] = 1;
-
   int outValue[22];
   for (int i = 0; i < 22; i++) {
     double offset = static_cast<double>(dir[i]) * angle[i] * mx.RATIO_ANGLE2VALUE;
 
     switch (i) {
-      // case 1:  // R_HIP_ROLL
-      //   offset += static_cast<double>(dir[i]) * pelvis_offset_r;
-      //   break;
-
-      // case 7:  // L_HIP_ROLL
-      //   offset += static_cast<double>(dir[i]) * pelvis_offset_l;
-      //   break;
-
       case 2:
       case 8:
         offset -= static_cast<double>(dir[i]) * (HIP_PITCH_OFFSET + HIP_COMP) *

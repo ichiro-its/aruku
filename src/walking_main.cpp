@@ -72,7 +72,7 @@ int main(int argc, char * argv[])
         if (key == "Start") {
           if (val == true) {
             walking->start();
-          } else  {
+          } else {
             walking->stop();
           }
         }

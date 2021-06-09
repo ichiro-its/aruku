@@ -159,73 +159,93 @@ double Walking::wsin(double time, double period, double period_shift, double mag
 
 bool Walking::compute_ik(double * out, double x, double y, double z, double a, double b, double c)
 {
-	Robot::Matrix3D Tad, Tda, Tcd, Tdc, Tac;
-	Robot::Vector3D vec;
+  Robot::Matrix3D Tad, Tda, Tcd, Tdc, Tac;
+  Robot::Vector3D vec;
   double _Rac, _Acos, _Atan, _k, _l, _m, _n, _s, _c, _theta;
 
-	Tad.SetTransform(Robot::Point3D(x, y, z - LEG_LENGTH), Robot::Vector3D(a * alg::rad2Deg(), b * alg::rad2Deg(), c * alg::rad2Deg()));
+  Tad.SetTransform(
+    Robot::Point3D(x, y, z - LEG_LENGTH),
+    Robot::Vector3D(a * alg::rad2Deg(), b * alg::rad2Deg(), c * alg::rad2Deg()));
 
-	vec.X = x + Tad.m[2] * ANKLE_LENGTH;
+  vec.X = x + Tad.m[2] * ANKLE_LENGTH;
   vec.Y = y + Tad.m[6] * ANKLE_LENGTH;
   vec.Z = (z - LEG_LENGTH) + Tad.m[10] * ANKLE_LENGTH;
 
   // Get Knee
-	_Rac = vec.Length();
-  _Acos = acos((_Rac * _Rac - THIGH_LENGTH * THIGH_LENGTH - CALF_LENGTH * CALF_LENGTH) / (2 * THIGH_LENGTH * CALF_LENGTH));
-  if(std::isnan(_Acos) == 1)
-  return false;
+  _Rac = vec.Length();
+  _Acos =
+    acos(
+    (_Rac * _Rac - THIGH_LENGTH * THIGH_LENGTH - CALF_LENGTH * CALF_LENGTH) /
+    (2 * THIGH_LENGTH * CALF_LENGTH));
+  if (std::isnan(_Acos) == 1) {
+    return false;
+  }
   *(out + 3) = _Acos;
 
   // Get Ankle Roll
   Tda = Tad;
-	if(Tda.Inverse() == false)
+  if (Tda.Inverse() == false) {
     return false;
+  }
   _k = sqrt(Tda.m[7] * Tda.m[7] + Tda.m[11] * Tda.m[11]);
   _l = sqrt(Tda.m[7] * Tda.m[7] + (Tda.m[11] - ANKLE_LENGTH) * (Tda.m[11] - ANKLE_LENGTH));
   _m = (_k * _k - _l * _l - ANKLE_LENGTH * ANKLE_LENGTH) / (2 * _l * ANKLE_LENGTH);
-  if(_m > 1.0)
+  if (_m > 1.0) {
     _m = 1.0;
-  else if(_m < -1.0)
+  } else if (_m < -1.0) {
     _m = -1.0;
+  }
   _Acos = acos(_m);
-  if(std::isnan(_Acos) == 1)
+  if (std::isnan(_Acos) == 1) {
     return false;
-  if(Tda.m[7] < 0.0)
+  }
+  if (Tda.m[7] < 0.0) {
     *(out + 5) = -_Acos;
-  else
+  } else {
     *(out + 5) = _Acos;
+  }
 
   // Get Hip Yaw
-	Tcd.SetTransform(Robot::Point3D(0, 0, -ANKLE_LENGTH), Robot::Vector3D(*(out + 5) * alg::rad2Deg(), 0, 0));
-	Tdc = Tcd;
-	if(Tdc.Inverse() == false)
+  Tcd.SetTransform(
+    Robot::Point3D(0, 0, -ANKLE_LENGTH),
+    Robot::Vector3D(*(out + 5) * alg::rad2Deg(), 0, 0));
+  Tdc = Tcd;
+  if (Tdc.Inverse() == false) {
     return false;
-	Tac = Tad * Tdc;
-  _Atan = atan2(-Tac.m[1] , Tac.m[5]);
-  if(std::isinf(_Atan) == 1)
+  }
+  Tac = Tad * Tdc;
+  _Atan = atan2(-Tac.m[1], Tac.m[5]);
+  if (std::isinf(_Atan) == 1) {
     return false;
+  }
   *(out) = _Atan;
 
   // Get Hip Roll
   _Atan = atan2(Tac.m[9], -Tac.m[1] * sin(*(out)) + Tac.m[5] * cos(*(out)));
-  if(std::isinf(_Atan) == 1)
+  if (std::isinf(_Atan) == 1) {
     return false;
+  }
   *(out + 1) = _Atan;
 
   // Get Hip Pitch and Ankle Pitch
-  _Atan = atan2(Tac.m[2] * cos(*(out)) + Tac.m[6] * sin(*(out)), Tac.m[0] * cos(*(out)) + Tac.m[4] * sin(*(out)));
-  if(std::isinf(_Atan) == 1)
+  _Atan = atan2(
+    Tac.m[2] * cos(*(out)) + Tac.m[6] * sin(*(out)), Tac.m[0] * cos(
+      *(out)) + Tac.m[4] * sin(*(out)));
+  if (std::isinf(_Atan) == 1) {
     return false;
+  }
   _theta = _Atan;
   _k = sin(*(out + 3)) * CALF_LENGTH;
   _l = -THIGH_LENGTH - cos(*(out + 3)) * CALF_LENGTH;
-	_m = cos(*(out)) * vec.X + sin(*(out)) * vec.Y;
-	_n = cos(*(out + 1)) * vec.Z + sin(*(out)) * sin(*(out + 1)) * vec.X - cos(*(out)) * sin(*(out + 1)) * vec.Y;
+  _m = cos(*(out)) * vec.X + sin(*(out)) * vec.Y;
+  _n = cos(*(out + 1)) * vec.Z + sin(*(out)) * sin(*(out + 1)) * vec.X - cos(*(out)) * sin(
+    *(out + 1)) * vec.Y;
   _s = (_k * _n + _l * _m) / (_k * _k + _l * _l);
   _c = (_n - _k * _s) / _l;
   _Atan = atan2(_s, _c);
-  if(std::isinf(_Atan) == 1)
+  if (std::isinf(_Atan) == 1) {
     return false;
+  }
   *(out + 2) = _Atan;
   *(out + 4) = _theta - *(out + 3) - *(out + 2);
 
@@ -240,10 +260,11 @@ void Walking::compute_odometry()
     float dx = m_X_Move_Amplitude * ODOMETRY_FX_COEFFICIENT / 30.0;
 
     float dy = 0.0;
-    if (m_Y_Move_Amplitude > 0.0)
+    if (m_Y_Move_Amplitude > 0.0) {
       dy = -m_Y_Move_Amplitude * ODOMETRY_LY_COEFFICIENT / 30.0;
-    else
+    } else {
       dy = -m_Y_Move_Amplitude * ODOMETRY_RY_COEFFICIENT / 30.0;
+    }
 
     float theta = ORIENTATION * alg::deg2Rad();
 
@@ -262,18 +283,27 @@ void Walking::update_param_time()
   m_SSP_Ratio = 1 - m_DSP_Ratio;
 
   m_X_Swap_PeriodTime = m_PeriodTime / 2;
-  m_X_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
+  m_X_Move_PeriodTime = m_PeriodTime *
+    m_SSP_Ratio;
   m_Y_Swap_PeriodTime = m_PeriodTime;
-  m_Y_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
+  m_Y_Move_PeriodTime = m_PeriodTime *
+    m_SSP_Ratio;
   m_Z_Swap_PeriodTime = m_PeriodTime / 2;
-  m_Z_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio / 2;
-  m_A_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
+  m_Z_Move_PeriodTime = m_PeriodTime *
+    m_SSP_Ratio / 2;
+  m_A_Move_PeriodTime = m_PeriodTime *
+    m_SSP_Ratio;
 
-  m_SSP_Time = m_PeriodTime * m_SSP_Ratio;
-  m_SSP_Time_Start_L = (1 - m_SSP_Ratio) * m_PeriodTime / 4;
-  m_SSP_Time_End_L = (1 + m_SSP_Ratio) * m_PeriodTime / 4;
-  m_SSP_Time_Start_R = (3 - m_SSP_Ratio) * m_PeriodTime / 4;
-  m_SSP_Time_End_R = (3 + m_SSP_Ratio) * m_PeriodTime / 4;
+  m_SSP_Time = m_PeriodTime *
+    m_SSP_Ratio;
+  m_SSP_Time_Start_L = (1 - m_SSP_Ratio) *
+    m_PeriodTime / 4;
+  m_SSP_Time_End_L = (1 + m_SSP_Ratio) *
+    m_PeriodTime / 4;
+  m_SSP_Time_Start_R = (3 - m_SSP_Ratio) *
+    m_PeriodTime / 4;
+  m_SSP_Time_End_R = (3 + m_SSP_Ratio) *
+    m_PeriodTime / 4;
 
   m_Phase_Time1 = (m_SSP_Time_Start_L + m_SSP_Time_End_L) / 2;
   m_Phase_Time2 = (m_SSP_Time_End_L + m_SSP_Time_Start_R) / 2;
@@ -297,8 +327,7 @@ void Walking::update_param_move()
   double y_input = Y_MOVE_AMPLITUDE * 0.5;
   double a_input = A_MOVE_AMPLITUDE;
 
-  if (m_Z_Move_Amplitude < (Z_MOVE_AMPLITUDE * 0.45))
-  {
+  if (m_Z_Move_Amplitude < (Z_MOVE_AMPLITUDE * 0.45)) {
     x_input = 0.0;
     y_input = 0.0;
     a_input = 0.0;
@@ -309,22 +338,26 @@ void Walking::update_param_move()
   m_Y_Move_Amplitude_Shift = fabs(m_Y_Move_Amplitude);
   m_Y_Swap_Amplitude = Y_SWAP_AMPLITUDE + m_Y_Move_Amplitude_Shift * 0.04;
 
-  if (m_Ctrl_Running)
-    m_Z_Move_Amplitude = alg::smoothValue(m_Z_Move_Amplitude, (Z_MOVE_AMPLITUDE + FOOT_COMP) * 0.5, FOOT_ACCEL_RATIO);
-  else
+  if (m_Ctrl_Running) {
+    m_Z_Move_Amplitude = alg::smoothValue(
+      m_Z_Move_Amplitude, (Z_MOVE_AMPLITUDE + FOOT_COMP) * 0.5,
+      FOOT_ACCEL_RATIO);
+  } else {
     m_Z_Move_Amplitude = 0.0;
+  }
 
   m_Z_Move_Amplitude_Shift = m_Z_Move_Amplitude;
   m_Z_Swap_Amplitude = Z_SWAP_AMPLITUDE;
 
-  if (A_MOVE_AIM_ON == false)
-  {
-    m_A_Move_Amplitude = alg::smoothValue(m_A_Move_Amplitude, a_input * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
+  if (A_MOVE_AIM_ON == false) {
+    m_A_Move_Amplitude = alg::smoothValue(
+      m_A_Move_Amplitude,
+      a_input * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = fabs(m_A_Move_Amplitude);
-  }
-  else
-  {
-    m_A_Move_Amplitude = alg::smoothValue(m_A_Move_Amplitude, (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
+  } else {
+    m_A_Move_Amplitude = alg::smoothValue(
+      m_A_Move_Amplitude,
+      (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = -fabs(m_A_Move_Amplitude);
   }
 }
@@ -489,14 +522,11 @@ std::vector<tachimawari::Joint> Walking::get_joints()
 
 void Walking::process()
 {
-
-  if (m_Time == 0)
-  {
+  if (m_Time == 0) {
     update_param_move();
     update_param_time();
 
-    if (m_Ctrl_Running == false)
-    {
+    if (m_Ctrl_Running == false) {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_X_Move_Amplitude) <= 5.0);
       walk_in_position &= (fabs(m_Y_Move_Amplitude) <= 5.0);
@@ -504,12 +534,9 @@ void Walking::process()
 
       m_Z_Move_Amplitude = 0;
 
-      if (walk_in_position)
-      {
+      if (walk_in_position) {
         m_Real_Running = false;
-      }
-      else
-      {
+      } else {
         X_MOVE_AMPLITUDE = 0;
         Y_MOVE_AMPLITUDE = 0;
         A_MOVE_AMPLITUDE = 0;
@@ -518,27 +545,25 @@ void Walking::process()
         dynamic_right_kick_ = 0.0;
       }
     }
-  }
-  else if (m_Time >= (m_Phase_Time1 - TIME_UNIT / 2) && m_Time < (m_Phase_Time1 + TIME_UNIT / 2))
+  } else if (m_Time >= (m_Phase_Time1 - TIME_UNIT / 2) &&  // NOLINT
+    m_Time < (m_Phase_Time1 + TIME_UNIT / 2))
   {
     update_param_move();
 
-    if (dynamic_left_kick_ > 5.0)
-    {
+    if (dynamic_left_kick_ > 5.0) {
       m_X_Move_Amplitude = dynamic_left_kick_;
       dynamic_left_kick_ = dynamic_left_kick_ * 0.9;
     }
 
     compute_odometry();
-  }
-  else if (m_Time >= (m_Phase_Time2 - TIME_UNIT / 2) && m_Time < (m_Phase_Time2 + TIME_UNIT / 2))
+  } else if (m_Time >= (m_Phase_Time2 - TIME_UNIT / 2) &&  // NOLINT
+    m_Time < (m_Phase_Time2 + TIME_UNIT / 2))
   {
     update_param_move();
     update_param_time();
     m_Time = m_Phase_Time2;
 
-    if(m_Ctrl_Running == false)
-    {
+    if (m_Ctrl_Running == false) {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_X_Move_Amplitude) <= 5.0);
       walk_in_position &= (fabs(m_Y_Move_Amplitude) <= 5.0);
@@ -546,12 +571,9 @@ void Walking::process()
 
       m_Z_Move_Amplitude = 0;
 
-      if (walk_in_position)
-      {
+      if (walk_in_position) {
         m_Real_Running = false;
-      }
-      else
-      {
+      } else {
         X_MOVE_AMPLITUDE = 0;
         Y_MOVE_AMPLITUDE = 0;
         A_MOVE_AMPLITUDE = 0;
@@ -560,13 +582,12 @@ void Walking::process()
         dynamic_right_kick_ = 0.0;
       }
     }
-  }
-  else if (m_Time >= (m_Phase_Time3 - TIME_UNIT / 2) && m_Time < (m_Phase_Time3 + TIME_UNIT / 2))
+  } else if (m_Time >= (m_Phase_Time3 - TIME_UNIT / 2) &&  // NOLINT
+    m_Time < (m_Phase_Time3 + TIME_UNIT / 2))
   {
     update_param_move();
 
-    if (dynamic_right_kick_ > 5.0)
-    {
+    if (dynamic_right_kick_ > 5.0) {
       m_X_Move_Amplitude = dynamic_right_kick_;
       dynamic_right_kick_ = dynamic_right_kick_ * 0.9;
     }
@@ -574,7 +595,7 @@ void Walking::process()
     compute_odometry();
   }
 
-	m_X_Offset = X_OFFSET;
+  m_X_Offset = X_OFFSET;
   m_Y_Offset = Y_OFFSET;
   m_Z_Offset = Z_OFFSET;
   m_R_Offset = R_OFFSET * alg::deg2Rad();
@@ -596,61 +617,212 @@ void Walking::process()
   b_move_l = 0;
   a_move_r = 0;
   b_move_r = 0;
-  
-  if (m_Time <= m_SSP_Time_Start_L)
-  {
-    x_move_l = wsin(m_SSP_Time_Start_L, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, m_X_Move_Amplitude, m_X_Move_Amplitude_Shift);
-    y_move_l = wsin(m_SSP_Time_Start_L, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, m_Y_Move_Amplitude, m_Y_Move_Amplitude_Shift);
-    z_move_l = wsin(m_SSP_Time_Start_L, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_L, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_l = wsin(m_SSP_Time_Start_L, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, m_A_Move_Amplitude, m_A_Move_Amplitude_Shift);
-    x_move_r = wsin(m_SSP_Time_Start_L, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, -m_X_Move_Amplitude, -m_X_Move_Amplitude_Shift);
-    y_move_r = wsin(m_SSP_Time_Start_L, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, -m_Y_Move_Amplitude, -m_Y_Move_Amplitude_Shift);
-    z_move_r = wsin(m_SSP_Time_Start_R, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_R, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_r = wsin(m_SSP_Time_Start_L, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, -m_A_Move_Amplitude, -m_A_Move_Amplitude_Shift);
-  }
-  else if (m_Time <= m_SSP_Time_End_L)
-  {
-    x_move_l = wsin(m_Time, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, m_X_Move_Amplitude, m_X_Move_Amplitude_Shift);
-    y_move_l = wsin(m_Time, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, m_Y_Move_Amplitude, m_Y_Move_Amplitude_Shift);
-    z_move_l = wsin(m_Time, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_L, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_l = wsin(m_Time, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, m_A_Move_Amplitude, m_A_Move_Amplitude_Shift);
-    x_move_r = wsin(m_Time, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, -m_X_Move_Amplitude, -m_X_Move_Amplitude_Shift);
-    y_move_r = wsin(m_Time, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, -m_Y_Move_Amplitude, -m_Y_Move_Amplitude_Shift);
-    z_move_r = wsin(m_SSP_Time_Start_R, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_R, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_r = wsin(m_Time, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, -m_A_Move_Amplitude, -m_A_Move_Amplitude_Shift);
-  }
-  else if (m_Time <= m_SSP_Time_Start_R)
-  {
-    x_move_l = wsin(m_SSP_Time_End_L, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, m_X_Move_Amplitude, m_X_Move_Amplitude_Shift);
-    y_move_l = wsin(m_SSP_Time_End_L, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, m_Y_Move_Amplitude, m_Y_Move_Amplitude_Shift);
-    z_move_l = wsin(m_SSP_Time_End_L, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_L, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_l = wsin(m_SSP_Time_End_L, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, m_A_Move_Amplitude, m_A_Move_Amplitude_Shift);
-    x_move_r = wsin(m_SSP_Time_End_L, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_L, -m_X_Move_Amplitude, -m_X_Move_Amplitude_Shift);
-    y_move_r = wsin(m_SSP_Time_End_L, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_L, -m_Y_Move_Amplitude, -m_Y_Move_Amplitude_Shift);
-    z_move_r = wsin(m_SSP_Time_Start_R, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_R, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_r = wsin(m_SSP_Time_End_L, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_L, -m_A_Move_Amplitude, -m_A_Move_Amplitude_Shift);
-  }
-  else if (m_Time <= m_SSP_Time_End_R)
-  {
-    x_move_l = wsin(m_Time, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_X_Move_Amplitude, m_X_Move_Amplitude_Shift);
-    y_move_l = wsin(m_Time, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_Y_Move_Amplitude, m_Y_Move_Amplitude_Shift);
-    z_move_l = wsin(m_SSP_Time_End_L, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_L, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_l = wsin(m_Time, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_A_Move_Amplitude, m_A_Move_Amplitude_Shift);
-    x_move_r = wsin(m_Time, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_X_Move_Amplitude, -m_X_Move_Amplitude_Shift);
-    y_move_r = wsin(m_Time, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_Y_Move_Amplitude, -m_Y_Move_Amplitude_Shift);
-    z_move_r = wsin(m_Time, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_R, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_r = wsin(m_Time, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_A_Move_Amplitude, -m_A_Move_Amplitude_Shift);
-  }
-  else
-  {
-    x_move_l = wsin(m_SSP_Time_End_R, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_X_Move_Amplitude, m_X_Move_Amplitude_Shift);
-    y_move_l = wsin(m_SSP_Time_End_R, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_Y_Move_Amplitude, m_Y_Move_Amplitude_Shift);
-    z_move_l = wsin(m_SSP_Time_End_L, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_L, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_l = wsin(m_SSP_Time_End_R, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), m_A_Move_Amplitude, m_A_Move_Amplitude_Shift);
-    x_move_r = wsin(m_SSP_Time_End_R, m_X_Move_PeriodTime, m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_X_Move_Amplitude, -m_X_Move_Amplitude_Shift);
-    y_move_r = wsin(m_SSP_Time_End_R, m_Y_Move_PeriodTime, m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_Y_Move_Amplitude, -m_Y_Move_Amplitude_Shift);
-    z_move_r = wsin(m_SSP_Time_End_R, m_Z_Move_PeriodTime, m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime * m_SSP_Time_Start_R, m_Z_Move_Amplitude, m_Z_Move_Amplitude_Shift);
-    c_move_r = wsin(m_SSP_Time_End_R, m_A_Move_PeriodTime, m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime * m_SSP_Time_Start_R + alg::piValue(), -m_A_Move_Amplitude, -m_A_Move_Amplitude_Shift);
+
+  if (m_Time <= m_SSP_Time_Start_L) {
+    x_move_l = wsin(
+      m_SSP_Time_Start_L, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_X_Move_Amplitude,
+      m_X_Move_Amplitude_Shift);
+    y_move_l = wsin(
+      m_SSP_Time_Start_L, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Y_Move_Amplitude,
+      m_Y_Move_Amplitude_Shift);
+    z_move_l = wsin(
+      m_SSP_Time_Start_L, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_l = wsin(
+      m_SSP_Time_Start_L, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_A_Move_Amplitude,
+      m_A_Move_Amplitude_Shift);
+    x_move_r = wsin(
+      m_SSP_Time_Start_L, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_X_Move_Amplitude,
+      -m_X_Move_Amplitude_Shift);
+    y_move_r = wsin(
+      m_SSP_Time_Start_L, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_Y_Move_Amplitude,
+      -m_Y_Move_Amplitude_Shift);
+    z_move_r = wsin(
+      m_SSP_Time_Start_R, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_R, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_r = wsin(
+      m_SSP_Time_Start_L, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_A_Move_Amplitude,
+      -m_A_Move_Amplitude_Shift);
+  } else if (m_Time <= m_SSP_Time_End_L) {
+    x_move_l = wsin(
+      m_Time, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_X_Move_Amplitude,
+      m_X_Move_Amplitude_Shift);
+    y_move_l = wsin(
+      m_Time, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Y_Move_Amplitude,
+      m_Y_Move_Amplitude_Shift);
+    z_move_l = wsin(
+      m_Time, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_l = wsin(
+      m_Time, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_A_Move_Amplitude,
+      m_A_Move_Amplitude_Shift);
+    x_move_r = wsin(
+      m_Time, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_X_Move_Amplitude,
+      -m_X_Move_Amplitude_Shift);
+    y_move_r = wsin(
+      m_Time, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_Y_Move_Amplitude,
+      -m_Y_Move_Amplitude_Shift);
+    z_move_r = wsin(
+      m_SSP_Time_Start_R, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_R, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_r = wsin(
+      m_Time, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_A_Move_Amplitude,
+      -m_A_Move_Amplitude_Shift);
+  } else if (m_Time <= m_SSP_Time_Start_R) {
+    x_move_l = wsin(
+      m_SSP_Time_End_L, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_X_Move_Amplitude,
+      m_X_Move_Amplitude_Shift);
+    y_move_l = wsin(
+      m_SSP_Time_End_L, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Y_Move_Amplitude,
+      m_Y_Move_Amplitude_Shift);
+    z_move_l = wsin(
+      m_SSP_Time_End_L, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_l = wsin(
+      m_SSP_Time_End_L, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_A_Move_Amplitude,
+      m_A_Move_Amplitude_Shift);
+    x_move_r = wsin(
+      m_SSP_Time_End_L, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_X_Move_Amplitude,
+      -m_X_Move_Amplitude_Shift);
+    y_move_r = wsin(
+      m_SSP_Time_End_L, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_Y_Move_Amplitude,
+      -m_Y_Move_Amplitude_Shift);
+    z_move_r = wsin(
+      m_SSP_Time_Start_R, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_R, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_r = wsin(
+      m_SSP_Time_End_L, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_L, -m_A_Move_Amplitude,
+      -m_A_Move_Amplitude_Shift);
+  } else if (m_Time <= m_SSP_Time_End_R) {
+    x_move_l = wsin(
+      m_Time, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_X_Move_Amplitude,
+      m_X_Move_Amplitude_Shift);
+    y_move_l = wsin(
+      m_Time, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_Y_Move_Amplitude,
+      m_Y_Move_Amplitude_Shift);
+    z_move_l = wsin(
+      m_SSP_Time_End_L, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_l = wsin(
+      m_Time, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_A_Move_Amplitude,
+      m_A_Move_Amplitude_Shift);
+    x_move_r = wsin(
+      m_Time, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_X_Move_Amplitude,
+      -m_X_Move_Amplitude_Shift);
+    y_move_r = wsin(
+      m_Time, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_Y_Move_Amplitude,
+      -m_Y_Move_Amplitude_Shift);
+    z_move_r = wsin(
+      m_Time, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_R, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_r = wsin(
+      m_Time, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_A_Move_Amplitude,
+      -m_A_Move_Amplitude_Shift);
+  } else {
+    x_move_l = wsin(
+      m_SSP_Time_End_R, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_X_Move_Amplitude,
+      m_X_Move_Amplitude_Shift);
+    y_move_l = wsin(
+      m_SSP_Time_End_R, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_Y_Move_Amplitude,
+      m_Y_Move_Amplitude_Shift);
+    z_move_l = wsin(
+      m_SSP_Time_End_L, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_L, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_l = wsin(
+      m_SSP_Time_End_R, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), m_A_Move_Amplitude,
+      m_A_Move_Amplitude_Shift);
+    x_move_r = wsin(
+      m_SSP_Time_End_R, m_X_Move_PeriodTime,
+      m_X_Move_Phase_Shift + 2 * alg::piValue() / m_X_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_X_Move_Amplitude,
+      -m_X_Move_Amplitude_Shift);
+    y_move_r = wsin(
+      m_SSP_Time_End_R, m_Y_Move_PeriodTime,
+      m_Y_Move_Phase_Shift + 2 * alg::piValue() / m_Y_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_Y_Move_Amplitude,
+      -m_Y_Move_Amplitude_Shift);
+    z_move_r = wsin(
+      m_SSP_Time_End_R, m_Z_Move_PeriodTime,
+      m_Z_Move_Phase_Shift + 2 * alg::piValue() / m_Z_Move_PeriodTime *
+      m_SSP_Time_Start_R, m_Z_Move_Amplitude,
+      m_Z_Move_Amplitude_Shift);
+    c_move_r = wsin(
+      m_SSP_Time_End_R, m_A_Move_PeriodTime,
+      m_A_Move_Phase_Shift + 2 * alg::piValue() / m_A_Move_PeriodTime *
+      m_SSP_Time_Start_R + alg::piValue(), -m_A_Move_Amplitude,
+      -m_A_Move_Amplitude_Shift);
   }
 
   double r_x = x_swap + x_move_r + m_X_Offset;
@@ -668,48 +840,43 @@ void Walking::process()
   double l_c = c_swap + c_move_l + m_A_Offset / 2;
 
   double angle[22];
-  for (int i = 0; i < 22; i++)
-  {
+  for (int i = 0; i < 22; i++) {
     angle[i] = 0;
   }
 
-  if(m_X_Move_Amplitude == 0)
-  {
+  if (m_X_Move_Amplitude == 0) {
     angle[12] = 0;  // Right
     angle[15] = 0;  // Left
-  }
-  else
-  {
-    angle[12] = wsin(m_Time, m_PeriodTime, alg::piValue() * 1.5, -m_X_Move_Amplitude * m_Arm_Swing_Gain, 0);
-    angle[15] = wsin(m_Time, m_PeriodTime, alg::piValue() * 1.5, m_X_Move_Amplitude * m_Arm_Swing_Gain, 0);
+  } else {
+    angle[12] = wsin(
+      m_Time, m_PeriodTime,
+      alg::piValue() * 1.5, -m_X_Move_Amplitude *
+      m_Arm_Swing_Gain, 0);
+    angle[15] = wsin(
+      m_Time, m_PeriodTime,
+      alg::piValue() * 1.5, m_X_Move_Amplitude *
+      m_Arm_Swing_Gain, 0);
   }
 
-  if (m_Real_Running == true)
-  {
+  if (m_Real_Running == true) {
     m_Time += TIME_UNIT;
-    if (m_Time >= m_PeriodTime)
-    {
+    if (m_Time >= m_PeriodTime) {
       m_Time = 0;
     }
-  }
-  else
-  {
+  } else {
     m_Time = 0;
   }
 
-	// Compute angles
-  if (compute_ik(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false)
-  {
+  // Compute angles
+  if (compute_ik(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false) {
     return;
   }
 
-  if (compute_ik(&angle[6], l_x, l_y, l_z, l_a, l_b, l_c) == false)
-  {
+  if (compute_ik(&angle[6], l_x, l_y, l_z, l_a, l_b, l_c) == false) {
     return;
   }
 
-  for (int i = 0; i < 12; i++)
-  {
+  for (int i = 0; i < 12; i++) {
     angle[i] *= alg::rad2Deg();
   }
 

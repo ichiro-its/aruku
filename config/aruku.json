@@ -1,17 +1,22 @@
 {
+  "Start": true,
+  "X": 100.0,
+  "Y": 0.0,
+  "A": 5.0,
+  "Aim": false,
   "Ratio": {
     "forward_hip_comp_ratio": 0.0,
     "dsp_comp_ratio": 0.0,
     "period_time": 810.0,
     "swing_right_left": 15.0,
-    "dsp_ratio": -0.2,
+    "dsp_ratio": -0.3,
     "period_comp_ratio": 0.0,
     "swing_up_down": -1.0,
     "arm_swing_gain": 0.2,
     "backward_hip_comp_ratio": 0.0,
     "foot_comp_ratio": 0.0,
     "foot_height": 30.0,
-    "move_accel_ratio": 0.4,
+    "move_accel_ratio": 1.0,
     "foot_accel_ratio": 0.2
   },
   "Offset": {
@@ -31,8 +36,8 @@
   },
   "PID": {
     "p_gain": 10,
-    "i_gain": 0,
-    "d_gain": 0
+    "i_gain": 2,
+    "d_gain": 3
   },
   "Odometry": {
     "ry_coefficient": 5.0,

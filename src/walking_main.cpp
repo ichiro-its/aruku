@@ -24,11 +24,17 @@
 
 #include <aruku/walking.hpp>
 #include <kansei/imu.hpp>
+#include <keisan/keisan.hpp>
 #include <robocup_client/robocup_client.hpp>
 
 #include <iostream>
 #include <memory>
 #include <string>
+
+void load_command()
+{
+
+}
 
 int main(int argc, char * argv[])
 {
@@ -76,7 +82,7 @@ int main(int argc, char * argv[])
   walking->initialize();
   walking->start();
 
-  float counter = 0.0;
+  float counter = 1.0;
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
@@ -110,27 +116,22 @@ int main(int argc, char * argv[])
       // return 0;
 
       imu->compute_rpy(gy, acc, seconds);
+      walking->load_data();
       walking->process();
 
-      // walking->X_MOVE_AMPLITUDE = counter;
-      // walking->Y_MOVE_AMPLITUDE = 0.0;
-      // walking->A_MOVE_AMPLITUDE = 0.0;
-      // walking->A_MOVE_AIM_ON = false;
-      // walking->start();
-      // counter++;
 
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {
-        if (joint.get_joint_name().find("shoulder_pitch") != std::string::npos) {
-          message.add_motor_position_in_degree(
-            joint.get_joint_name() + " [shoulder]", joint.get_goal_position());
-        } else if (joint.get_joint_name().find("hip_yaw") != std::string::npos) {
-          message.add_motor_position_in_degree(
-            joint.get_joint_name() + " [hip]", joint.get_goal_position());
-        } else {
-          message.add_motor_position_in_degree(joint.get_joint_name(), joint.get_goal_position());
+        std::string joint_name = joint.get_joint_name();
+        float position = joint.get_goal_position();
+
+        if (joint_name.find("shoulder_pitch") != std::string::npos) {
+          joint_name += " [shoulder]";
+        } else if (joint_name.find("hip_yaw") != std::string::npos) {
+          joint_name += " [hip]", joint.get_goal_position();
         }
-        // std::cout << "sending: " << joint.get_joint_name() << " " << joint.get_goal_position() << std::endl;
+
+        message.add_motor_position_in_degree(joint_name, position);
       }
       client.send(*message.get_actuator_request());
     } catch (const std::runtime_error & exc) {

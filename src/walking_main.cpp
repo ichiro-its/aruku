@@ -122,7 +122,7 @@ int main(int argc, char * argv[])
         if (joint_name.find("shoulder_pitch") != std::string::npos) {
           joint_name += " [shoulder]";
         } else if (joint_name.find("hip_yaw") != std::string::npos) {
-          joint_name += " [hip]", joint.get_goal_position();
+          joint_name += " [hip]";
         }
 
         message.add_motor_position_in_degree(joint_name, position);

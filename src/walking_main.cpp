@@ -26,19 +26,23 @@
 #include <kansei/imu.hpp>
 #include <robocup_client/robocup_client.hpp>
 
+#include <nlohmann/json.hpp>
+
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 
 int main(int argc, char * argv[])
 {
-  if (argc < 3) {
-    std::cerr << "Please specify the host and the port!" << std::endl;
+  if (argc < 4) {
+    std::cerr << "Please specify the host, port, and the path!" << std::endl;
     return 0;
   }
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
+  std::string path = argv[3];
   robocup_client::RobotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
@@ -51,13 +55,44 @@ int main(int argc, char * argv[])
   client.send(*message.get_actuator_request());
 
   auto imu = std::make_shared<kansei::Imu>();
-
   auto walking = std::make_shared<aruku::Walking>(imu);
+
+  walking->load_data(path);
   walking->initialize();
   walking->start();
 
+  float counter = 1.0;
+
   while (client.get_tcp_socket()->is_connected()) {
     try {
+      std::string file_name =
+        path + "main.json";
+      std::ifstream file(file_name);
+      nlohmann::json main_data = nlohmann::json::parse(file);
+
+      for (auto &[key, val] : main_data.items()) {
+        if (key == "Start") {
+          if (val == true) {
+            walking->start();
+          } else {
+            walking->stop();
+          }
+        }
+        if (key == "X") {
+          walking->X_MOVE_AMPLITUDE = val;
+        }
+        if (key == "Y") {
+          walking->Y_MOVE_AMPLITUDE = val;
+        }
+        if (key == "A") {
+          walking->A_MOVE_AMPLITUDE = val;
+        }
+        if (key == "Aim") {
+          walking->A_MOVE_AIM_ON = val;
+        }
+      }
+      walking->load_data(path);
+
       auto sensors = client.receive();
 
       float gy[3];
@@ -76,22 +111,23 @@ int main(int argc, char * argv[])
         acc[2] = accelerometer.value().z();
       }
 
-      float seconds = sensors.get()->time();
+      float seconds = (sensors.get()->time() + 0.0) / 1000;
 
       imu->compute_rpy(gy, acc, seconds);
       walking->process();
 
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {
-        if (joint.get_joint_name().find("shoulder_pitch") != std::string::npos) {
-          message.add_motor_position_in_radian(
-            joint.get_joint_name() + " [shouder]", joint.get_goal_position());
-        } else if (joint.get_joint_name().find("hip_yaw") != std::string::npos) {
-          message.add_motor_position_in_radian(
-            joint.get_joint_name() + " [hip]", joint.get_goal_position());
-        } else {
-          message.add_motor_position_in_radian(joint.get_joint_name(), joint.get_goal_position());
+        std::string joint_name = joint.get_joint_name();
+        float position = joint.get_goal_position();
+
+        if (joint_name.find("shoulder_pitch") != std::string::npos) {
+          joint_name += " [shoulder]";
+        } else if (joint_name.find("hip_yaw") != std::string::npos) {
+          joint_name += " [hip]", joint.get_goal_position();
         }
+
+        message.add_motor_position_in_degree(joint_name, position);
       }
       client.send(*message.get_actuator_request());
     } catch (const std::runtime_error & exc) {

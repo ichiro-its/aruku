@@ -72,7 +72,7 @@ public:
   void set_dynamic_right_kick(double speed) {dynamic_right_kick_ = speed;}
   double set_dynamic_kick() {return alg::maxValue(dynamic_left_kick_, dynamic_right_kick_);}
 
-  void load_data();
+  void load_data(const std::string & path);
 
   std::vector<tachimawari::Joint> get_joints();
 

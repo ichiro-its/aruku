@@ -24,27 +24,25 @@
 
 #include <aruku/walking.hpp>
 #include <kansei/imu.hpp>
-#include <keisan/keisan.hpp>
 #include <robocup_client/robocup_client.hpp>
 
+#include <nlohmann/json.hpp>
+
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 
-void load_command()
-{
-
-}
-
 int main(int argc, char * argv[])
 {
-  if (argc < 3) {
-    std::cerr << "Please specify the host and the port!" << std::endl;
+  if (argc < 4) {
+    std::cerr << "Please specify the host, port, and the path!" << std::endl;
     return 0;
   }
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
+  std::string path = argv[3];
   robocup_client::RobotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
@@ -54,31 +52,12 @@ int main(int argc, char * argv[])
   robocup_client::MessageHandler message;
   message.add_sensor_time_step("gyro", 8);
   message.add_sensor_time_step("accelerometer", 8);
-
-  message.add_sensor_time_step("right_hip_yaw_s", 8);
-  message.add_sensor_time_step("right_hip_roll_s", 8);
-  message.add_sensor_time_step("right_hip_pitch_s", 8);
-  message.add_sensor_time_step("right_knee_s", 8);
-  message.add_sensor_time_step("right_ankle_pitch_s", 8);
-  message.add_sensor_time_step("right_ankle_roll_s", 8);
-  message.add_sensor_time_step("left_hip_yaw_s", 8);
-  message.add_sensor_time_step("left_hip_roll_s", 8);
-  message.add_sensor_time_step("left_hip_pitch_s", 8);
-  message.add_sensor_time_step("left_knee_s", 8);
-  message.add_sensor_time_step("left_ankle_pitch_s", 8);
-  message.add_sensor_time_step("left_ankle_roll_s", 8);
-  message.add_sensor_time_step("right_shoulder_pitch_s", 8);
-  message.add_sensor_time_step("right_shoulder_roll_s", 8);
-  message.add_sensor_time_step("right_elbow_s", 8);
-  message.add_sensor_time_step("left_shoulder_pitch_s", 8);
-  message.add_sensor_time_step("left_shoulder_roll_s", 8);
-  message.add_sensor_time_step("left_elbow_s", 8);
-
   client.send(*message.get_actuator_request());
 
   auto imu = std::make_shared<kansei::Imu>();
-
   auto walking = std::make_shared<aruku::Walking>(imu);
+
+  walking->load_data(path);
   walking->initialize();
   walking->start();
 
@@ -86,6 +65,34 @@ int main(int argc, char * argv[])
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
+      std::string file_name =
+        path + "main.json";
+      std::ifstream file(file_name);
+      nlohmann::json main_data = nlohmann::json::parse(file);
+
+      for (auto &[key, val] : main_data.items()) {
+        if (key == "Start") {
+          if (val == true) {
+            walking->start();
+          } else {
+            walking->stop();
+          }
+        }
+        if (key == "X") {
+          walking->X_MOVE_AMPLITUDE = val;
+        }
+        if (key == "Y") {
+          walking->Y_MOVE_AMPLITUDE = val;
+        }
+        if (key == "A") {
+          walking->A_MOVE_AMPLITUDE = val;
+        }
+        if (key == "Aim") {
+          walking->A_MOVE_AIM_ON = val;
+        }
+      }
+      walking->load_data(path);
+
       auto sensors = client.receive();
 
       float gy[3];
@@ -106,19 +113,8 @@ int main(int argc, char * argv[])
 
       float seconds = (sensors.get()->time() + 0.0) / 1000;
 
-      for (int i = 0; i < sensors.get()->position_sensors_size(); i++) {
-        auto position_sensor = sensors.get()->position_sensors(i);
-        auto joint_name =
-          position_sensor.name().substr(0, position_sensor.name().size() - 2);
-
-        // std::cout << joint_name << " " << position_sensor.value() << std::endl;
-      }
-      // return 0;
-
       imu->compute_rpy(gy, acc, seconds);
-      walking->load_data();
       walking->process();
-
 
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {

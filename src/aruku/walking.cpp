@@ -283,27 +283,18 @@ void Walking::update_param_time()
   m_SSP_Ratio = 1 - m_DSP_Ratio;
 
   m_X_Swap_PeriodTime = m_PeriodTime / 2;
-  m_X_Move_PeriodTime = m_PeriodTime *
-    m_SSP_Ratio;
+  m_X_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
   m_Y_Swap_PeriodTime = m_PeriodTime;
-  m_Y_Move_PeriodTime = m_PeriodTime *
-    m_SSP_Ratio;
+  m_Y_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
   m_Z_Swap_PeriodTime = m_PeriodTime / 2;
-  m_Z_Move_PeriodTime = m_PeriodTime *
-    m_SSP_Ratio / 2;
-  m_A_Move_PeriodTime = m_PeriodTime *
-    m_SSP_Ratio;
+  m_Z_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio / 2;
+  m_A_Move_PeriodTime = m_PeriodTime * m_SSP_Ratio;
 
-  m_SSP_Time = m_PeriodTime *
-    m_SSP_Ratio;
-  m_SSP_Time_Start_L = (1 - m_SSP_Ratio) *
-    m_PeriodTime / 4;
-  m_SSP_Time_End_L = (1 + m_SSP_Ratio) *
-    m_PeriodTime / 4;
-  m_SSP_Time_Start_R = (3 - m_SSP_Ratio) *
-    m_PeriodTime / 4;
-  m_SSP_Time_End_R = (3 + m_SSP_Ratio) *
-    m_PeriodTime / 4;
+  m_SSP_Time = m_PeriodTime * m_SSP_Ratio;
+  m_SSP_Time_Start_L = (1 - m_SSP_Ratio) * m_PeriodTime / 4;
+  m_SSP_Time_End_L = (1 + m_SSP_Ratio) * m_PeriodTime / 4;
+  m_SSP_Time_Start_R = (3 - m_SSP_Ratio) * m_PeriodTime / 4;
+  m_SSP_Time_End_R = (3 + m_SSP_Ratio) * m_PeriodTime / 4;
 
   m_Phase_Time1 = (m_SSP_Time_Start_L + m_SSP_Time_End_L) / 2;
   m_Phase_Time2 = (m_SSP_Time_End_L + m_SSP_Time_Start_R) / 2;
@@ -351,13 +342,11 @@ void Walking::update_param_move()
 
   if (A_MOVE_AIM_ON == false) {
     m_A_Move_Amplitude = alg::smoothValue(
-      m_A_Move_Amplitude,
-      a_input * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
+      m_A_Move_Amplitude, a_input * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = fabs(m_A_Move_Amplitude);
   } else {
     m_A_Move_Amplitude = alg::smoothValue(
-      m_A_Move_Amplitude,
-      (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
+      m_A_Move_Amplitude, (-a_input) * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = -fabs(m_A_Move_Amplitude);
   }
 }
@@ -849,12 +838,10 @@ void Walking::process()
     angle[15] = 0;  // Left
   } else {
     angle[12] = wsin(
-      m_Time, m_PeriodTime,
-      alg::piValue() * 1.5, -m_X_Move_Amplitude *
+      m_Time, m_PeriodTime, alg::piValue() * 1.5, -m_X_Move_Amplitude *
       m_Arm_Swing_Gain, 0);
     angle[15] = wsin(
-      m_Time, m_PeriodTime,
-      alg::piValue() * 1.5, m_X_Move_Amplitude *
+      m_Time, m_PeriodTime, alg::piValue() * 1.5, m_X_Move_Amplitude *
       m_Arm_Swing_Gain, 0);
   }
 

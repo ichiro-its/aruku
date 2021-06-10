@@ -54,7 +54,7 @@ public:
     }
   };
 
-  explicit Walking(std::shared_ptr<kansei::Imu> imu, const std::string & path);
+  explicit Walking(std::shared_ptr<kansei::Imu> imu);
 
   void initialize();
   void start();

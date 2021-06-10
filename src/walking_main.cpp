@@ -42,6 +42,7 @@ int main(int argc, char * argv[])
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
+  std::string path = argv[3];
   robocup_client::RobotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
@@ -56,16 +57,16 @@ int main(int argc, char * argv[])
   auto imu = std::make_shared<kansei::Imu>();
   auto walking = std::make_shared<aruku::Walking>(imu);
 
+  walking->load_data(path);
   walking->initialize();
   walking->start();
 
   float counter = 1.0;
-  std::string path = argv[3];
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
       std::string file_name =
-        path + "aruku_main.json";
+        path + "main.json";
       std::ifstream file(file_name);
       nlohmann::json main_data = nlohmann::json::parse(file);
 
@@ -123,7 +124,7 @@ int main(int argc, char * argv[])
         if (joint_name.find("shoulder_pitch") != std::string::npos) {
           joint_name += " [shoulder]";
         } else if (joint_name.find("hip_yaw") != std::string::npos) {
-          joint_name += " [hip]";
+          joint_name += " [hip]", joint.get_goal_position();
         }
 
         message.add_motor_position_in_degree(joint_name, position);

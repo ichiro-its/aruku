@@ -40,7 +40,7 @@
 namespace aruku
 {
 
-Walking::Walking(std::shared_ptr<kansei::Imu> imu, const std::string & path)
+Walking::Walking(std::shared_ptr<kansei::Imu> imu)
 : imu(imu)
 {
   m_PeriodTime = 0;
@@ -148,8 +148,6 @@ Walking::Walking(std::shared_ptr<kansei::Imu> imu, const std::string & path)
     tachimawari::Joint joint(id);
     joints.push_back(joint);
   }
-
-  load_data(path);
 }
 
 double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)

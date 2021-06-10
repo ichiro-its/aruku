@@ -60,11 +60,12 @@ int main(int argc, char * argv[])
   walking->start();
 
   float counter = 1.0;
+  std::string path = argv[3];
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
       std::string file_name =
-        argv[3] + "aruku_main.json";
+        path + "aruku_main.json";
       std::ifstream file(file_name);
       nlohmann::json main_data = nlohmann::json::parse(file);
 
@@ -89,7 +90,7 @@ int main(int argc, char * argv[])
           walking->A_MOVE_AIM_ON = val;
         }
       }
-      walking->load_data(argv[3]);
+      walking->load_data(path);
 
       auto sensors = client.receive();
 

@@ -102,7 +102,7 @@ Walking::Walking(std::shared_ptr<kansei::Imu> imu)
   A_MOVE_AMPLITUDE = 0;
   A_MOVE_AIM_ON = false;
 
-  BALANCE_ENABLE = true;
+  BALANCE_ENABLE = false;
 
   POSITION_X = 0;
   POSITION_Y = 0;
@@ -317,6 +317,7 @@ void Walking::update_param_move()
 
   if (A_MOVE_AIM_ON == false)
   {
+    std::cout << "adsa" << " " << A_MOVE_AMPLITUDE;
     m_A_Move_Amplitude = alg::smoothValue(m_A_Move_Amplitude, a_input * alg::deg2Rad() * 0.5, MOVE_ACCEL_RATIO);
     m_A_Move_Amplitude_Shift = fabs(m_A_Move_Amplitude);
   }
@@ -347,12 +348,12 @@ void Walking::load_data()
     if (key == "Y") {
       Y_MOVE_AMPLITUDE = val;
     }
-    // if (key == "A") {
-    //   A_MOVE_AMPLITUDE = val;
-    // }
-    // if (key == "Aim") {
-    //   A_MOVE_AIM_ON = val;
-    // }
+    if (key == "A") {
+      A_MOVE_AMPLITUDE = val;
+    }
+    if (key == "Aim") {
+      A_MOVE_AIM_ON = val;
+    }
     if (key == "Ratio") {
       try {
         val.at("period_time").get_to(PERIOD_TIME);
@@ -528,7 +529,6 @@ std::vector<tachimawari::Joint> Walking::get_joints()
 
 void Walking::process()
 {
-
   if (m_Time == 0)
   {
     update_param_move();
@@ -736,9 +736,12 @@ void Walking::process()
     m_Time = 0;
   }
 
+  std::cout << m_A_Move_Amplitude << std::endl;
+
 	// Compute angles
   if (compute_ik(&angle[0], r_x, r_y, r_z, r_a, r_b, r_c) == false)
   {
+    std::cout << "\n" << r_x << " " << r_y << " " << r_z << " " << r_a << " " << r_b << " " << r_c << std::endl << std::endl;
     return;
   }
 
@@ -779,20 +782,20 @@ void Walking::process()
   int dir[22];
   dir[0] = 1;
   dir[1] = 1;
-  dir[2] = 1;
-  dir[3] = 1;
-  dir[4] = 1;
+  dir[2] = -1;
+  dir[3] = -1;
+  dir[4] = -1;
   dir[5] = 1;
   dir[6] = 1;
   dir[7] = 1;
-  dir[8] = 1;
-  dir[9] = 1;
-  dir[10] = 1;
+  dir[8] = -1;
+  dir[9] = -1;
+  dir[10] = -1;
   dir[11] = 1;
-  dir[12] = 1;
+  dir[12] = -1;
   dir[13] = 1;
   dir[14] = 1;
-  dir[15] = 1;
+  dir[15] = -1;
   dir[16] = 1;
   dir[17] = 1;
   dir[18] = 1;

@@ -35,8 +35,8 @@
 
 int main(int argc, char * argv[])
 {
-  if (argc < 3) {
-    std::cerr << "Please specify the host and the port!" << std::endl;
+  if (argc < 4) {
+    std::cerr << "Please specify the host, port, and the path!" << std::endl;
     return 0;
   }
 
@@ -64,7 +64,7 @@ int main(int argc, char * argv[])
   while (client.get_tcp_socket()->is_connected()) {
     try {
       std::string file_name =
-        "/home/ichiro/ROS2Project/ros2_ws/src/aruku/data/main.json";
+        argv[3] + "aruku_main.json";
       std::ifstream file(file_name);
       nlohmann::json main_data = nlohmann::json::parse(file);
 
@@ -89,7 +89,7 @@ int main(int argc, char * argv[])
           walking->A_MOVE_AIM_ON = val;
         }
       }
-      walking->load_data();
+      walking->load_data(argv[3]);
 
       auto sensors = client.receive();
 
@@ -122,7 +122,7 @@ int main(int argc, char * argv[])
         if (joint_name.find("shoulder_pitch") != std::string::npos) {
           joint_name += " [shoulder]";
         } else if (joint_name.find("hip_yaw") != std::string::npos) {
-          joint_name += " [hip]", joint.get_goal_position();
+          joint_name += " [hip]";
         }
 
         message.add_motor_position_in_degree(joint_name, position);

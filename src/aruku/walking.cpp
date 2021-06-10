@@ -40,7 +40,7 @@
 namespace aruku
 {
 
-Walking::Walking(std::shared_ptr<kansei::Imu> imu)
+Walking::Walking(std::shared_ptr<kansei::Imu> imu, const std::string & path)
 : imu(imu)
 {
   m_PeriodTime = 0;
@@ -149,7 +149,7 @@ Walking::Walking(std::shared_ptr<kansei::Imu> imu)
     joints.push_back(joint);
   }
 
-  load_data();
+  load_data(path);
 }
 
 double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)
@@ -351,10 +351,10 @@ void Walking::update_param_move()
   }
 }
 
-void Walking::load_data()
+void Walking::load_data(const std::string & path)
 {
   std::string file_name =
-    "/home/ichiro/ROS2Project/ros2_ws/src/aruku/data/aruku.json";
+    path + "aruku.json";
   std::ifstream file(file_name);
   nlohmann::json walking_data = nlohmann::json::parse(file);
 

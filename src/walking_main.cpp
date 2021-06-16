@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
-  std::string path = argv[3];
+  std::string path = argv[3] + "walking/";
   robocup_client::RobotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;

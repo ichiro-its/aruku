@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
-  std::string path = argv[3] + "walking/";
+  std::string path = argv[3];
   robocup_client::RobotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
   while (client.get_tcp_socket()->is_connected()) {
     try {
       std::string file_name =
-        path + "main.json";
+        path + "walking/" + "main.json";
       std::ifstream file(file_name);
       nlohmann::json main_data = nlohmann::json::parse(file);
 

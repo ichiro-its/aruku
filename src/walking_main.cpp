@@ -66,7 +66,7 @@ int main(int argc, char * argv[])
   while (client.get_tcp_socket()->is_connected()) {
     try {
       std::string file_name =
-        path + "main.json";
+        path + "walking/" + "main.json";
       std::ifstream file(file_name);
       nlohmann::json main_data = nlohmann::json::parse(file);
 

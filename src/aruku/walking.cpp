@@ -352,7 +352,7 @@ void Walking::update_param_move()
 void Walking::load_data(const std::string & path)
 {
   std::string file_name =
-    path + "aruku.json";
+    path + "walking/" + "aruku.json";
   std::ifstream file(file_name);
   nlohmann::json walking_data = nlohmann::json::parse(file);
 

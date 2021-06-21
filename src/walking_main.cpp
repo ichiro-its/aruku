@@ -62,6 +62,7 @@ int main(int argc, char * argv[])
   walking->start();
 
   float counter = 1.0;
+  bool init_orientation = true;
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
@@ -73,9 +74,17 @@ int main(int argc, char * argv[])
       for (auto &[key, val] : main_data.items()) {
         if (key == "Start") {
           if (val == true) {
-            walking->start();
+            if (imu->is_calibrated()) {
+              walking->start();
+
+              if (init_orientation) {
+                imu->reset_orientation();
+                init_orientation = false;
+              }
+            }
           } else {
             walking->stop();
+            init_orientation = true;
           }
         }
         if (key == "X") {
@@ -95,7 +104,7 @@ int main(int argc, char * argv[])
 
       auto sensors = client.receive();
 
-      float gy[3];
+      double gy[3];
       if (sensors.get()->gyros_size() > 0) {
         auto gyro = sensors.get()->gyros(0);
         gy[0] = gyro.value().x();
@@ -103,7 +112,7 @@ int main(int argc, char * argv[])
         gy[2] = gyro.value().z();
       }
 
-      float acc[3];
+      double acc[3];
       if (sensors.get()->accelerometers_size() > 0) {
         auto accelerometer = sensors.get()->accelerometers(0);
         acc[0] = accelerometer.value().x();
@@ -115,6 +124,9 @@ int main(int argc, char * argv[])
 
       imu->compute_rpy(gy, acc, seconds);
       walking->process();
+
+      std::cout << "pos_x " << walking->POSITION_X << ", pos_y " << walking->POSITION_Y << std::endl;
+      std::cout << "orientation " << imu->get_yaw() << std::endl;
 
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {

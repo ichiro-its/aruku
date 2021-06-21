@@ -55,10 +55,11 @@ int main(int argc, char * argv[])
   client.send(*message.get_actuator_request());
 
   auto imu = std::make_shared<kansei::Imu>();
-  auto walking = std::make_shared<aruku::Walking>(imu);
+  imu->load_data(path);
 
-  walking->load_data(path);
+  auto walking = std::make_shared<aruku::Walking>(imu);
   walking->initialize();
+  walking->load_data(path);
   walking->start();
 
   float counter = 1.0;
@@ -78,13 +79,15 @@ int main(int argc, char * argv[])
               walking->start();
 
               if (init_orientation) {
-                imu->reset_orientation();
+                imu->reset_orientation_to(-90.0);
                 init_orientation = false;
               }
             }
           } else {
             walking->stop();
-            init_orientation = true;
+            if (imu->is_calibrated()) {
+              init_orientation = true;
+            }
           }
         }
         if (key == "X") {
@@ -120,13 +123,15 @@ int main(int argc, char * argv[])
         acc[2] = accelerometer.value().z();
       }
 
-      float seconds = (sensors.get()->time() + 0.0) / 1000;
+      double seconds = (sensors.get()->time() + 0.0) / 1000;
 
       imu->compute_rpy(gy, acc, seconds);
       walking->process();
 
       std::cout << "pos_x " << walking->POSITION_X << ", pos_y " << walking->POSITION_Y << std::endl;
       std::cout << "orientation " << imu->get_yaw() << std::endl;
+      std::cout << "comp " << imu->angle_compensation << ", raw_comp " << imu->angle_raw_compensation << std::endl;
+      std::cout << "======================================================" << imu->angle_raw_compensation << std::endl;
 
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {

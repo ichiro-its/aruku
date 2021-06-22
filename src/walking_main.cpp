@@ -55,13 +55,15 @@ int main(int argc, char * argv[])
   client.send(*message.get_actuator_request());
 
   auto imu = std::make_shared<kansei::Imu>();
-  auto walking = std::make_shared<aruku::Walking>(imu);
+  imu->load_data(path);
 
-  walking->load_data(path);
+  auto walking = std::make_shared<aruku::Walking>(imu);
   walking->initialize();
+  walking->load_data(path);
   walking->start();
 
   float counter = 1.0;
+  bool init_orientation = true;
 
   while (client.get_tcp_socket()->is_connected()) {
     try {
@@ -73,9 +75,19 @@ int main(int argc, char * argv[])
       for (auto &[key, val] : main_data.items()) {
         if (key == "Start") {
           if (val == true) {
-            walking->start();
+            if (imu->is_calibrated()) {
+              walking->start();
+
+              if (init_orientation) {
+                imu->reset_orientation_to(-90.0);
+                init_orientation = false;
+              }
+            }
           } else {
             walking->stop();
+            if (imu->is_calibrated()) {
+              init_orientation = true;
+            }
           }
         }
         if (key == "X") {
@@ -95,7 +107,7 @@ int main(int argc, char * argv[])
 
       auto sensors = client.receive();
 
-      float gy[3];
+      double gy[3];
       if (sensors.get()->gyros_size() > 0) {
         auto gyro = sensors.get()->gyros(0);
         gy[0] = gyro.value().x();
@@ -103,7 +115,7 @@ int main(int argc, char * argv[])
         gy[2] = gyro.value().z();
       }
 
-      float acc[3];
+      double acc[3];
       if (sensors.get()->accelerometers_size() > 0) {
         auto accelerometer = sensors.get()->accelerometers(0);
         acc[0] = accelerometer.value().x();
@@ -111,7 +123,7 @@ int main(int argc, char * argv[])
         acc[2] = accelerometer.value().z();
       }
 
-      float seconds = (sensors.get()->time() + 0.0) / 1000;
+      double seconds = (sensors.get()->time() + 0.0) / 1000;
 
       imu->compute_rpy(gy, acc, seconds);
       walking->process();

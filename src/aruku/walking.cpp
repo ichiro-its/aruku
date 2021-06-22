@@ -891,13 +891,13 @@ void Walking::process()
 
   int dir[22];
   dir[0] = 1;
-  dir[1] = 1;
+  dir[1] = -1;
   dir[2] = -1;
   dir[3] = -1;
   dir[4] = -1;
   dir[5] = 1;
   dir[6] = 1;
-  dir[7] = 1;
+  dir[7] = -1;
   dir[8] = -1;
   dir[9] = -1;
   dir[10] = -1;

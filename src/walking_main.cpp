@@ -128,11 +128,6 @@ int main(int argc, char * argv[])
       imu->compute_rpy(gy, acc, seconds);
       walking->process();
 
-      std::cout << "pos_x " << walking->POSITION_X << ", pos_y " << walking->POSITION_Y << std::endl;
-      std::cout << "orientation " << imu->get_yaw() << std::endl;
-      std::cout << "comp " << imu->angle_compensation << ", raw_comp " << imu->angle_raw_compensation << std::endl;
-      std::cout << "======================================================" << imu->angle_raw_compensation << std::endl;
-
       message.clear_actuator_request();
       for (auto joint : walking->get_joints()) {
         std::string joint_name = joint.get_joint_name();

@@ -21,13 +21,11 @@
 #ifndef ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
 #define ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
 
-#include <algorithm>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "keisan/keisan.hpp"
+#include "keisan/angle/angle.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
@@ -52,10 +50,14 @@ public:
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
-  bool compute_ik(double * out, double x, double y, double z, double a, double b, double c) const;
+  bool compute_ik(size_t index, double x, double y, double z, double a, double b, double c) const;
 
-  void update_param_time();
-  void update_param_move();
+  void update_move_amplitude();
+  void update_times();
+
+  void reset_angles();
+
+  double z_move;
 
   double hip_comp;
   double foot_comp;

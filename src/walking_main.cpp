@@ -1,6 +1,6 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2021 ichiro iTS
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
+// permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -10,13 +10,13 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWarE iS prOVidEd "aS iS", WiTHOUT WarraNTy OF aNy KiNd, ExprESS Or
+// iMpLiEd, iNCLUdiNG BUT NOT LiMiTEd TO THE WarraNTiES OF MErCHaNTaBiLiTy,
+// FiTNESS FOr a parTiCULar pUrpOSE aNd NONiNFriNGEMENT. iN NO EVENT SHaLL
+// THE aUTHOrS Or COpyriGHT HOLdErS BE LiaBLE FOr aNy CLaiM, daMaGES Or OTHEr
+// LiaBiLiTy, WHETHEr iN aN aCTiON OF CONTraCT, TOrT Or OTHErWiSE, ariSiNG FrOM,
+// OUT OF Or iN CONNECTiON WiTH THE SOFTWarE Or THE USE Or OTHEr dEaLiNGS iN
+// THE SOFTWarE.
 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
@@ -36,14 +36,14 @@
 int main(int argc, char * argv[])
 {
   if (argc < 4) {
-    std::cerr << "Please specify the host, port, and the path!" << std::endl;
+    std::cerr << "please specify the host, port, and the path!" << std::endl;
     return 0;
   }
 
   std::string host = argv[1];
   int port = std::stoi(argv[2]);
   std::string path = argv[3];
-  robocup_client::RobotClient client(host, port);
+  robocup_client::robotClient client(host, port);
   if (!client.connect()) {
     std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
     return 1;
@@ -54,7 +54,7 @@ int main(int argc, char * argv[])
   message.add_sensor_time_step("accelerometer", 8);
   client.send(*message.get_actuator_request());
 
-  auto imu = std::make_shared<kansei::Imu>();
+  auto imu = std::make_shared<kansei::imu>();
   imu->load_data(path);
 
   auto walking = std::make_shared<aruku::Walking>(imu);
@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
       nlohmann::json main_data = nlohmann::json::parse(file);
 
       for (auto &[key, val] : main_data.items()) {
-        if (key == "Start") {
+        if (key == "start") {
           if (val == true) {
             if (imu->is_calibrated()) {
               walking->start();
@@ -90,17 +90,17 @@ int main(int argc, char * argv[])
             }
           }
         }
-        if (key == "X") {
-          walking->X_MOVE_AMPLITUDE = val;
+        if (key == "x") {
+          walking->x_move_amplitude = val;
         }
-        if (key == "Y") {
-          walking->Y_MOVE_AMPLITUDE = val;
+        if (key == "y") {
+          walking->y_move_amplitude = val;
         }
-        if (key == "A") {
-          walking->A_MOVE_AMPLITUDE = val;
+        if (key == "a") {
+          walking->a_move_amplitude = val;
         }
-        if (key == "Aim") {
-          walking->A_MOVE_AIM_ON = val;
+        if (key == "aim") {
+          walking->a_move_aim_on = val;
         }
       }
       walking->load_data(path);
@@ -143,7 +143,7 @@ int main(int argc, char * argv[])
       }
       client.send(*message.get_actuator_request());
     } catch (const std::runtime_error & exc) {
-      std::cerr << "Runtime error: " << exc.what() << std::endl;
+      std::cerr << "runtime error: " << exc.what() << std::endl;
     }
   }
 

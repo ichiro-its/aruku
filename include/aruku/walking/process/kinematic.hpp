@@ -18,8 +18,8 @@
 // OUT OF Or iN CONNECTiON WiTH THE SOFTWarE Or THE USE Or OTHEr dEaLiNGS iN
 // THE SOFTWarE.
 
-#ifndef arUKU__WaLKiNG_Hpp_
-#define arUKU__WaLKiNG_Hpp_
+#ifndef ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
+#define ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
 
 #include <algorithm>
 #include <map>
@@ -27,62 +27,39 @@
 #include <string>
 #include <vector>
 
+#include "keisan/keisan.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
 {
 
-class Walking
+class Kinematic
 {
 public:
-  struct mx28
-  {
-    const int CENTEr_VaLUE = 2048;
-    const double raTiO_aNGLE2VaLUE = 11.378;
-    const double raTiO_VaLUE2aNGLE = 0.088;
+  Kinematic();
 
-    int angle_to_value(double angle)
-    {
-      return static_cast<int>((angle * raTiO_aNGLE2VaLUE) + CENTEr_VaLUE);
-    }
+  void set_running_state(bool runnning_state);
+  bool get_running_state() const;
 
-    double value_to_angle(int value)
-    {
-      return static_cast<double>((value - CENTEr_VaLUE) * raTiO_VaLUE2aNGLE);
-    }
-  };
+  void stop_kinematic();
+  void run_kinematic();
 
-  Walking();
-
-  void initialize();
-  void start();
-  void stop();
-  void force_stop();
-
-  void process();
-  bool is_running() {return m_real_running;}
-
-  double get_mx_move_amplitude() {return m_x_move_amplitude;}
-  double get_my_move_amplitude() {return m_y_move_amplitude;}
-  double get_ma_move_amplitude() {return m_a_move_amplitude;}
+  double get_mx_move_amplitude() const {return m_x_move_amplitude;}
+  double get_my_move_amplitude() const {return m_y_move_amplitude;}
+  double get_ma_move_amplitude() const {return m_a_move_amplitude;}
 
   void load_data(const std::string & path);
 
-  std::vector<tachimawari::joint::Joint> get_joints();
-
 private:
-  double wsin(double time, double period, double period_shift, double mag, double mag_shift);
-  bool compute_ik(double * out, double x, double y, double z, double a, double b, double c);
+  double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
+  bool compute_ik(double * out, double x, double y, double z, double a, double b, double c) const;
 
-  void compute_odometry();
   void update_param_time();
   void update_param_move();
 
-  // double x_move_amplitude;
-  // double y_move_amplitude;
-  // double z_move_amplitude;
-  // double a_move_amplitude;
-  // bool a_move_aim_on;
+  double hip_comp;
+  double foot_comp;
+  double dsp_comp;
 
   double m_period_time;
   double m_dsp_ratio;
@@ -100,10 +77,8 @@ private:
   double m_a_move_period_time;
 
   double m_ssp_time;
-
   double m_ssp_time_start_l;
   double m_ssp_time_end_l;
-
   double m_ssp_time_start_r;
   double m_ssp_time_End_r;
 
@@ -151,13 +126,15 @@ private:
   double m_arm_swing_gain;
   double m_arm_roll_Gain;
 
-  // bool m_ctrl_running;
+  bool m_ctrl_running;
   bool m_real_running;
 
   double m_time;
   double time_unit;
+
+  std::vector<keisan::Angle<float>> joint_angles;
 };
 
 }  // namespace aruku
 
-#endif  // arUKU__WaLKiNG_Hpp_
+#endif  // ARUKU__WALKING__PROCESS__KINEMATIC_HPP_

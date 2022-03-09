@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "aruku/walking.hpp"
+#include "aruku/walking/process/kinematic.hpp"
 
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
@@ -39,76 +39,9 @@ using keisan::literals::operator""_pi;
 namespace aruku
 {
 
-Walking::Walking()
+Kinematic::Kinematic()
+: m_period_time(0),m_dsp_ratio(0),m_ssp_ratio(0),m_x_swap_period_time(0),m_x_move_period_time(0),m_y_swap_period_time(0),m_y_move_period_time(0),m_z_swap_period_time(0),m_z_move_period_time(0),m_a_move_period_time(0),m_ssp_time(0),m_ssp_time_start_l(0),m_ssp_time_end_l(0),m_ssp_time_start_r(0),m_ssp_time_End_r(0),m_phase_time1(0),m_phase_time2(0),m_phase_time3(0),m_x_offset(0),m_y_offset(0),m_z_offset(0),m_r_offset(0),m_p_offset(0),m_a_offset(0),m_x_swap_phase_shift(0),m_x_swap_amplitude(0),m_x_swap_amplitude_shift(0),m_x_move_phase_shift(0),m_x_move_amplitude(0),m_x_move_amplitude_shift(0),m_y_swap_phase_shift(0),m_y_swap_amplitude(0),m_y_swap_amplitude_shift(0),m_y_move_phase_shift(0),m_y_move_amplitude(0),m_y_move_amplitude_shift(0),m_z_swap_phase_shift(0),m_z_swap_amplitude(0),m_z_swap_amplitude_shift(0),m_z_move_phase_shift(0),m_z_move_amplitude(0),m_z_move_amplitude_Goal(0),m_z_move_amplitude_shift(0),m_a_move_phase_shift(0),m_a_move_amplitude(0),m_a_move_amplitude_shift(0),m_arm_swing_gain(0),m_arm_roll_Gain(0),hip_comp(0.0),foot_comp(0.0),time_unit(8.0)
 {
-  m_period_time = 0;
-  m_dsp_ratio = 0;
-  m_ssp_ratio = 0;
-  m_x_swap_period_time = 0;
-  m_x_move_period_time = 0;
-  m_y_swap_period_time = 0;
-  m_y_move_period_time = 0;
-  m_z_swap_period_time = 0;
-  m_z_move_period_time = 0;
-  m_a_move_period_time = 0;
-  m_ssp_time = 0;
-  m_ssp_time_start_l = 0;
-  m_ssp_time_end_l = 0;
-  m_ssp_time_start_r = 0;
-  m_ssp_time_End_r = 0;
-  m_phase_time1 = 0;
-  m_phase_time2 = 0;
-  m_phase_time3 = 0;
-
-  m_x_offset = 0;
-  m_y_offset = 0;
-  m_z_offset = 0;
-  m_r_offset = 0;
-  m_p_offset = 0;
-  m_a_offset = 0;
-
-  m_x_swap_phase_shift = 0;
-  m_x_swap_amplitude = 0;
-  m_x_swap_amplitude_shift = 0;
-  m_x_move_phase_shift = 0;
-  m_x_move_amplitude = 0;
-  m_x_move_amplitude_shift = 0;
-  m_y_swap_phase_shift = 0;
-  m_y_swap_amplitude = 0;
-  m_y_swap_amplitude_shift = 0;
-  m_y_move_phase_shift = 0;
-  m_y_move_amplitude = 0;
-  m_y_move_amplitude_shift = 0;
-  m_z_swap_phase_shift = 0;
-  m_z_swap_amplitude = 0;
-  m_z_swap_amplitude_shift = 0;
-  m_z_move_phase_shift = 0;
-  m_z_move_amplitude = 0;
-  m_z_move_amplitude_Goal = 0;
-  m_z_move_amplitude_shift = 0;
-  m_a_move_phase_shift = 0;
-  m_a_move_amplitude = 0;
-  m_a_move_amplitude_shift = 0;
-
-  m_arm_swing_gain = 0;
-  m_arm_roll_Gain = 0;
-
-  x_move_amplitude = 0;
-  y_move_amplitude = 0;
-  a_move_amplitude = 0;
-  a_move_aim_on = false;
-
-  balance_enable = false;
-
-  position_x = 0;
-  position_y = 0;
-  orientation = 0;
-
-  hip_comp = 0.0;
-  foot_comp = 0.0;
-
-  time_unit = 8.0;
-
   for (auto id : tachimawari::joint::JointId::list) {
     if (id <= tachimawari::joint::JointId::LEFT_ANKLE_PITCH) {
       joints.push_back(tachimawari::joint::Joint(id));
@@ -116,12 +49,12 @@ Walking::Walking()
   }
 }
 
-double Walking::wsin(double time, double period, double period_shift, double mag, double mag_shift)
+double Kinematic::wsin(double time, double period, double period_shift, double mag, double mag_shift)
 {
   return mag * sin(2_pi / period * time - period_shift) + mag_shift;
 }
 
-bool Walking::compute_ik(double * out, double x, double y, double z, double a, double b, double c)
+bool Kinematic::compute_ik(double * out, double x, double y, double z, double a, double b, double c)
 {
   {
     using keisan::Point3;
@@ -226,7 +159,7 @@ bool Walking::compute_ik(double * out, double x, double y, double z, double a, d
   }
 }
 
-void Walking::compute_odometry()
+void Kinematic::compute_odometry()
 {
   if (fabs(m_x_move_amplitude) >= 5 || fabs(m_y_move_amplitude) >= 5) {
     float dx = m_x_move_amplitude * odometry_fx_coefficient / 30.0;
@@ -245,7 +178,7 @@ void Walking::compute_odometry()
   }
 }
 
-void Walking::update_param_time()
+void Kinematic::update_param_time()
 {
   dsp_comp = fabs(m_x_move_amplitude) * dsp_comp_ratio * 0.001;
 
@@ -283,7 +216,7 @@ void Walking::update_param_time()
   foot_comp = fabs(m_x_move_amplitude) * foot_comp_ratio;
 }
 
-void Walking::update_param_move()
+void Kinematic::update_param_move()
 {
   double x_input = x_move_amplitude;
   double y_input = y_move_amplitude * 0.5;
@@ -321,7 +254,7 @@ void Walking::update_param_move()
   }
 }
 
-void Walking::load_data(const std::string & path)
+void Kinematic::load_data(const std::string & path)
 {
   std::string file_name =
     path + "walking/" + "aruku.json";
@@ -408,7 +341,7 @@ void Walking::load_data(const std::string & path)
   }
 }
 
-void Walking::initialize()
+void Kinematic::initialize()
 {
   x_move_amplitude = 0;
   y_move_amplitude = 0;
@@ -449,18 +382,18 @@ void Walking::initialize()
   process();
 }
 
-void Walking::start()
+void Kinematic::start()
 {
   m_ctrl_running = true;
   m_real_running = true;
 }
 
-void Walking::stop()
+void Kinematic::stop()
 {
   m_ctrl_running = false;
 }
 
-void Walking::force_stop()
+void Kinematic::force_stop()
 {
   m_ctrl_running = false;
   m_real_running = false;
@@ -474,7 +407,7 @@ void Walking::force_stop()
   update_param_move();
 }
 
-void Walking::process()
+void Kinematic::process()
 {
   if (m_time == 0) {
     update_param_move();
@@ -813,91 +746,6 @@ void Walking::process()
 
   for (int i = 0; i < 12; i++) {
     angle[i] = keisan::make_radian(angle[i]).degree();
-  }
-
-  double initangle[22];
-  initangle[0] = initial_r_hip_yaw;
-  initangle[1] = initial_r_hip_roll;
-  initangle[2] = initial_r_hip_pitch;
-  initangle[3] = initial_r_knee;
-  initangle[4] = initial_r_ankle_pitch;
-  initangle[5] = initial_r_ankle_roll;
-  initangle[6] = initial_l_hip_yaw;
-  initangle[7] = initial_l_hip_roll;
-  initangle[8] = initial_l_hip_pitch;
-  initangle[9] = initial_l_knee;
-  initangle[10] = initial_l_ankle_pitch;
-  initangle[11] = initial_l_ankle_roll;
-  initangle[12] = initial_r_shoulder_pitch;
-  initangle[13] = initial_r_shoulder_roll;
-  initangle[14] = initial_r_elbow;
-  initangle[15] = initial_l_shoulder_pitch;
-  initangle[16] = initial_l_shoulder_roll;
-  initangle[17] = initial_l_elbow;
-  initangle[18] = 0.0;
-  initangle[19] = 0.0;
-  initangle[20] = initial_r_gripper;
-  initangle[21] = initial_l_gripper;
-
-  int dir[22];
-  dir[0] = 1;
-  dir[1] = -1;
-  dir[2] = -1;
-  dir[3] = -1;
-  dir[4] = -1;
-  dir[5] = 1;
-  dir[6] = 1;
-  dir[7] = -1;
-  dir[8] = -1;
-  dir[9] = -1;
-  dir[10] = -1;
-  dir[11] = 1;
-  dir[12] = -1;
-  dir[13] = 1;
-  dir[14] = 1;
-  dir[15] = -1;
-  dir[16] = 1;
-  dir[17] = 1;
-  dir[18] = 1;
-  dir[19] = 1;
-  dir[20] = 1;
-  dir[21] = 1;
-
-  int outValue[22];
-  for (int i = 0; i < 22; i++) {
-    double offset = static_cast<double>(dir[i]) * angle[i] * mx.raTiO_aNGLE2VaLUE;
-
-    switch (i) {
-      case 2:
-      case 8:
-        offset -= static_cast<double>(dir[i]) * (hip_pitch_offset + hip_comp) *
-          mx.raTiO_aNGLE2VaLUE;
-    }
-
-    outValue[i] = mx.angle_to_value(initangle[i]) + static_cast<int>(offset);
-  }
-
-  // adjust balance offset
-  if (balance_enable) {
-    double rlGyroErr = imu->get_rl_gyro();
-    double fbGyroErr = imu->get_fb_gyro();
-
-    outValue[1] += static_cast<int>(dir[1] * rlGyroErr * balance_hip_roll_gain * 4);
-    outValue[7] += static_cast<int>(dir[7] * rlGyroErr * balance_hip_roll_gain * 4);
-
-    outValue[3] -= static_cast<int>(dir[3] * fbGyroErr * balance_knee_gain * 4);
-    outValue[9] -= static_cast<int>(dir[9] * fbGyroErr * balance_knee_gain * 4);
-
-    outValue[4] -= static_cast<int>(dir[4] * fbGyroErr * balance_ankle_pitch_gain * 4);
-    outValue[10] -= static_cast<int>(dir[10] * fbGyroErr * balance_ankle_pitch_gain * 4);
-
-    outValue[5] -= static_cast<int>(dir[5] * rlGyroErr * balance_ankle_roll_gain * 4);
-    outValue[11] -= static_cast<int>(dir[11] * rlGyroErr * balance_ankle_roll_gain * 4);
-  }
-
-  for (int id = 0; id < static_cast<int>(joints.size()); id++) {
-    joints.at(id).set_target_position(mx.value_to_angle(outValue[id]));
-    joints.at(id).set_pid_gain(p_gain, i_gain, d_gain);
   }
 }
 

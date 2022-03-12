@@ -35,7 +35,7 @@ namespace aruku
 {
 
 WalkingManager::WalkingManager()
-: kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position_x(0.0), position_y(0.0), fb_gyro(0.0), rl_gyro(0.0)
+: kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
   {
     using tachimawari::joint::JointId;
@@ -155,6 +155,11 @@ void WalkingManager::update_imu(double fb_gyro, double rl_gyro)
   this->rl_gyro = rl_gyro;
 }
 
+const keisan::Point2 & WalkingManager::get_position() const
+{
+  return position;
+}
+
 void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
   kinematic.set_move_amplitude(x_move, y_move, a_move, aim_on);
@@ -185,8 +190,8 @@ bool WalkingManager::process()
 
         float theta = keisan::make_degree(orientation).radian();
 
-        position_x += dx * cos(theta) - dy * sin(theta);
-        position_y += dx * sin(theta) + dy * cos(theta);
+        position.x += dx * cos(theta) - dy * sin(theta);
+        position.y += dx * sin(theta) + dy * cos(theta);
       }
     }
 

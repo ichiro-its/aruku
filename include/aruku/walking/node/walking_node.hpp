@@ -56,6 +56,8 @@ private:
 
   void publish_joints();
 
+  void publish_odometry();
+
   rclcpp::Node::SharedPtr node;
 
   std::shared_ptr<WalkingManager> walking_manager;

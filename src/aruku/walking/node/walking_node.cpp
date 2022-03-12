@@ -26,9 +26,9 @@
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/orientation.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
 namespace aruku
@@ -70,6 +70,7 @@ void WalkingNode::process()
 {
   if (walking_manager->process()) {
     publish_joints();
+    publish_odometry();
   }
 }
 
@@ -101,6 +102,16 @@ void WalkingNode::publish_joints()
   }
 
   set_joints_publisher->publish(joints_msg);
+}
+
+void WalkingNode::publish_odometry()
+{
+  auto odometry_msg = aruku_interfaces::msg::Odometry();
+
+  odometry_msg.position_x = walking_manager->get_position().x;
+  odometry_msg.position_y = walking_manager->get_position().y;
+
+  odometry_publisher->publish(odometry_msg);
 }
 
 }  // namespace aruku

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "aruku/walking/process/kinematic.hpp"
+#include "keisan/geometry/point_2.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
@@ -40,6 +41,8 @@ public:
 
   void update_imu(double orientation);
   void update_imu(double fb_gyro, double rl_gyro);
+
+  const keisan::Point2 & get_position() const;
 
   void run(double x_move, double y_move, double a_move, bool aim_on = false);
   void stop();
@@ -72,8 +75,8 @@ private:
   std::array<double, 18> inital_joints;
   std::array<int, 18> joints_direction;
 
-  double position_x;
-  double position_y;
+  keisan::Point2 position;
+
   double orientation;
   double fb_gyro;
   double rl_gyro;

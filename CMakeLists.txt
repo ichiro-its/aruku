@@ -15,15 +15,18 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
-find_package(framework_common REQUIRED)
-find_package(framework_math REQUIRED)
-find_package(kansei REQUIRED)
+find_package(aruku_interfaces REQUIRED)
+find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
-find_package(robocup_client REQUIRED)
 find_package(tachimawari REQUIRED)
+find_package(tachimawari_interfaces REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-  "src/${PROJECT_NAME}/walking.cpp")
+  "src/${PROJECT_NAME}/node/aruku_node.cpp"
+  "src/${PROJECT_NAME}/walking/model/kinematic_id.cpp"
+  "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
+  "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
+  "src/${PROJECT_NAME}/walking/process/kinematic.cpp")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -31,12 +34,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
-  framework_common
-  framework_math
-  kansei
+  aruku_interfaces
+  kansei_interfaces
   keisan
-  robocup_client
-  tachimawari)
+  tachimawari
+  tachimawari_interfaces)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -46,14 +48,7 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(walking_main "src/walking_main.cpp")
-target_include_directories(walking_main PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(walking_main ${PROJECT_NAME})
-
 install(TARGETS
-  walking_main
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
@@ -63,12 +58,11 @@ endif()
 
 ament_export_dependencies(
   ament_index_cpp
-  framework_common
-  framework_math
-  kansei
+  aruku_interfaces
+  kansei_interfaces
   keisan
-  robocup_client
-  tachimawari)
+  tachimawari
+  tachimawari_interfaces)
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME})
 ament_package()

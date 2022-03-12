@@ -71,7 +71,7 @@ bool Kinematic::get_running_state() const
   return m_ctrl_running;
 }
 
-void Kinematic::set_move_amplitude(double x, double y, double a, bool aim_on = false)
+void Kinematic::set_move_amplitude(double x, double y, double a, bool aim_on)
 {
   x_move = x;
   y_move = y;

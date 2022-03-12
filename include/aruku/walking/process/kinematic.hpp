@@ -21,9 +21,9 @@
 #ifndef ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
 #define ARUKU__WALKING__PROCESS__KINEMATIC_HPP_
 
+#include <array>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "keisan/angle/angle.hpp"
 #include "tachimawari/joint/model/joint.hpp"
@@ -42,7 +42,7 @@ public:
   bool get_running_state() const;
 
   void stop_kinematic();
-  void run_kinematic();
+  bool run_kinematic();
 
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
@@ -53,7 +53,7 @@ public:
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
-  bool compute_inverse_kinematic(size_t index, double x, double y, double z, double a, double b, double c);
+  bool compute_inverse_kinematic(std::string leg, double x, double y, double z, double a, double b, double c);
 
   void update_move_amplitude();
   void update_times();
@@ -168,7 +168,7 @@ private:
 
   bool is_compute_odometry;
 
-  std::vector<keisan::Angle<double>> joint_angles;
+  std::array<keisan::Angle<double>, 18> joint_angles;
 };
 
 }  // namespace aruku

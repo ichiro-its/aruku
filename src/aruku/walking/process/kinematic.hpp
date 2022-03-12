@@ -47,8 +47,8 @@ Kinematic::Kinematic()
 
 void Kinematic::reset_angles()
 {
-  for (auto & joint : joint_angles) {
-    joint = keisan::make_degree(0.0);
+  for (auto & angle : joint_angles) {
+    angle = keisan::make_radian(0.0);
   }
 }
 
@@ -105,8 +105,10 @@ double Kinematic::wsin(double time, double period, double period_shift, double m
   return mag * sin(2_pi / period * time - period_shift) + mag_shift;
 }
 
-bool Kinematic::compute_inverse_kinematic(size_t index, double x, double y, double z, double a, double b, double c)
+bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, double z, double a, double b, double c)
 {
+  size_t index = (leg == "right") ? 0 : 6;
+
   {
     using keisan::Point3;
     using keisan::Euler;
@@ -342,7 +344,7 @@ void Kinematic::load_data(const std::string & path)
   run_kinematic();
 }
 
-void Kinematic::run_kinematic()
+bool Kinematic::run_kinematic()
 {
   is_compute_odometry = false;
 
@@ -467,18 +469,11 @@ void Kinematic::run_kinematic()
     c_move_r = wsin(m_ssp_time_End_r, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi, -m_a_move_amplitude, -m_a_move_amplitude_shift);
   }
 
-  double angle[22];
-  for (int i = 0; i < 22; i++) {
-    angle[i] = 0;
-  }
+  reset_angles();
 
   if (m_x_move_amplitude != 0) {
-    angle[12] = wsin(
-      m_time, m_period_time, 1.5_pi, -m_x_move_amplitude *
-      m_arm_swing_gain, 0);
-    angle[15] = wsin(
-      m_time, m_period_time, 1.5_pi, m_x_move_amplitude *
-      m_arm_swing_gain, 0);
+    joint_angles[12] = keisan::make_radian(wsin(m_time, m_period_time, 1.5_pi, -m_x_move_amplitude * m_arm_swing_gain, 0));
+    joint_angles[15] = keisan::make_radian(wsin(m_time, m_period_time, 1.5_pi, m_x_move_amplitude * m_arm_swing_gain, 0));
   }
 
   if (m_real_running) {
@@ -491,28 +486,30 @@ void Kinematic::run_kinematic()
     m_time = 0;
   }
 
-  double r_x = x_swap + x_move_r + x_offset;
-  double r_y = y_swap + y_move_r - y_offset / 2;
-  double r_z = z_swap + z_move_r + z_offset;
-  double r_a = a_swap + a_move_r - keisan::make_degree(roll_offset).radian() / 2;
-  double r_b = b_swap + b_move_r + keisan::make_degree(pitch_offset).radian();
-  double r_c = c_swap + c_move_r - keisan::make_degree(yaw_offset).radian() / 2;
+  double x = x_swap + x_move_r + x_offset;
+  double y = y_swap + y_move_r - y_offset / 2;
+  double z = z_swap + z_move_r + z_offset;
+  double a = a_swap + a_move_r - keisan::make_degree(roll_offset).radian() / 2;
+  double b = b_swap + b_move_r + keisan::make_degree(pitch_offset).radian();
+  double c = c_swap + c_move_r - keisan::make_degree(yaw_offset).radian() / 2;
 
   // compute angles
-  if (!compute_inverse_kinematic(0, r_x, r_y, r_z, r_a, r_b, r_c)) {
-    return;
+  if (!compute_inverse_kinematic("right", x, y, z, a, b, c)) {
+    return false;
   }
 
-  double l_x = x_swap + x_move_l + x_offset;
-  double l_y = y_swap + y_move_l + y_offset / 2;
-  double l_z = z_swap + z_move_l + z_offset;
-  double l_a = a_swap + a_move_l + keisan::make_degree(roll_offset).radian() / 2;
-  double l_b = b_swap + b_move_l + keisan::make_degree(pitch_offset).radian();
-  double l_c = c_swap + c_move_l + keisan::make_degree(yaw_offset).radian() / 2;
+  x = x_swap + x_move_l + x_offset;
+  y = y_swap + y_move_l + y_offset / 2;
+  z = z_swap + z_move_l + z_offset;
+  a = a_swap + a_move_l + keisan::make_degree(roll_offset).radian() / 2;
+  b = b_swap + b_move_l + keisan::make_degree(pitch_offset).radian();
+  c = c_swap + c_move_l + keisan::make_degree(yaw_offset).radian() / 2;
 
-  if (!compute_inverse_kinematic(6, l_x, l_y, l_z, l_a, l_b, l_c)) {
-    return;
+  if (!compute_inverse_kinematic("left", x, y, z, a, b, c)) {
+    return false;
   }
+
+  return true;
 }
 
 }  // namespace aruku

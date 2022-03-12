@@ -38,11 +38,12 @@ public:
 
   void load_data(const std::string & path);
 
-  void update_orientation(double orientation);
+  void update_imu(double orientation);
+  void update_imu(double fb_gyro, double rl_gyro);
 
   void run(double x_move, double y_move, double a_move, bool aim_on = false);
   void stop();
-  void process();
+  bool process();
 
   bool is_runing() const;
 

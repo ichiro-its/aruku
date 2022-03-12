@@ -144,9 +144,15 @@ void WalkingManager::load_data(const std::string & path)
   kinematic.load_data(path);
 }
 
-void WalkingManager::update_orientation(double orientation)
+void WalkingManager::update_imu(double orientation)
 {
   this->orientation = orientation;
+}
+
+void WalkingManager::update_imu(double fb_gyro, double rl_gyro)
+{
+  this->fb_gyro = fb_gyro;
+  this->rl_gyro = rl_gyro;
 }
 
 void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
@@ -160,7 +166,7 @@ void WalkingManager::stop()
   kinematic.set_running_state(false);
 }
 
-void WalkingManager::process()
+bool WalkingManager::process()
 {
   if (kinematic.run_kinematic()) {
     if (kinematic.time_to_compute_odometry()) {
@@ -222,7 +228,11 @@ void WalkingManager::process()
         joint.set_position_value(offset);
       }
     }
+
+    return true;
   }
+
+  return false;
 }
 
 bool WalkingManager::is_runing() const

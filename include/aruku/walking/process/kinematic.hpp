@@ -36,32 +36,70 @@ class Kinematic
 public:
   Kinematic();
 
-  void set_running_state(bool runnning_state);
+  void load_data(const std::string & path);
+
+  void set_running_state(bool running_state);
   bool get_running_state() const;
 
   void stop_kinematic();
   void run_kinematic();
 
-  double get_mx_move_amplitude() const {return m_x_move_amplitude;}
-  double get_my_move_amplitude() const {return m_y_move_amplitude;}
-  double get_ma_move_amplitude() const {return m_a_move_amplitude;}
+  double get_x_move_amplitude() const;
+  double get_y_move_amplitude() const;
 
-  void load_data(const std::string & path);
+  double get_hip_offest() const;
+
+  bool is_time_compute_odometry() const;
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
-  bool compute_ik(size_t index, double x, double y, double z, double a, double b, double c) const;
+  bool compute_inverse_kinematic(size_t index, double x, double y, double z, double a, double b, double c);
 
   void update_move_amplitude();
   void update_times();
 
   void reset_angles();
 
+  // input member
+  double x_move;
+  double y_move;
+  double a_move;
+  double a_move_aim_on;
+
+  // config member
+  double period_time;
+
+  double dsp_ratio;
+  double dsp_comp_ratio;
+  double period_comp_ratio;
+  double backward_hip_comp_ratio;
+  double forward_hip_comp_ratio;
+  double foot_comp_ratio;
+  double move_accel_ratio;
+  double foot_accel_ratio;
+
+  double y_swap_amplitude;
+  double z_swap_amplitude;
+  double arm_swing_gain;
+
+  double x_offset;
+  double y_offset;
+  double z_offset;
+  double yaw_offset;
+  double pitch_offset;
+  double roll_offset;
+  double hip_pitch_offset;
+
+  double thigh_length;
+  double calf_length;
+  double ankle_length;
+  double leg_length;
+
   double z_move;
 
+  // process member
   double hip_comp;
   double foot_comp;
-  double dsp_comp;
 
   double m_period_time;
   double m_dsp_ratio;
@@ -88,20 +126,11 @@ private:
   double m_phase_time2;
   double m_phase_time3;
 
-  double m_x_offset;
-  double m_y_offset;
-  double m_z_offset;
-
-  double m_r_offset;
-  double m_p_offset;
-  double m_a_offset;
-
   double m_x_swap_phase_shift;
   double m_x_swap_amplitude;
   double m_x_swap_amplitude_shift;
 
   double m_x_move_phase_shift;
-  double m_x_move_amplitude;
   double m_x_move_amplitude_shift;
 
   double m_y_swap_phase_shift;
@@ -109,7 +138,6 @@ private:
   double m_y_swap_amplitude_shift;
 
   double m_y_move_phase_shift;
-  double m_y_move_amplitude;
   double m_y_move_amplitude_shift;
 
   double m_z_swap_phase_shift;
@@ -134,7 +162,13 @@ private:
   double m_time;
   double time_unit;
 
-  std::vector<keisan::Angle<float>> joint_angles;
+  // output member
+  double m_x_move_amplitude;
+  double m_y_move_amplitude;
+
+  bool is_compute_odometry;
+
+  std::vector<keisan::Angle<double>> joint_angles;
 };
 
 }  // namespace aruku

@@ -14,7 +14,7 @@
     "move_accel_ratio": 1.0,
     "foot_accel_ratio": 0.2
   },
-  "offset": {
+  "Offset": {
     "y_offset": 0.0,
     "roll_offset": 1.0,
     "hip_pitch_offset": 23.0,

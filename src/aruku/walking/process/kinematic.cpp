@@ -52,6 +52,11 @@ void Kinematic::reset_angles()
   }
 }
 
+const std::array<keisan::Angle<double>, 18> & Kinematic::get_angles() const
+{
+  return joint_angles;
+}
+
 void Kinematic::set_running_state(bool running_state)
 {
   m_ctrl_running = running_state;
@@ -64,6 +69,14 @@ void Kinematic::set_running_state(bool running_state)
 bool Kinematic::get_running_state() const
 {
   return m_ctrl_running;
+}
+
+void Kinematic::set_move_amplitude(double x, double y, double a, bool aim_on = false)
+{
+  x_move = x;
+  y_move = y;
+  a_move = a;
+  a_move_aim_on = aim_on;
 }
 
 double Kinematic::get_x_move_amplitude() const
@@ -290,13 +303,12 @@ void Kinematic::update_move_amplitude()
 
 void Kinematic::load_data(const std::string & path)
 {
-  std::string file_name =
-    path + "walking/" + "aruku.json";
+  std::string file_name = path + "kinematic.json";
   std::ifstream file(file_name);
   nlohmann::json walking_data = nlohmann::json::parse(file);
 
   for (auto &[key, val] : walking_data.items()) {
-    if (key == "Ratio") {
+    if (key == "ratio") {
       try {
         val.at("period_time").get_to(period_time);
         val.at("dsp_ratio").get_to(dsp_ratio);
@@ -314,7 +326,7 @@ void Kinematic::load_data(const std::string & path)
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
-    } else if (key == "Kinematic") {
+    } else if (key == "length") {
       try {
         val.at("thigh_length").get_to(thigh_length);
         val.at("calf_length").get_to(calf_length);
@@ -323,7 +335,7 @@ void Kinematic::load_data(const std::string & path)
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
-    } else if (key == "Offset") {
+    } else if (key == "offset") {
       try {
         val.at("x_offset").get_to(x_offset);
         val.at("y_offset").get_to(y_offset);

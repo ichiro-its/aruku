@@ -38,11 +38,15 @@ public:
 
   void load_data(const std::string & path);
 
+  const std::array<keisan::Angle<double>, 18> & get_angles() const;
+
   void set_running_state(bool running_state);
   bool get_running_state() const;
 
   void stop_kinematic();
   bool run_kinematic();
+
+  void set_move_amplitude(double x, double y, double a, bool aim_on = false);
 
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;

@@ -38,7 +38,7 @@ public:
 
   void load_data(const std::string & path);
 
-  const std::array<keisan::Angle<double>, 18> & get_angles() const;
+  const std::array<double, 18> & get_angles() const;
 
   void set_running_state(bool running_state);
   bool get_running_state() const;
@@ -53,7 +53,7 @@ public:
 
   double get_hip_offest() const;
 
-  bool is_time_compute_odometry() const;
+  bool time_to_compute_odometry() const;
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
@@ -172,7 +172,7 @@ private:
 
   bool is_compute_odometry;
 
-  std::array<keisan::Angle<double>, 18> joint_angles;
+  std::array<double, 18> joint_angles;
 };
 
 }  // namespace aruku

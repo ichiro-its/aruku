@@ -49,8 +49,6 @@ public:
   std::vector<tachimawari::joint::Joint> get_joints() const;
 
 private:
-  void compute_odometry();
-
   // config member
   bool balance_enable;
   double balance_knee_gain;

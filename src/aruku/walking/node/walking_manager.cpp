@@ -26,6 +26,7 @@
 
 #include "aruku/walking/model/kinematic_id.hpp"
 #include "aruku/walking/process/kinematic.hpp"
+#include "keisan/angle/angle.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint_id.hpp"
 #include "tachimawari/joint/model/joint.hpp"
@@ -37,7 +38,8 @@ WalkingManager::WalkingManager()
 : kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position_x(0.0), position_y(0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
   {
-    using namespace tachimawari::joint;
+    using tachimawari::joint::JointId;
+    using tachimawari::joint::Joint;
 
     for (auto id : JointId::list) {
       if (id < JointId::NECK_YAW) {
@@ -161,14 +163,35 @@ void WalkingManager::stop()
 void WalkingManager::process()
 {
   if (kinematic.run_kinematic()) {
-    auto angles = kinematic.get_angles();
+    if (kinematic.time_to_compute_odometry()) {
+      double x_amplitude = kinematic.get_x_move_amplitude();
+      double y_amplitude = kinematic.get_y_move_amplitude();
+
+      if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
+        float dx = x_amplitude * odometry_fx_coefficient / 30.0;
+
+        float dy = 0.0;
+        if (y_amplitude > 0.0) {
+          dy = -y_amplitude * odometry_ly_coefficient / 30.0;
+        } else {
+          dy = -y_amplitude * odometry_ry_coefficient / 30.0;
+        }
+
+        float theta = keisan::make_degree(orientation).radian();
+
+        position_x += dx * cos(theta) - dy * sin(theta);
+        position_y += dx * sin(theta) + dy * cos(theta);
+      }
+    }
 
     {
-      using namespace tachimawari::joint;
+      using tachimawari::joint::JointId;
+      using tachimawari::joint::Joint;
 
+      auto angles = kinematic.get_angles();
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
-        double offset = joints_direction[joint_id] * angles[KinematicId::map.at(joint_id)].degree() * Joint::TO_VALUE_RATIO;
+        double offset = joints_direction[joint_id] * keisan::make_radian(angles[KinematicId::map.at(joint_id)]).degree() * Joint::TO_VALUE_RATIO;
 
         joint.set_position(inital_joints[joint_id]);
 
@@ -210,28 +233,6 @@ bool WalkingManager::is_runing() const
 std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const
 {
   return joints;
-}
-
-void WalkingManager::compute_odometry()
-{
-  double x_amplitude = kinematic.get_x_move_amplitude();
-  double y_amplitude = kinematic.get_y_move_amplitude();
-
-  if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
-    float dx = x_amplitude * odometry_fx_coefficient / 30.0;
-
-    float dy = 0.0;
-    if (y_amplitude > 0.0) {
-      dy = -y_amplitude * odometry_ly_coefficient / 30.0;
-    } else {
-      dy = -y_amplitude * odometry_ry_coefficient / 30.0;
-    }
-
-    float theta = keisan::make_degree(orientation).radian();
-
-    position_x += dx * cos(theta) - dy * sin(theta);
-    position_y += dx * sin(theta) + dy * cos(theta);
-  }
 }
 
 

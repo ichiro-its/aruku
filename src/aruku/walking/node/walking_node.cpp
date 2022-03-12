@@ -45,7 +45,11 @@ WalkingNode::WalkingNode(
     set_walking_subscriber = node->create_subscription<SetWalking>(
       get_node_prefix() + "/set_walking", 10,
       [this](const SetWalking::SharedPtr message) {
-        this->walking_manager->run(message->x_move, message->y_move, message->a_move, message->aim_on);
+        if (message->run) {
+          this->walking_manager->run(message->x_move, message->y_move, message->a_move, message->aim_on);
+        } else {
+          this->walking_manager->stop();
+        }
       });
 
     orientation_subscriber = node->create_subscription<Orientation>(

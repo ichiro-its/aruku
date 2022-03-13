@@ -48,7 +48,14 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
+add_executable(aruku_main "src/aruku_main.cpp")
+target_include_directories(aruku_main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(aruku_main ${PROJECT_NAME})
+
 install(TARGETS
+  aruku_main
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

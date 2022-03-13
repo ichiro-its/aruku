@@ -22,6 +22,8 @@ find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
+  "src/${PROJECT_NAME}/config/node/config_node.cpp"
+  "src/${PROJECT_NAME}/config/utils/config_util.cpp"
   "src/${PROJECT_NAME}/node/aruku_node.cpp"
   "src/${PROJECT_NAME}/walking/model/kinematic_id.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
@@ -54,8 +56,15 @@ target_include_directories(aruku_main PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(aruku_main ${PROJECT_NAME})
 
+add_executable(config_main "src/config_main.cpp")
+target_include_directories(config_main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(config_main ${PROJECT_NAME})
+
 install(TARGETS
   aruku_main
+  config_main
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

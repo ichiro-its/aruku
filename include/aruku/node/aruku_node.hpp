@@ -22,7 +22,9 @@
 #define ARUKU__NODE__ARUKU_NODE_HPP_
 
 #include <memory>
+#include <string>
 
+#include "aruku/config/node/config_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -37,11 +39,15 @@ public:
 
   void set_walking_manager(std::shared_ptr<WalkingManager> walking_manager);
 
+  void run_config_service(const std::string & path);
+
 private:
   rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
 
   std::shared_ptr<WalkingNode> walking_node;
+
+  std::shared_ptr<ConfigNode> config_node;
 };
 
 }  // namespace aruku

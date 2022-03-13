@@ -18,34 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
-#define ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
-
 #include <memory>
-#include <string>
 
-#include "aruku/config/utils/config_util.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
-#include "aruku_interfaces/srv/get_config.hpp"
+#include "aruku/node/aruku_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace aruku
+int main(int argc, char * argv[])
 {
+  rclcpp::init(argc, argv);
 
-class ConfigNode
-{
-public:
-  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path);
+  auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
-private:
-  std::string get_node_prefix() const;
+  aruku_node->run_config_service("");
 
-  ConfigUtil config_util;
+  rclcpp::spin(node);
+  rclcpp::shutdown();
 
-  rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
-  rclcpp::Service<aruku_interfaces::srv::GetConfig>::SharedPtr get_config_server;
-};
-
-}  // namespace aruku
-
-#endif  // ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
+  return 0;
+}

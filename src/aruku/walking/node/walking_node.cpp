@@ -73,17 +73,10 @@ WalkingNode::WalkingNode(
 void WalkingNode::process()
 {
   if (walking_manager->process()) {
-    publish_joints();
-    publish_odometry();
-  }
-}
-
-int WalkingNode::get_status() const
-{
-  if (walking_manager->is_runing()) {
-    return PLAYING;
-  } else {
-    return STOP;
+    if (walking_manager->is_runing()) {
+      publish_joints();
+      publish_odometry();
+    }
   }
 }
 

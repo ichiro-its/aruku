@@ -38,9 +38,7 @@ ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
   node_timer = node->create_wall_timer(
     8ms,
     [this]() {
-      if (this->walking_node->get_status() == WalkingNode::PLAYING) {
-        this->walking_node->process();
-      }
+      this->walking_node->process();
     }
   );
 }

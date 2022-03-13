@@ -38,18 +38,10 @@ namespace aruku
 class WalkingNode
 {
 public:
-  enum
-  {
-    PLAYING,
-    STOP
-  };
-
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 
   void process();
-
-  int get_status() const;
 
 private:
   std::string get_node_prefix() const;

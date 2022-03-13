@@ -53,8 +53,7 @@ WalkingManager::WalkingManager()
 
 void WalkingManager::load_data(const std::string & path)
 {
-  std::string file_name = path + "walking.json";
-  std::ifstream file(file_name);
+  std::ifstream file(path + "walking.json");
   nlohmann::json walking_data = nlohmann::json::parse(file);
 
   for (auto &[key, val] : walking_data.items()) {
@@ -140,6 +139,8 @@ void WalkingManager::load_data(const std::string & path)
       }
     }
   }
+
+  file.close();
 
   kinematic.load_data(path);
 }

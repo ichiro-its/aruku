@@ -18,36 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <chrono>
 #include <memory>
+#include <string>
 
-#include "aruku/node/aruku_node.hpp"
+#include "aruku/config/node/config_node.hpp"
 
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
+#include "aruku/config/utils/config_util.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/srv/get_config.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-using namespace std::chrono_literals;
 
 namespace aruku
 {
 
-ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
-: node(node), walking_node(nullptr), config_util(nullptr), get_config_server(nullptr), set_config_subscriber(nullptr)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
+: config_util(path)
 {
-  node_timer = node->create_wall_timer(
-    8ms,
-    [this]() {
-      this->walking_node->process();
-    }
-  );
+  {
+    using aruku_interfaces::srv::GetConfig;
 
-  set_config_subscriber = nullptr;
+    get_config_server = node->create_service<GetConfig>(
+      get_node_prefix() + "/get_config",
+      [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
+        response->json = this->config_util.get_config();
+      });
+  }
+
+  {
+    using aruku_interfaces::msg::SetConfig;
+
+    set_config_subscriber = node->create_subscription<SetConfig>(
+      get_node_prefix() + "/set_config", 10,
+      [this](SetConfig::SharedPtr message) {
+        this->config_util.set_config(message->name, message->key, message->value);
+      });
+  }
 }
 
-void ArukuNode::set_walking_manager(std::shared_ptr<WalkingManager> walking_manager)
+std::string ConfigNode::get_node_prefix() const
 {
-  walking_node = std::make_shared<WalkingNode>(node, walking_manager);
+  return "aruku/config";
 }
 
 }  // namespace aruku

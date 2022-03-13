@@ -39,8 +39,6 @@ WalkingNode::WalkingNode(
 {
   {
     using aruku_interfaces::msg::SetWalking;
-    using kansei_interfaces::msg::Orientation;
-    using kansei_interfaces::msg::Unit;
 
     set_walking_subscriber = node->create_subscription<SetWalking>(
       get_node_prefix() + "/set_walking", 10,
@@ -51,23 +49,31 @@ WalkingNode::WalkingNode(
           this->walking_manager->stop();
         }
       });
+  }
+
+  {
+    using kansei_interfaces::msg::Orientation;
 
     orientation_subscriber = node->create_subscription<Orientation>(
       "/measurement/orientation", 10,
       [this](const Orientation::SharedPtr message) {
         this->walking_manager->update_imu(message->orientation.yaw);
       });
+  }
 
-    unit_subscriber = node->create_subscription<Orientation>(
+  {
+    using kansei_interfaces::msg::Unit;
+
+    unit_subscriber = node->create_subscription<Unit>(
       "/imu/unit", 10,
       [this](const Unit::SharedPtr message) {
         this->walking_manager->update_imu(message->gyro.pitch, message->gyro.roll);
       });
-
-    odometry_publisher = node->create_publisher<aruku_interfaces::msg::Odometry>(get_node_prefix() + "/odometry", 10);
-
-    set_joints_publisher = node->create_publisher<tachimawari_interfaces::msg::SetJoints>("/joint/set_joints", 10);
   }
+
+  odometry_publisher = node->create_publisher<aruku_interfaces::msg::Odometry>(get_node_prefix() + "/odometry", 10);
+
+  set_joints_publisher = node->create_publisher<tachimawari_interfaces::msg::SetJoints>("/joint/set_joints", 10);
 }
 
 void WalkingNode::process()

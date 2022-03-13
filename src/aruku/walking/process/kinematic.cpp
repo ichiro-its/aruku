@@ -303,8 +303,7 @@ void Kinematic::update_move_amplitude()
 
 void Kinematic::load_data(const std::string & path)
 {
-  std::string file_name = path + "kinematic.json";
-  std::ifstream file(file_name);
+  std::ifstream file(path + "kinematic.json");
   nlohmann::json walking_data = nlohmann::json::parse(file);
 
   for (auto &[key, val] : walking_data.items()) {
@@ -349,6 +348,8 @@ void Kinematic::load_data(const std::string & path)
       }
     }
   }
+
+  file.close();
 
   update_times();
   update_move_amplitude();

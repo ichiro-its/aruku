@@ -18,36 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <chrono>
+#ifndef ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
+#define ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
+
 #include <memory>
+#include <string>
 
-#include "aruku/node/aruku_node.hpp"
-
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
+#include "aruku/config/utils/config_util.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/srv/get_config.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-using namespace std::chrono_literals;
 
 namespace aruku
 {
 
-ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
-: node(node), walking_node(nullptr), config_util(nullptr), get_config_server(nullptr), set_config_subscriber(nullptr)
+class ConfigNode
 {
-  node_timer = node->create_wall_timer(
-    8ms,
-    [this]() {
-      this->walking_node->process();
-    }
-  );
+public:
+  explicit ConfigNode(
+    rclcpp::Node::SharedPtr node, const std::string & path);
 
-  set_config_subscriber = nullptr;
-}
+private:
+  std::string get_node_prefix() const;
 
-void ArukuNode::set_walking_manager(std::shared_ptr<WalkingManager> walking_manager)
-{
-  walking_node = std::make_shared<WalkingNode>(node, walking_manager);
-}
+  ConfigUtil config_util;
+
+  rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
+  rclcpp::Service<aruku_interfaces::srv::GetConfig>::SharedPtr get_config_server;
+};
 
 }  // namespace aruku
+
+#endif  // ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_

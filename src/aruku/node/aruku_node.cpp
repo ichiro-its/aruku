@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include <memory>
+#include <string>
 
 #include "aruku/node/aruku_node.hpp"
 

@@ -57,6 +57,14 @@ std::string ConfigUtil::get_config() const
 
   walking_data.merge_patch(kinematic_data);
 
+  nlohmann::json patch =
+    R"([
+    { "op": "remove", "path": "/angles_direction" },
+    { "op": "remove", "path": "/pid" },
+    { "op": "remove", "path": "/length" }
+  ])"_json;
+  walking_data = walking_data.patch(patch);
+
   return walking_data.dump();
 }
 

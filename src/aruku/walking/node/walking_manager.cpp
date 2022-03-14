@@ -35,7 +35,8 @@ namespace aruku
 {
 
 WalkingManager::WalkingManager()
-: kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
+: kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(
+    0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
   {
     using tachimawari::joint::JointId;
@@ -203,7 +204,9 @@ bool WalkingManager::process()
       auto angles = kinematic.get_angles();
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
-        double offset = joints_direction[joint_id] * keisan::make_radian(angles[KinematicId::map.at(joint_id)]).degree() * Joint::TO_VALUE_RATIO;
+        double offset = joints_direction[joint_id] *
+          keisan::make_radian(angles[KinematicId::map.at(joint_id)]).degree() *
+          Joint::TO_VALUE_RATIO;
 
         joint.set_position(inital_joints[joint_id]);
 

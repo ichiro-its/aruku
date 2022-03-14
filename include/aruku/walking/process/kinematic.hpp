@@ -57,7 +57,9 @@ public:
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
-  bool compute_inverse_kinematic(std::string leg, double x, double y, double z, double a, double b, double c);
+  bool compute_inverse_kinematic(
+    std::string leg, double x, double y, double z, double a, double b,
+    double c);
 
   void update_move_amplitude();
   void update_times();

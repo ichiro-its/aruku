@@ -44,7 +44,9 @@ WalkingNode::WalkingNode(
       get_node_prefix() + "/set_walking", 10,
       [this](const SetWalking::SharedPtr message) {
         if (message->run) {
-          this->walking_manager->run(message->x_move, message->y_move, message->a_move, message->aim_on);
+          this->walking_manager->run(
+            message->x_move, message->y_move, message->a_move,
+            message->aim_on);
         } else {
           this->walking_manager->stop();
         }
@@ -71,9 +73,11 @@ WalkingNode::WalkingNode(
       });
   }
 
-  odometry_publisher = node->create_publisher<aruku_interfaces::msg::Odometry>(get_node_prefix() + "/odometry", 10);
+  odometry_publisher = node->create_publisher<aruku_interfaces::msg::Odometry>(
+    get_node_prefix() + "/odometry", 10);
 
-  set_joints_publisher = node->create_publisher<tachimawari_interfaces::msg::SetJoints>("/joint/set_joints", 10);
+  set_joints_publisher = node->create_publisher<tachimawari_interfaces::msg::SetJoints>(
+    "/joint/set_joints", 10);
 }
 
 void WalkingNode::process()

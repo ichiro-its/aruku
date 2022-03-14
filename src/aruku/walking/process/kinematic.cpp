@@ -40,7 +40,20 @@ namespace aruku
 {
 
 Kinematic::Kinematic()
-: m_period_time(0), m_dsp_ratio(0), m_ssp_ratio(0), m_x_swap_period_time(0), m_x_move_period_time(0), m_y_swap_period_time(0), m_y_move_period_time(0), m_z_swap_period_time(0), m_z_move_period_time(0), m_a_move_period_time(0), m_ssp_time(0), m_ssp_time_start_l(0), m_ssp_time_end_l(0), m_ssp_time_start_r(0), m_ssp_time_End_r(0), m_phase_time1(0), m_phase_time2(0), m_phase_time3(0), m_x_swap_phase_shift(0), m_x_swap_amplitude(0), m_x_swap_amplitude_shift(0), m_x_move_amplitude(0), m_y_swap_phase_shift(0), m_y_swap_amplitude(0), m_y_swap_amplitude_shift(0), m_y_move_amplitude(0), m_y_move_amplitude_shift(0), m_z_swap_phase_shift(0), m_z_swap_amplitude(0), m_z_swap_amplitude_shift(0), m_z_move_amplitude(0), m_z_move_amplitude_Goal(0), m_z_move_amplitude_shift(0), m_a_move_amplitude(0), m_a_move_amplitude_shift(0), m_arm_swing_gain(0), m_arm_roll_Gain(0), hip_comp(0.0), foot_comp(0.0), time_unit(8.0), m_x_move_phase_shift(0.5_pi), m_x_move_amplitude_shift(0), m_y_move_phase_shift(0.5_pi), m_z_move_phase_shift(0.5_pi), m_a_move_phase_shift(0.5_pi), m_ctrl_running(false), m_real_running(false), m_time(0), x_move(0.0), y_move(0.0), a_move(0.0), a_move_aim_on(false), is_compute_odometry(false)
+: m_period_time(0), m_dsp_ratio(0), m_ssp_ratio(0), m_x_swap_period_time(0),
+  m_x_move_period_time(0), m_y_swap_period_time(0), m_y_move_period_time(0), m_z_swap_period_time(
+    0), m_z_move_period_time(0), m_a_move_period_time(0), m_ssp_time(0), m_ssp_time_start_l(0),
+  m_ssp_time_end_l(0), m_ssp_time_start_r(0), m_ssp_time_End_r(0), m_phase_time1(0),
+  m_phase_time2(0), m_phase_time3(0), m_x_swap_phase_shift(0), m_x_swap_amplitude(0),
+  m_x_swap_amplitude_shift(0), m_x_move_amplitude(0), m_y_swap_phase_shift(0), m_y_swap_amplitude(
+    0), m_y_swap_amplitude_shift(0), m_y_move_amplitude(0), m_y_move_amplitude_shift(0),
+  m_z_swap_phase_shift(0), m_z_swap_amplitude(0), m_z_swap_amplitude_shift(0), m_z_move_amplitude(
+    0), m_z_move_amplitude_Goal(0), m_z_move_amplitude_shift(0), m_a_move_amplitude(0),
+  m_a_move_amplitude_shift(0), m_arm_swing_gain(0), m_arm_roll_Gain(0), hip_comp(0.0), foot_comp(
+    0.0), time_unit(8.0), m_x_move_phase_shift(0.5_pi), m_x_move_amplitude_shift(0),
+  m_y_move_phase_shift(0.5_pi), m_z_move_phase_shift(0.5_pi), m_a_move_phase_shift(0.5_pi),
+  m_ctrl_running(false), m_real_running(false), m_time(0), x_move(0.0), y_move(0.0), a_move(0.0),
+  a_move_aim_on(false), is_compute_odometry(false)
 {
   reset_angles();
 }
@@ -113,12 +126,16 @@ void Kinematic::stop_kinematic()
   update_move_amplitude();
 }
 
-double Kinematic::wsin(double time, double period, double period_shift, double mag, double mag_shift) const
+double Kinematic::wsin(
+  double time, double period, double period_shift, double mag,
+  double mag_shift) const
 {
   return mag * sin(2_pi / period * time - period_shift) + mag_shift;
 }
 
-bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, double z, double a, double b, double c)
+bool Kinematic::compute_inverse_kinematic(
+  std::string leg, double x, double y, double z, double a,
+  double b, double c)
 {
   size_t index = (leg == "right") ? 0 : 6;
 
@@ -128,8 +145,10 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
     using keisan::Matrix;
 
     auto matrix_translation = keisan::translation_matrix(Point3(x, y, z - leg_length));
-    auto matrix_rotation = keisan::rotation_matrix(Euler(keisan::make_radian(a),
-      keisan::make_radian(b), keisan::make_radian(c)));
+    auto matrix_rotation = keisan::rotation_matrix(
+      Euler(
+        keisan::make_radian(a),
+        keisan::make_radian(b), keisan::make_radian(c)));
 
     auto matrix_transformation = matrix_translation * matrix_rotation;
 
@@ -141,8 +160,8 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
     // get knee
     double vector_magnitude = vector.magnitude();
     double acos_result = acos(
-      (vector_magnitude * vector_magnitude - thigh_length * thigh_length - calf_length * calf_length) /
-      (2 * thigh_length * calf_length));
+      ((vector_magnitude * vector_magnitude) - (thigh_length * thigh_length) -
+      (calf_length * calf_length)) / (2 * thigh_length * calf_length));
 
     if (std::isnan(acos_result)) {
       return false;
@@ -156,7 +175,10 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
     }
 
     double k = sqrt(matrix[1][3] * matrix[1][3] + matrix[2][3] * matrix[2][3]);
-    double l = sqrt(matrix[1][3] * matrix[1][3] + (matrix[2][3] - ankle_length) * (matrix[2][3] - ankle_length));
+    double l =
+      sqrt(
+      matrix[1][3] * matrix[1][3] + (matrix[2][3] - ankle_length) *
+      (matrix[2][3] - ankle_length));
     double m = (k * k - l * l - ankle_length * ankle_length) / (2 * l * ankle_length);
     if (m > 1.0) {
       m = 1.0;
@@ -176,7 +198,11 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
 
     // get hip yaw
     matrix_translation = keisan::translation_matrix(Point3(0, 0, ankle_length));
-    matrix_rotation = keisan::rotation_matrix(Euler(keisan::make_radian(joint_angles[index + 5]), keisan::make_radian(0.0), keisan::make_radian(0.0)));
+    matrix_rotation =
+      keisan::rotation_matrix(
+      Euler(
+        keisan::make_radian(joint_angles[index + 5]),
+        keisan::make_radian(0.0), keisan::make_radian(0.0)));
 
     matrix = matrix_translation * matrix_rotation;
     if (!matrix.inverse()) {
@@ -191,14 +217,19 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
     joint_angles[index] = atan_result;
 
     // get hip roll
-    atan_result = atan2(matrix[2][1], -matrix[0][1] * sin(joint_angles[index] + matrix[1][1] * cos(joint_angles[index])));
+    atan_result =
+      atan2(
+      matrix[2][1],
+      -matrix[0][1] * sin(joint_angles[index] + matrix[1][1] * cos(joint_angles[index])));
     if (std::isinf(atan_result)) {
       return false;
     }
     joint_angles[index + 1] = atan_result;
 
     // get hip pitch and ankle pitch
-    atan_result = atan2(matrix[0][2] * cos(joint_angles[index]) + matrix[1][2] * sin(joint_angles[index]), matrix[0][0] *
+    atan_result = atan2(
+      matrix[0][2] * cos(joint_angles[index]) + matrix[1][2] * sin(
+        joint_angles[index]), matrix[0][0] *
       cos(joint_angles[index]) + matrix[1][0] * sin(joint_angles[index]));
     if (std::isinf(atan_result)) {
       return false;
@@ -208,7 +239,8 @@ bool Kinematic::compute_inverse_kinematic(std::string leg, double x, double y, d
     l = -thigh_length - cos(joint_angles[index + 3]) * calf_length;
     m = cos(joint_angles[index]) * vector.x + sin(joint_angles[index]) * vector.y;
 
-    double n = cos(joint_angles[index + 1]) * vector.z + sin(joint_angles[index]) * sin(joint_angles[index + 1]) * vector.x - cos(joint_angles[index]) *
+    double n = cos(joint_angles[index + 1]) * vector.z + sin(joint_angles[index]) * sin(
+      joint_angles[index + 1]) * vector.x - cos(joint_angles[index]) *
       sin(joint_angles[index + 1]) * vector.y;
     double s = (k * n + l * m) / (k * k + l * l);
     double c = (n - k * s) / l;
@@ -436,57 +468,179 @@ bool Kinematic::run_kinematic()
   b_move_r = 0;
 
   if (m_time <= m_ssp_time_start_l) {
-    x_move_l = wsin(m_ssp_time_start_l, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude, m_x_move_amplitude_shift);
-    y_move_l = wsin(m_ssp_time_start_l, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude, m_y_move_amplitude_shift);
-    z_move_l = wsin(m_ssp_time_start_l, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_l = wsin(m_ssp_time_start_l, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude, m_a_move_amplitude_shift);
-    x_move_r = wsin(m_ssp_time_start_l, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude, -m_x_move_amplitude_shift);
-    y_move_r = wsin(m_ssp_time_start_l, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude, -m_y_move_amplitude_shift);
-    z_move_r = wsin(m_ssp_time_start_r, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_r = wsin(m_ssp_time_start_l, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude, -m_a_move_amplitude_shift);
+    x_move_l = wsin(
+      m_ssp_time_start_l, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      m_x_move_amplitude, m_x_move_amplitude_shift);
+    y_move_l = wsin(
+      m_ssp_time_start_l, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      m_y_move_amplitude, m_y_move_amplitude_shift);
+    z_move_l = wsin(
+      m_ssp_time_start_l, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_l = wsin(
+      m_ssp_time_start_l, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      m_a_move_amplitude, m_a_move_amplitude_shift);
+    x_move_r = wsin(
+      m_ssp_time_start_l, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+    y_move_r = wsin(
+      m_ssp_time_start_l, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+    z_move_r = wsin(
+      m_ssp_time_start_r, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_r = wsin(
+      m_ssp_time_start_l, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_end_l) {
-    x_move_l = wsin(m_time, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude, m_x_move_amplitude_shift);
-    y_move_l = wsin(m_time, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude, m_y_move_amplitude_shift);
-    z_move_l = wsin(m_time, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_l = wsin(m_time, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude, m_a_move_amplitude_shift);
-    x_move_r = wsin(m_time, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude, -m_x_move_amplitude_shift);
-    y_move_r = wsin(m_time, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude, -m_y_move_amplitude_shift);
-    z_move_r = wsin(m_ssp_time_start_r, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_r = wsin(m_time, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude, -m_a_move_amplitude_shift);
+    x_move_l = wsin(
+      m_time, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      m_x_move_amplitude, m_x_move_amplitude_shift);
+    y_move_l = wsin(
+      m_time, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      m_y_move_amplitude, m_y_move_amplitude_shift);
+    z_move_l = wsin(
+      m_time, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_l = wsin(
+      m_time, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      m_a_move_amplitude, m_a_move_amplitude_shift);
+    x_move_r = wsin(
+      m_time, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+    y_move_r = wsin(
+      m_time, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+    z_move_r = wsin(
+      m_ssp_time_start_r, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_r = wsin(
+      m_time, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_start_r) {
-    x_move_l = wsin(m_ssp_time_end_l, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude, m_x_move_amplitude_shift);
-    y_move_l = wsin(m_ssp_time_end_l, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude, m_y_move_amplitude_shift);
-    z_move_l = wsin(m_ssp_time_end_l, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_l = wsin(m_ssp_time_end_l, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude, m_a_move_amplitude_shift);
-    x_move_r = wsin(m_ssp_time_end_l, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude, -m_x_move_amplitude_shift);
-    y_move_r = wsin(m_ssp_time_end_l, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude, -m_y_move_amplitude_shift);
-    z_move_r = wsin(m_ssp_time_start_r, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_r = wsin(m_ssp_time_end_l, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude, -m_a_move_amplitude_shift);
+    x_move_l = wsin(
+      m_ssp_time_end_l, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      m_x_move_amplitude, m_x_move_amplitude_shift);
+    y_move_l = wsin(
+      m_ssp_time_end_l, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      m_y_move_amplitude, m_y_move_amplitude_shift);
+    z_move_l = wsin(
+      m_ssp_time_end_l, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_l = wsin(
+      m_ssp_time_end_l, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      m_a_move_amplitude, m_a_move_amplitude_shift);
+    x_move_r = wsin(
+      m_ssp_time_end_l, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
+      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+    y_move_r = wsin(
+      m_ssp_time_end_l, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
+      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+    z_move_r = wsin(
+      m_ssp_time_start_r, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_r = wsin(
+      m_ssp_time_end_l, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
+      -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_End_r) {
-    x_move_l = wsin(m_time, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi, m_x_move_amplitude, m_x_move_amplitude_shift);
-    y_move_l = wsin(m_time, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi, m_y_move_amplitude, m_y_move_amplitude_shift);
-    z_move_l = wsin(m_ssp_time_end_l, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_l = wsin(m_time, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi, m_a_move_amplitude, m_a_move_amplitude_shift);
-    x_move_r = wsin(m_time, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi, -m_x_move_amplitude, -m_x_move_amplitude_shift);
-    y_move_r = wsin(m_time, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi, -m_y_move_amplitude, -m_y_move_amplitude_shift);
-    z_move_r = wsin(m_time, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_r = wsin(m_time, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi, -m_a_move_amplitude, -m_a_move_amplitude_shift);
+    x_move_l = wsin(
+      m_time, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_x_move_amplitude, m_x_move_amplitude_shift);
+    y_move_l = wsin(
+      m_time, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_y_move_amplitude, m_y_move_amplitude_shift);
+    z_move_l = wsin(
+      m_ssp_time_end_l, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_l = wsin(
+      m_time, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_a_move_amplitude, m_a_move_amplitude_shift);
+    x_move_r = wsin(
+      m_time, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+    y_move_r = wsin(
+      m_time, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+    z_move_r = wsin(
+      m_time, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_r = wsin(
+      m_time, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else {
-    x_move_l = wsin(m_ssp_time_End_r, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi, m_x_move_amplitude, m_x_move_amplitude_shift);
-    y_move_l = wsin(m_ssp_time_End_r, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi, m_y_move_amplitude, m_y_move_amplitude_shift);
-    z_move_l = wsin(m_ssp_time_end_l, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_l = wsin(m_ssp_time_End_r, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi, m_a_move_amplitude, m_a_move_amplitude_shift);
-    x_move_r = wsin(m_ssp_time_End_r, m_x_move_period_time, m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi, -m_x_move_amplitude, -m_x_move_amplitude_shift);
-    y_move_r = wsin(m_ssp_time_End_r, m_y_move_period_time, m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi, -m_y_move_amplitude, -m_y_move_amplitude_shift);
-    z_move_r = wsin(m_ssp_time_End_r, m_z_move_period_time, m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude, m_z_move_amplitude_shift);
-    c_move_r = wsin(m_ssp_time_End_r, m_a_move_period_time, m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi, -m_a_move_amplitude, -m_a_move_amplitude_shift);
+    x_move_l = wsin(
+      m_ssp_time_End_r, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_x_move_amplitude, m_x_move_amplitude_shift);
+    y_move_l = wsin(
+      m_ssp_time_End_r, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_y_move_amplitude, m_y_move_amplitude_shift);
+    z_move_l = wsin(
+      m_ssp_time_end_l, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_l = wsin(
+      m_ssp_time_End_r, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
+      m_a_move_amplitude, m_a_move_amplitude_shift);
+    x_move_r = wsin(
+      m_ssp_time_End_r, m_x_move_period_time,
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+    y_move_r = wsin(
+      m_ssp_time_End_r, m_y_move_period_time,
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+    z_move_r = wsin(
+      m_ssp_time_End_r, m_z_move_period_time,
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
+      m_z_move_amplitude, m_z_move_amplitude_shift);
+    c_move_r = wsin(
+      m_ssp_time_End_r, m_a_move_period_time,
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
+      -m_a_move_amplitude, -m_a_move_amplitude_shift);
   }
 
   reset_angles();
 
   if (m_x_move_amplitude != 0) {
-    joint_angles[12] = wsin(m_time, m_period_time, 1.5_pi, -m_x_move_amplitude * m_arm_swing_gain, 0);
-    joint_angles[15] = wsin(m_time, m_period_time, 1.5_pi, m_x_move_amplitude * m_arm_swing_gain, 0);
+    joint_angles[12] =
+      wsin(m_time, m_period_time, 1.5_pi, -m_x_move_amplitude * m_arm_swing_gain, 0);
+    joint_angles[15] =
+      wsin(m_time, m_period_time, 1.5_pi, m_x_move_amplitude * m_arm_swing_gain, 0);
   }
 
   if (m_real_running) {

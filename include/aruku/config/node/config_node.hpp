@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "aruku/config/utils/config_util.hpp"
+#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -40,7 +40,7 @@ public:
 private:
   std::string get_node_prefix() const;
 
-  ConfigUtil config_util;
+  Config config;
 
   rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
   rclcpp::Service<aruku_interfaces::srv::GetConfig>::SharedPtr get_config_server;

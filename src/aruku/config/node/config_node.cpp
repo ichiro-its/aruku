@@ -23,7 +23,7 @@
 
 #include "aruku/config/node/config_node.hpp"
 
-#include "aruku/config/utils/config_util.hpp"
+#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -32,7 +32,7 @@ namespace aruku
 {
 
 ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
-: config_util(path)
+: config(path)
 {
   {
     using aruku_interfaces::srv::GetConfig;
@@ -40,7 +40,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
     get_config_server = node->create_service<GetConfig>(
       get_node_prefix() + "/get_config",
       [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-        response->json = this->config_util.get_config();
+        response->json = this->config.get_config();
       });
   }
 
@@ -50,7 +50,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
     set_config_subscriber = node->create_subscription<SetConfig>(
       get_node_prefix() + "/set_config", 10,
       [this](SetConfig::SharedPtr message) {
-        this->config_util.set_config(message->name, message->key, message->value);
+        this->config.set_config(message->name, message->key, message->value);
       });
   }
 }

@@ -22,13 +22,13 @@
 #include <iomanip>
 #include <string>
 
-#include "aruku/config/utils/config_util.hpp"
+#include "aruku/config/utils/config.hpp"
 #include "nlohmann/json.hpp"
 
 namespace aruku
 {
 
-ConfigUtil::ConfigUtil(const std::string & path)
+Config::Config(const std::string & path)
 : path(path)
 {
   file_name = {
@@ -43,7 +43,7 @@ ConfigUtil::ConfigUtil(const std::string & path)
   };
 }
 
-std::string ConfigUtil::get_config() const
+std::string Config::get_config() const
 {
   std::ifstream walking_file(path + "walking.json");
   nlohmann::json walking_data = nlohmann::json::parse(walking_file);
@@ -68,7 +68,7 @@ std::string ConfigUtil::get_config() const
   return walking_data.dump();
 }
 
-void ConfigUtil::set_config(const std::string & name, const std::string & key, double value)
+void Config::set_config(const std::string & name, const std::string & key, double value)
 {
   if (file_name.find(name) != file_name.end()) {
     std::ifstream file(path + file_name.at(name));

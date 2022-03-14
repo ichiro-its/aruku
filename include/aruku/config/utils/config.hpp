@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__UTILS__CONFIG_UTIL_HPP_
-#define ARUKU__CONFIG__UTILS__CONFIG_UTIL_HPP_
+#ifndef ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#define ARUKU__CONFIG__UTILS__CONFIG_HPP_
 
 #include <fstream>
 #include <map>
@@ -28,10 +28,10 @@
 namespace aruku
 {
 
-class ConfigUtil
+class Config
 {
 public:
-  explicit ConfigUtil(const std::string & path);
+  explicit Config(const std::string & path);
 
   std::string get_config() const;
   void set_config(const std::string & name, const std::string & key, double value);
@@ -44,4 +44,4 @@ private:
 
 }  // namespace aruku
 
-#endif  // ARUKU__CONFIG__UTILS__CONFIG_UTIL_HPP_
+#endif  // ARUKU__CONFIG__UTILS__CONFIG_HPP_

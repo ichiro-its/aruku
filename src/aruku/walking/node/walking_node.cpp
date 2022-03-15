@@ -29,6 +29,7 @@
 #include "kansei_interfaces/msg/orientation.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "tachimawari/joint/joint.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
 namespace aruku
@@ -98,6 +99,7 @@ std::string WalkingNode::get_node_prefix() const
 void WalkingNode::publish_joints()
 {
   auto joints_msg = tachimawari_interfaces::msg::SetJoints();
+  joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
   const auto & joints = walking_manager->get_joints();
   auto & joint_msgs = joints_msg.joints;

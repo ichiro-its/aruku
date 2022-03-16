@@ -26,7 +26,7 @@
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/joint.hpp"
@@ -55,12 +55,12 @@ WalkingNode::WalkingNode(
   }
 
   {
-    using kansei_interfaces::msg::Orientation;
+    using kansei_interfaces::msg::Axis;
 
-    orientation_subscriber = node->create_subscription<Orientation>(
+    orientation_subscriber = node->create_subscription<Axis>(
       "/measurement/orientation", 10,
-      [this](const Orientation::SharedPtr message) {
-        this->walking_manager->update_imu(message->orientation.yaw);
+      [this](const Axis::SharedPtr message) {
+        this->walking_manager->update_imu(message->yaw);
       });
   }
 

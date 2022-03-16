@@ -28,7 +28,7 @@
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "kansei_interfaces/msg/orientation.hpp"
+#include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
@@ -59,7 +59,7 @@ private:
 
   rclcpp::Publisher<tachimawari_interfaces::msg::SetJoints>::SharedPtr set_joints_publisher;
 
-  rclcpp::Subscription<kansei_interfaces::msg::Orientation>::SharedPtr orientation_subscriber;
+  rclcpp::Subscription<kansei_interfaces::msg::Axis>::SharedPtr orientation_subscriber;
   rclcpp::Subscription<kansei_interfaces::msg::Unit>::SharedPtr unit_subscriber;
 
   int status;

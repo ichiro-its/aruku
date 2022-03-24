@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <string>
 #include <memory>
 
 #include "aruku/walking/node/walking_manager.hpp"
@@ -53,7 +54,8 @@ int main(int argc, char * argv[])
       auto joints = walking_manager->get_joints();
 
       for (const auto & joint : joints) {
-        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " << joint.get_position() << "\n";
+        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " << joint.get_position() <<
+          "\n";
       }
     } else {
       std::cout << "kinematic failed!\n";

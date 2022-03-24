@@ -35,8 +35,8 @@ namespace aruku
 {
 
 WalkingManager::WalkingManager()
-: kinematic(), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(
-    0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
+: kinematic(), orientation(0.0), inital_joints({0.0}), joints_direction({1}),
+  position(0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
   {
     using tachimawari::joint::JointId;

@@ -91,9 +91,9 @@ private:
   double x_offset;
   double y_offset;
   double z_offset;
-  double yaw_offset;
-  double pitch_offset;
-  double roll_offset;
+  keisan::Angle<double> yaw_offset;
+  keisan::Angle<double> pitch_offset;
+  keisan::Angle<double> roll_offset;
   double hip_pitch_offset;
 
   double thigh_length;

@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 #include "aruku/walking/model/kinematic_id.hpp"
 
@@ -30,7 +30,7 @@ namespace aruku
 
 using tachimawari::joint::JointId;
 
-const std::map<uint8_t, size_t> KinematicId::map = {
+const std::unordered_map<uint8_t, size_t> KinematicId::map = {
   {JointId::RIGHT_HIP_YAW, 0},
   {JointId::RIGHT_HIP_ROLL, 1},
   {JointId::RIGHT_HIP_PITCH, 2},

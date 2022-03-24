@@ -21,8 +21,8 @@
 #ifndef ARUKU__WALKING__MODEL__KINEMATIC_ID_HPP_
 #define ARUKU__WALKING__MODEL__KINEMATIC_ID_HPP_
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
 namespace aruku
 {
@@ -30,7 +30,7 @@ namespace aruku
 class KinematicId
 {
 public:
-  static const std::map<uint8_t, size_t> map;
+  static const std::unordered_map<uint8_t, size_t> map;
 };
 
 }  // namespace aruku

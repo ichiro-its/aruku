@@ -38,16 +38,14 @@ WalkingManager::WalkingManager()
 : kinematic(), orientation(0.0), inital_joints({0.0}), joints_direction({1}),
   position(0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
-  {
-    using tachimawari::joint::JointId;
-    using tachimawari::joint::Joint;
+  using tachimawari::joint::JointId;
+  using tachimawari::joint::Joint;
 
-    for (auto id : JointId::list) {
-      if (id < JointId::NECK_YAW) {
-        joints.push_back(Joint(id, 0.0));
-      } else {
-        break;
-      }
+  for (auto id : JointId::list) {
+    if (id < JointId::NECK_YAW) {
+      joints.push_back(Joint(id, 0.0));
+    } else {
+      break;
     }
   }
 }
@@ -181,19 +179,19 @@ bool WalkingManager::process()
       double y_amplitude = kinematic.get_y_move_amplitude();
 
       if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
-        float dx = x_amplitude * odometry_fx_coefficient / 30.0;
+        double dx = x_amplitude * odometry_fx_coefficient / 30.0;
 
-        float dy = 0.0;
+        double dy = 0.0;
         if (y_amplitude > 0.0) {
           dy = -y_amplitude * odometry_ly_coefficient / 30.0;
         } else {
           dy = -y_amplitude * odometry_ry_coefficient / 30.0;
         }
 
-        float theta = keisan::make_degree(orientation).radian();
+        auto theta = keisan::make_degree(orientation);
 
-        position.x += dx * cos(theta) - dy * sin(theta);
-        position.y += dx * sin(theta) + dy * cos(theta);
+        position.x += dx * theta.cos() - dy * theta.sin();
+        position.y += dx * theta.sin() + dy * theta.cos();
       }
     }
 

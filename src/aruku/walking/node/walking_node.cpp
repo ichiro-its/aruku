@@ -37,6 +37,7 @@ namespace aruku
 
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
+: walking_manager(walking_manager)
 {
   {
     using aruku_interfaces::msg::SetWalking;

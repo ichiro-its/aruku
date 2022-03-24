@@ -35,7 +35,7 @@ namespace aruku
 {
 
 WalkingManager::WalkingManager()
-: kinematic(Kinematic()), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(
+: kinematic(), orientation(0.0), inital_joints({0.0}), joints_direction({1}), position(
     0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
 {
   {

@@ -18,6 +18,7 @@ find_package(ament_index_cpp REQUIRED)
 find_package(aruku_interfaces REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
 
@@ -39,6 +40,7 @@ ament_target_dependencies(${PROJECT_NAME}
   aruku_interfaces
   kansei_interfaces
   keisan
+  rclcpp
   tachimawari
   tachimawari_interfaces)
 
@@ -62,9 +64,16 @@ target_include_directories(config_main PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(config_main ${PROJECT_NAME})
 
+add_executable(walking_main "src/walking_main.cpp")
+target_include_directories(walking_main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(walking_main ${PROJECT_NAME})
+
 install(TARGETS
   aruku_main
   config_main
+  walking_main
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
@@ -77,6 +86,7 @@ ament_export_dependencies(
   aruku_interfaces
   kansei_interfaces
   keisan
+  rclcpp
   tachimawari
   tachimawari_interfaces)
 ament_export_include_directories("include")

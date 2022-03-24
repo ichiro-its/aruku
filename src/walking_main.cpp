@@ -18,134 +18,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/text_format.h>
-#include <unistd.h>
-
-#include <aruku/walking.hpp>
-#include <kansei/imu.hpp>
-#include <robocup_client/robocup_client.hpp>
-
-#include <nlohmann/json.hpp>
-
-#include <fstream>
-#include <iostream>
 #include <memory>
-#include <string>
+
+#include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/node/walking_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
-  if (argc < 4) {
-    std::cerr << "please specify the host, port, and the path!" << std::endl;
+  rclcpp::init(argc, argv);
+
+  if (argc < 2) {
+    std::cerr << "Please specify the path!" << std::endl;
     return 0;
   }
 
-  std::string host = argv[1];
-  int port = std::stoi(argv[2]);
-  std::string path = argv[3];
-  robocup_client::robotClient client(host, port);
-  if (!client.connect()) {
-    std::cerr << "Failed to connect to server on port " << client.get_port() << "!" << std::endl;
-    return 1;
-  }
+  auto walking_manager = std::make_shared<aruku::WalkingManager>();
+  std::string path = argv[1];
+  walking_manager->load_data(path);
 
-  robocup_client::MessageHandler message;
-  message.add_sensor_time_step("gyro", 8);
-  message.add_sensor_time_step("accelerometer", 8);
-  client.send(*message.get_actuator_request());
+  auto node = std::make_shared<rclcpp::Node>("walking_node");
+  aruku::WalkingNode walking_node(node, walking_manager);
 
-  auto imu = std::make_shared<kansei::imu>();
-  imu->load_data(path);
+  rclcpp::Rate rcl_rate(1s);
+  while (rclcpp::ok()) {
+    rcl_rate.sleep();
 
-  auto walking = std::make_shared<aruku::Walking>(imu);
-  walking->initialize();
-  walking->load_data(path);
-  walking->start();
+    walking_manager->run(0.0, 0.0, 0.0);
+    walking_node.process();
 
-  float counter = 1.0;
-  bool init_orientation = true;
+    if (walking_manager->is_runing()) {
+      auto joints = walking_manager->get_joints();
 
-  while (client.get_tcp_socket()->is_connected()) {
-    try {
-      std::string file_name =
-        path + "walking/" + "main.json";
-      std::ifstream file(file_name);
-      nlohmann::json main_data = nlohmann::json::parse(file);
-
-      for (auto &[key, val] : main_data.items()) {
-        if (key == "start") {
-          if (val == true) {
-            if (imu->is_calibrated()) {
-              walking->start();
-
-              if (init_orientation) {
-                imu->reset_orientation_to(-90.0);
-                init_orientation = false;
-              }
-            }
-          } else {
-            walking->stop();
-            if (imu->is_calibrated()) {
-              init_orientation = true;
-            }
-          }
-        }
-        if (key == "x") {
-          walking->x_move_amplitude = val;
-        }
-        if (key == "y") {
-          walking->y_move_amplitude = val;
-        }
-        if (key == "a") {
-          walking->a_move_amplitude = val;
-        }
-        if (key == "aim") {
-          walking->a_move_aim_on = val;
-        }
+      for (const auto & joint : joints) {
+        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " << joint.get_position() << "\n";
       }
-      walking->load_data(path);
-
-      auto sensors = client.receive();
-
-      double gy[3];
-      if (sensors.get()->gyros_size() > 0) {
-        auto gyro = sensors.get()->gyros(0);
-        gy[0] = gyro.value().x();
-        gy[1] = gyro.value().y();
-        gy[2] = gyro.value().z();
-      }
-
-      double acc[3];
-      if (sensors.get()->accelerometers_size() > 0) {
-        auto accelerometer = sensors.get()->accelerometers(0);
-        acc[0] = accelerometer.value().x();
-        acc[1] = accelerometer.value().y();
-        acc[2] = accelerometer.value().z();
-      }
-
-      double seconds = (sensors.get()->time() + 0.0) / 1000;
-
-      imu->compute_rpy(gy, acc, seconds);
-      walking->process();
-
-      message.clear_actuator_request();
-      for (auto joint : walking->get_joints()) {
-        std::string joint_name = joint.get_joint_name();
-        float position = joint.get_goal_position();
-
-        if (joint_name.find("shoulder_pitch") != std::string::npos) {
-          joint_name += " [shoulder]";
-        } else if (joint_name.find("hip_yaw") != std::string::npos) {
-          joint_name += " [hip]", joint.get_goal_position();
-        }
-
-        message.add_motor_position_in_degree(joint_name, position);
-      }
-      client.send(*message.get_actuator_request());
-    } catch (const std::runtime_error & exc) {
-      std::cerr << "runtime error: " << exc.what() << std::endl;
+    } else {
+      std::cout << "kinematic failed!\n";
     }
   }
 
-  walking->stop();
+  return 0;
 }

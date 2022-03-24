@@ -28,12 +28,17 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<rclcpp::Node>("aruku_node");
-  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
+  if (argc < 2) {
+    std::cerr << "Please specify the path!" << std::endl;
+    return 0;
+  }
 
   auto walking_manager = std::make_shared<aruku::WalkingManager>();
-  walking_manager->load_data("");
+  std::string path = argv[1];
+  walking_manager->load_data(path);
 
+  auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
   aruku_node->set_walking_manager(walking_manager);
 
   rclcpp::spin(node);

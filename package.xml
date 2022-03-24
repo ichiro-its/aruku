@@ -12,6 +12,7 @@
   <depend>kansei_interfaces</depend>
   <depend>keisan</depend>
   <depend>nlohmann-json-dev</depend>
+  <depend>rclcpp</depend>
   <depend>tachimawari</depend>
   <depend>tachimawari_interfaces</depend>
   <test_depend>ament_lint_auto</test_depend>

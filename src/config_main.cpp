@@ -27,10 +27,16 @@ int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
 
+  if (argc < 2) {
+    std::cerr << "Please specify the path!" << std::endl;
+    return 0;
+  }
+
   auto node = std::make_shared<rclcpp::Node>("aruku_node");
   auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
-  aruku_node->run_config_service("");
+  std::string path = argv[1];
+  aruku_node->run_config_service(path);
 
   rclcpp::spin(node);
   rclcpp::shutdown();

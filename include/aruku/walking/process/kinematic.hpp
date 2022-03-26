@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-#include "keisan/angle/angle.hpp"
+#include "keisan/keisan.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
@@ -34,11 +34,17 @@ namespace aruku
 class Kinematic
 {
 public:
+  enum
+  {
+    RIGHT_LEG,
+    LEFT_LEG,
+  };
+
   Kinematic();
 
   void load_data(const std::string & path);
 
-  const std::array<double, 18> & get_angles() const;
+  const std::array<double, 19> & get_angles() const;
 
   void set_running_state(bool running_state);
   bool get_running_state() const;
@@ -58,8 +64,7 @@ public:
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
   bool compute_inverse_kinematic(
-    std::string leg, double x, double y, double z, double a, double b,
-    double c);
+    int index_addition, keisan::Point3 translation_target, keisan::Euler<double> rotation_target);
 
   void update_move_amplitude();
   void update_times();
@@ -174,7 +179,7 @@ private:
 
   bool is_compute_odometry;
 
-  std::array<double, 18> joint_angles;
+  std::array<double, 19> angles;
 };
 
 }  // namespace aruku

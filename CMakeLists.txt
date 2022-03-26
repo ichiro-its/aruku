@@ -26,7 +26,6 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
   "src/${PROJECT_NAME}/config/utils/config.cpp"
   "src/${PROJECT_NAME}/node/aruku_node.cpp"
-  "src/${PROJECT_NAME}/walking/model/kinematic_id.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp")

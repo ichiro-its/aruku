@@ -24,7 +24,6 @@
 
 #include "aruku/walking/node/walking_manager.hpp"
 
-#include "aruku/walking/model/kinematic_id.hpp"
 #include "aruku/walking/process/kinematic.hpp"
 #include "keisan/angle/angle.hpp"
 #include "nlohmann/json.hpp"
@@ -203,7 +202,7 @@ bool WalkingManager::process()
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
         double offset = joints_direction[joint_id] *
-          keisan::make_radian(angles[KinematicId::map.at(joint_id)]).degree() *
+          keisan::make_radian(angles[joint_id]).degree() *
           Joint::TO_VALUE_RATIO;
 
         joint.set_position(inital_joints[joint_id]);

@@ -27,6 +27,7 @@
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
@@ -55,6 +56,7 @@ private:
   std::shared_ptr<WalkingManager> walking_manager;
 
   rclcpp::Subscription<aruku_interfaces::msg::SetWalking>::SharedPtr set_walking_subscriber;
+  rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
   rclcpp::Publisher<aruku_interfaces::msg::Odometry>::SharedPtr odometry_publisher;
 
   rclcpp::Publisher<tachimawari_interfaces::msg::SetJoints>::SharedPtr set_joints_publisher;

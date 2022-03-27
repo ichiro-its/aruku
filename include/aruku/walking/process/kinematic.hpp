@@ -26,6 +26,7 @@
 #include <string>
 
 #include "keisan/keisan.hpp"
+#include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
@@ -42,6 +43,7 @@ public:
 
   Kinematic();
 
+  void set_config(nlohmann::json kinematic_data);
   void load_data(const std::string & path);
 
   const std::array<double, 19> & get_angles() const;

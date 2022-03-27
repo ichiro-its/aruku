@@ -49,6 +49,60 @@ WalkingManager::WalkingManager()
   }
 }
 
+void WalkingManager::set_config(nlohmann::json kinematic_data, nlohmann::json walking_data)
+{
+  for (auto &[key, val] : walking_data.items()) {
+    if (key == "balance") {
+      try {
+        val.at("enable").get_to(balance_enable);
+        val.at("balance_knee_gain").get_to(balance_knee_gain);
+        val.at("balance_ankle_pitch_gain").get_to(balance_ankle_pitch_gain);
+        val.at("balance_hip_roll_gain").get_to(balance_hip_roll_gain);
+        val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    } else if (key == "odometry") {
+      try {
+        val.at("fx_coefficient").get_to(odometry_fx_coefficient);
+        val.at("ly_coefficient").get_to(odometry_ly_coefficient);
+        val.at("ry_coefficient").get_to(odometry_ry_coefficient);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    } else if (key == "init_angles") {
+      try {
+        {
+          using tachimawari::joint::JointId;
+
+          val.at("right_hip_yaw").get_to(inital_joints[JointId::RIGHT_HIP_YAW]);
+          val.at("right_hip_pitch").get_to(inital_joints[JointId::RIGHT_HIP_PITCH]);
+          val.at("right_hip_roll").get_to(inital_joints[JointId::RIGHT_HIP_ROLL]);
+          val.at("right_knee").get_to(inital_joints[JointId::RIGHT_KNEE]);
+          val.at("right_ankle_pitch").get_to(inital_joints[JointId::RIGHT_ANKLE_PITCH]);
+          val.at("right_ankle_roll").get_to(inital_joints[JointId::RIGHT_ANKLE_ROLL]);
+          val.at("left_hip_yaw").get_to(inital_joints[JointId::LEFT_HIP_YAW]);
+          val.at("left_hip_pitch").get_to(inital_joints[JointId::LEFT_HIP_PITCH]);
+          val.at("left_hip_roll").get_to(inital_joints[JointId::LEFT_HIP_ROLL]);
+          val.at("left_knee").get_to(inital_joints[JointId::LEFT_KNEE]);
+          val.at("left_ankle_pitch").get_to(inital_joints[JointId::LEFT_ANKLE_PITCH]);
+          val.at("left_ankle_roll").get_to(inital_joints[JointId::LEFT_ANKLE_ROLL]);
+          val.at("right_shoulder_pitch").get_to(inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
+          val.at("right_shoulder_roll").get_to(inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
+          val.at("right_elbow").get_to(inital_joints[JointId::RIGHT_ELBOW]);
+          val.at("left_shoulder_pitch").get_to(inital_joints[JointId::LEFT_SHOULDER_PITCH]);
+          val.at("left_shoulder_roll").get_to(inital_joints[JointId::LEFT_SHOULDER_ROLL]);
+          val.at("left_elbow").get_to(inital_joints[JointId::LEFT_ELBOW]);
+        }
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
+
+  kinematic.set_config(kinematic_data);
+}
+
 void WalkingManager::load_data(const std::string & path)
 {
   std::ifstream file(path + "walking.json");

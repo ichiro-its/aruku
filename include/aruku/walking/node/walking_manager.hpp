@@ -27,6 +27,7 @@
 
 #include "aruku/walking/process/kinematic.hpp"
 #include "keisan/geometry/point_2.hpp"
+#include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
@@ -37,6 +38,7 @@ class WalkingManager
 public:
   WalkingManager();
 
+  void set_config(nlohmann::json kinematic_data, nlohmann::json walking_data);
   void load_data(const std::string & path);
 
   void update_imu(double orientation);

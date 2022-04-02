@@ -24,8 +24,9 @@
 #include "aruku/config/node/config_node.hpp"
 
 #include "aruku/config/utils/config.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/srv/save_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
+#include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku
@@ -40,17 +41,21 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
     get_config_server = node->create_service<GetConfig>(
       get_node_prefix() + "/get_config",
       [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-        response->json = this->config.get_config();
+        response->json_walking = this->config.get_config("walking");
+        response->json_kinematic = this->config.get_config("kinematic");
       });
   }
 
   {
-    using aruku_interfaces::msg::SetConfig;
+    using aruku_interfaces::srv::SaveConfig;
 
-    set_config_subscriber = node->create_subscription<SetConfig>(
-      get_node_prefix() + "/set_config", 10,
-      [this](SetConfig::SharedPtr message) {
-        this->config.set_config(message->name, message->key, message->value);
+    save_config_server = node->create_service<SaveConfig>(
+      get_node_prefix() + "/save_config",
+      [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
+        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+        this->config.set_config(kinematic_data, walking_data);
+        response->status = true;
       });
   }
 }

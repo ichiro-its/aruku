@@ -27,6 +27,7 @@
 #include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
+#include "aruku_interfaces/srv/save_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku
@@ -42,7 +43,7 @@ private:
 
   Config config;
 
-  rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
+  rclcpp::Service<aruku_interfaces::srv::SaveConfig>::SharedPtr save_config_server;
   rclcpp::Service<aruku_interfaces::srv::GetConfig>::SharedPtr get_config_server;
 };
 

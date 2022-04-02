@@ -333,7 +333,7 @@ void Kinematic::update_move_amplitude()
   }
 }
 
-void Kinematic::set_config(nlohmann::json kinematic_data)
+void Kinematic::set_config(const nlohmann::json & kinematic_data)
 {
   for (auto &[key, val] : kinematic_data.items()) {
     if (key == "ratio") {

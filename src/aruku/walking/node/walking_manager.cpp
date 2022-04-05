@@ -49,7 +49,9 @@ WalkingManager::WalkingManager()
   }
 }
 
-void WalkingManager::set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+void WalkingManager::set_config(
+  const nlohmann::json & kinematic_data,
+  const nlohmann::json & walking_data)
 {
   for (auto &[key, val] : walking_data.items()) {
     if (key == "balance") {

@@ -38,7 +38,7 @@ class WalkingManager
 public:
   WalkingManager();
 
-  void set_config(const nlohmann::json & kinematic_data,  const nlohmann::json & walking_data);
+  void set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
   void load_data(const std::string & path);
 
   void update_imu(double orientation);

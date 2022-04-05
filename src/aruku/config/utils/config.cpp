@@ -40,7 +40,7 @@ std::string Config::get_config(const std::string & key) const
     nlohmann::json walking_data = nlohmann::json::parse(walking_file);
 
     walking_file.close();
-    nlohmann::json walking_patch = 
+    nlohmann::json walking_patch =
       R"([
       { "op": "remove", "path": "/angles_direction" },
       { "op": "remove", "path": "/pid" },
@@ -67,10 +67,10 @@ std::string Config::get_config(const std::string & key) const
 
 void Config::set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
 {
-  std:: ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
+  std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;
 
-  std:: ofstream walking_file(path + "walking.json", std::ios::out | std::ios::trunc);
+  std::ofstream walking_file(path + "walking.json", std::ios::out | std::ios::trunc);
   walking_file << std::setw(2) << walking_data << std::endl;
 }
 

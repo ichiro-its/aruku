@@ -41,10 +41,13 @@ public:
 private:
   std::string get_node_prefix() const;
 
+  using SaveConfig = aruku_interfaces::srv::SaveConfig;
+  using GetConfig = aruku_interfaces::srv::GetConfig;
+
   Config config;
 
-  rclcpp::Service<aruku_interfaces::srv::SaveConfig>::SharedPtr save_config_server;
-  rclcpp::Service<aruku_interfaces::srv::GetConfig>::SharedPtr get_config_server;
+  rclcpp::Service<SaveConfig>::SharedPtr save_config_server;
+  rclcpp::Service<GetConfig>::SharedPtr get_config_server;
 };
 
 }  // namespace aruku

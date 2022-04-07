@@ -51,18 +51,27 @@ private:
 
   void publish_odometry();
 
+  using SetWalking = aruku_interfaces::msg::SetWalking;
+  using SetConfig = aruku_interfaces::msg::SetConfig;
+  using Odometry = aruku_interfaces::msg::Odometry;
+
+  using SetJoints = tachimawari_interfaces::msg::SetJoints;
+
+  using Axis = kansei_interfaces::msg::Axis;
+  using Unit = kansei_interfaces::msg::Unit;
+  
   rclcpp::Node::SharedPtr node;
 
   std::shared_ptr<WalkingManager> walking_manager;
 
-  rclcpp::Subscription<aruku_interfaces::msg::SetWalking>::SharedPtr set_walking_subscriber;
-  rclcpp::Subscription<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_subscriber;
-  rclcpp::Publisher<aruku_interfaces::msg::Odometry>::SharedPtr odometry_publisher;
+  rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
+  rclcpp::Subscription<SetConfig>::SharedPtr set_config_subscriber;
+  rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
 
-  rclcpp::Publisher<tachimawari_interfaces::msg::SetJoints>::SharedPtr set_joints_publisher;
+  rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 
-  rclcpp::Subscription<kansei_interfaces::msg::Axis>::SharedPtr orientation_subscriber;
-  rclcpp::Subscription<kansei_interfaces::msg::Unit>::SharedPtr unit_subscriber;
+  rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;
+  rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   int status;
 };

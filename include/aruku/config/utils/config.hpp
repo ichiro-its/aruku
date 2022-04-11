@@ -25,6 +25,8 @@
 #include <map>
 #include <string>
 
+#include "nlohmann/json.hpp"
+
 namespace aruku
 {
 
@@ -33,13 +35,11 @@ class Config
 public:
   explicit Config(const std::string & path);
 
-  std::string get_config() const;
-  void set_config(const std::string & name, const std::string & key, double value);
+  std::string get_config(const std::string & key) const;
+  void set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
 
 private:
   std::string path;
-
-  std::map<std::string, std::string> file_name;
 };
 
 }  // namespace aruku

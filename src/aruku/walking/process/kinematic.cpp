@@ -333,6 +333,49 @@ void Kinematic::update_move_amplitude()
   }
 }
 
+void Kinematic::set_config(const nlohmann::json & kinematic_data)
+{
+  for (auto &[key, val] : kinematic_data.items()) {
+    if (key == "ratio") {
+      try {
+        val.at("period_time").get_to(period_time);
+        val.at("dsp_ratio").get_to(dsp_ratio);
+        val.at("foot_height").get_to(z_move);
+        val.at("swing_right_left").get_to(y_swap_amplitude);
+        val.at("swing_up_down").get_to(z_swap_amplitude);
+        val.at("arm_swing_gain").get_to(arm_swing_gain);
+        val.at("backward_hip_comp_ratio").get_to(backward_hip_comp_ratio);
+        val.at("forward_hip_comp_ratio").get_to(forward_hip_comp_ratio);
+        val.at("foot_comp_ratio").get_to(foot_comp_ratio);
+        val.at("dsp_comp_ratio").get_to(dsp_comp_ratio);
+        val.at("period_comp_ratio").get_to(period_comp_ratio);
+        val.at("move_accel_ratio").get_to(move_accel_ratio);
+        val.at("foot_accel_ratio").get_to(foot_accel_ratio);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    } else if (key == "offset") {
+      try {
+        val.at("x_offset").get_to(x_offset);
+        val.at("y_offset").get_to(y_offset);
+        val.at("z_offset").get_to(z_offset);
+        val.at("hip_pitch_offset").get_to(hip_pitch_offset);
+
+        yaw_offset = keisan::make_degree(val.at("yaw_offset").get<double>());
+        roll_offset = keisan::make_degree(val.at("roll_offset").get<double>());
+        pitch_offset = keisan::make_degree(val.at("pitch_offset").get<double>());
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+      }
+    }
+  }
+
+  update_times();
+  update_move_amplitude();
+
+  run_kinematic();
+}
+
 void Kinematic::load_data(const std::string & path)
 {
   std::ifstream file(path + "kinematic.json");

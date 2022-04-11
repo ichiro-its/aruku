@@ -31,56 +31,47 @@ namespace aruku
 Config::Config(const std::string & path)
 : path(path)
 {
-  file_name = {
-    {"ratio", "kinematic.json"},
-    {"offset", "kinematic.json"},
-    {"length", "kinematic.json"},
-    {"balance", "walking.json"},
-    {"pid", "walking.json"},
-    {"odometry", "walking.json"},
-    {"init_angles", "walking.json"},
-    {"angles_direction", "walking.json"}
-  };
 }
 
-std::string Config::get_config() const
+std::string Config::get_config(const std::string & key) const
 {
-  std::ifstream walking_file(path + "walking.json");
-  nlohmann::json walking_data = nlohmann::json::parse(walking_file);
+  if (key == "walking") {
+    std::ifstream walking_file(path + "walking.json");
+    nlohmann::json walking_data = nlohmann::json::parse(walking_file);
 
-  walking_file.close();
+    walking_file.close();
+    nlohmann::json walking_patch =
+      R"([
+      { "op": "remove", "path": "/angles_direction" },
+      { "op": "remove", "path": "/pid" },
+    ])"_json;
+    walking_data = walking_data.patch(walking_patch);
 
-  std::ifstream kinematic_file(path + "kinematic.json");
-  nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
+    return walking_data.dump();
+  } else if (key == "kinematic") {
+    std::ifstream kinematic_file(path + "kinematic.json");
+    nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
 
-  kinematic_file.close();
+    kinematic_file.close();
+    nlohmann::json kinematic_patch =
+      R"([
+      { "op": "remove", "path": "/length" }
+    ])"_json;
+    kinematic_data = kinematic_data.patch(kinematic_patch);
 
-  walking_data.merge_patch(kinematic_data);
-
-  nlohmann::json patch =
-    R"([
-    { "op": "remove", "path": "/angles_direction" },
-    { "op": "remove", "path": "/pid" },
-    { "op": "remove", "path": "/length" }
-  ])"_json;
-  walking_data = walking_data.patch(patch);
-
-  return walking_data.dump();
-}
-
-void Config::set_config(const std::string & name, const std::string & key, double value)
-{
-  if (file_name.find(name) != file_name.end()) {
-    std::ifstream file(path + file_name.at(name));
-    nlohmann::json data = nlohmann::json::parse(file);
-
-    file.close();
-
-    data[name][key] = value;
-
-    std::ofstream output(path + file_name.at(name), std::ios::out | std::ios::trunc);
-    output << std::setw(2) << data << std::endl;
+    return kinematic_data.dump();
   }
+
+  return nullptr;
+}
+
+void Config::set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+{
+  std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
+  kinematic_file << std::setw(2) << kinematic_data << std::endl;
+
+  std::ofstream walking_file(path + "walking.json", std::ios::out | std::ios::trunc);
+  walking_file << std::setw(2) << walking_data << std::endl;
 }
 
 }  // namespace aruku

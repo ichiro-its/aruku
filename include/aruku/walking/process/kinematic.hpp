@@ -59,7 +59,7 @@ public:
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
 
-  double get_hip_offest() const;
+  const keisan::Angle<double> & get_hip_offest() const;
 
   bool time_to_compute_odometry() const;
 
@@ -98,10 +98,11 @@ private:
   double x_offset;
   double y_offset;
   double z_offset;
+
   keisan::Angle<double> yaw_offset;
   keisan::Angle<double> pitch_offset;
   keisan::Angle<double> roll_offset;
-  double hip_pitch_offset;
+  keisan::Angle<double> hip_pitch_offset;
 
   double thigh_length;
   double calf_length;
@@ -111,7 +112,7 @@ private:
   double z_move;
 
   // process member
-  double hip_comp;
+  keisan::Angle<double> hip_comp;
   double foot_comp;
 
   double m_period_time;

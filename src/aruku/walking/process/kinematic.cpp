@@ -51,7 +51,7 @@ Kinematic::Kinematic()
     0), m_y_swap_amplitude_shift(0), m_y_move_amplitude(0), m_y_move_amplitude_shift(0),
   m_z_swap_phase_shift(0), m_z_swap_amplitude(0), m_z_swap_amplitude_shift(0), m_z_move_amplitude(
     0), m_z_move_amplitude_Goal(0), m_z_move_amplitude_shift(0), m_a_move_amplitude(0),
-  m_a_move_amplitude_shift(0), m_arm_swing_gain(0), m_arm_roll_Gain(0), hip_comp(0.0), foot_comp(
+  m_a_move_amplitude_shift(0), m_arm_swing_gain(0), m_arm_roll_Gain(0), hip_comp(0_deg), foot_comp(
     0.0), time_unit(8.0), m_x_move_phase_shift(0.5_pi), m_x_move_amplitude_shift(0),
   m_y_move_phase_shift(0.5_pi), m_z_move_phase_shift(0.5_pi), m_a_move_phase_shift(0.5_pi),
   m_ctrl_running(false), m_real_running(false), m_time(0), x_move(0.0), y_move(0.0), a_move(0.0),
@@ -104,7 +104,7 @@ double Kinematic::get_y_move_amplitude() const
   return m_y_move_amplitude;
 }
 
-double Kinematic::get_hip_offest() const
+const keisan::Angle<double> & Kinematic::get_hip_offest() const
 {
   return hip_pitch_offset + hip_comp;
 }
@@ -278,11 +278,9 @@ void Kinematic::update_times()
 
   m_arm_swing_gain = arm_swing_gain;
 
-  if (m_x_move_amplitude > 0) {
-    hip_comp = m_x_move_amplitude * forward_hip_comp_ratio;
-  } else {
-    hip_comp = m_x_move_amplitude * backward_hip_comp_ratio;
-  }
+  hip_comp = keisan::make_degree(m_x_move_amplitude *
+    ((m_x_move_amplitude > 0) ? forward_hip_comp_ratio :
+      backward_hip_comp_ratio));
 
   foot_comp = fabs(m_x_move_amplitude) * foot_comp_ratio;
 }
@@ -351,11 +349,11 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
         val.at("x_offset").get_to(x_offset);
         val.at("y_offset").get_to(y_offset);
         val.at("z_offset").get_to(z_offset);
-        val.at("hip_pitch_offset").get_to(hip_pitch_offset);
 
         yaw_offset = keisan::make_degree(val.at("yaw_offset").get<double>());
         roll_offset = keisan::make_degree(val.at("roll_offset").get<double>());
         pitch_offset = keisan::make_degree(val.at("pitch_offset").get<double>());
+        hip_pitch_offset = keisan::make_degree(val.at("hip_pitch_offset").get<double>());
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }
@@ -406,11 +404,11 @@ void Kinematic::load_data(const std::string & path)
         val.at("x_offset").get_to(x_offset);
         val.at("y_offset").get_to(y_offset);
         val.at("z_offset").get_to(z_offset);
-        val.at("hip_pitch_offset").get_to(hip_pitch_offset);
 
         yaw_offset = keisan::make_degree(val.at("yaw_offset").get<double>());
         roll_offset = keisan::make_degree(val.at("roll_offset").get<double>());
         pitch_offset = keisan::make_degree(val.at("pitch_offset").get<double>());
+        hip_pitch_offset = keisan::make_degree(val.at("hip_pitch_offset").get<double>());
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
       }

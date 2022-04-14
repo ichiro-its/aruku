@@ -258,13 +258,13 @@ bool WalkingManager::process()
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
         double offset = joints_direction[joint_id] *
-          Joint::angle_to_value(keisan::make_radian(angles[joint_id]));
+          Joint::angle_to_value(angles[joint_id]);
 
         joint.set_position(inital_joints[joint_id]);
 
         if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
           offset -= joints_direction[joint_id] *
-            Joint::angle_to_value(keisan::make_degree(kinematic.get_hip_offest()));
+            Joint::angle_to_value(kinematic.get_hip_offest());
         }
 
         offset += joint.get_position_value();

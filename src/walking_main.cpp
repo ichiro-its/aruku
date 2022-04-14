@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
 
   auto walking_manager = std::make_shared<aruku::WalkingManager>();
   std::string path = argv[1];
-  walking_manager->load_data(path);
+  walking_manager->load_config(path);
 
   auto node = std::make_shared<rclcpp::Node>("walking_node");
   aruku::WalkingNode walking_node(node, walking_manager);

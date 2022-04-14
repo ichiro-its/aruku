@@ -41,58 +41,42 @@ WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
 {
-  {
-    using aruku_interfaces::msg::SetWalking;
+  set_walking_subscriber = node->create_subscription<SetWalking>(
+    get_node_prefix() + "/set_walking", 10,
+    [this](const SetWalking::SharedPtr message) {
+      if (message->run) {
+        this->walking_manager->run(
+          message->x_move, message->y_move, message->a_move,
+          message->aim_on);
+      } else {
+        this->walking_manager->stop();
+      }
+    });
 
-    set_walking_subscriber = node->create_subscription<SetWalking>(
-      get_node_prefix() + "/set_walking", 10,
-      [this](const SetWalking::SharedPtr message) {
-        if (message->run) {
-          this->walking_manager->run(
-            message->x_move, message->y_move, message->a_move,
-            message->aim_on);
-        } else {
-          this->walking_manager->stop();
-        }
-      });
-  }
+  set_config_subscriber = node->create_subscription<SetConfig>(
+    get_node_prefix() + "/set_config", 10,
+    [this](const SetConfig::SharedPtr message) {
+      nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
+      nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
+      this->walking_manager->set_config(kinematic_data, walking_data);
+    });
 
-  {
-    using aruku_interfaces::msg::SetConfig;
+  orientation_subscriber = node->create_subscription<Axis>(
+    "/measurement/orientation", 10,
+    [this](const Axis::SharedPtr message) {
+      this->walking_manager->update_imu(message->yaw);
+    });
 
-    set_config_subscriber = node->create_subscription<SetConfig>(
-      get_node_prefix() + "/set_config", 10,
-      [this](const SetConfig::SharedPtr message) {
-        nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
-        this->walking_manager->set_config(kinematic_data, walking_data);
-      });
-  }
+  unit_subscriber = node->create_subscription<Unit>(
+    "/imu/unit", 10,
+    [this](const Unit::SharedPtr message) {
+      this->walking_manager->update_imu(message->gyro.pitch, message->gyro.roll);
+    });
 
-  {
-    using kansei_interfaces::msg::Axis;
-
-    orientation_subscriber = node->create_subscription<Axis>(
-      "/measurement/orientation", 10,
-      [this](const Axis::SharedPtr message) {
-        this->walking_manager->update_imu(message->yaw);
-      });
-  }
-
-  {
-    using kansei_interfaces::msg::Unit;
-
-    unit_subscriber = node->create_subscription<Unit>(
-      "/imu/unit", 10,
-      [this](const Unit::SharedPtr message) {
-        this->walking_manager->update_imu(message->gyro.pitch, message->gyro.roll);
-      });
-  }
-
-  odometry_publisher = node->create_publisher<aruku_interfaces::msg::Odometry>(
+  odometry_publisher = node->create_publisher<Odometry>(
     get_node_prefix() + "/odometry", 10);
 
-  set_joints_publisher = node->create_publisher<tachimawari_interfaces::msg::SetJoints>(
+  set_joints_publisher = node->create_publisher<SetJoints>(
     "/joint/set_joints", 10);
 }
 
@@ -113,7 +97,7 @@ std::string WalkingNode::get_node_prefix() const
 
 void WalkingNode::publish_joints()
 {
-  auto joints_msg = tachimawari_interfaces::msg::SetJoints();
+  auto joints_msg = SetJoints();
   joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
   const auto & joints = walking_manager->get_joints();
@@ -130,7 +114,7 @@ void WalkingNode::publish_joints()
 
 void WalkingNode::publish_odometry()
 {
-  auto odometry_msg = aruku_interfaces::msg::Odometry();
+  auto odometry_msg = Odometry();
 
   odometry_msg.position_x = walking_manager->get_position().x;
   odometry_msg.position_y = walking_manager->get_position().y;

@@ -36,13 +36,13 @@ namespace aruku
 class ConfigNode
 {
 public:
+  using SaveConfig = aruku_interfaces::srv::SaveConfig;
+  using GetConfig = aruku_interfaces::srv::GetConfig;
+
   explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path);
 
 private:
   std::string get_node_prefix() const;
-
-  using SaveConfig = aruku_interfaces::srv::SaveConfig;
-  using GetConfig = aruku_interfaces::srv::GetConfig;
 
   Config config;
 

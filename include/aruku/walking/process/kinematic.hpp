@@ -44,7 +44,6 @@ public:
   Kinematic();
 
   void set_config(const nlohmann::json & kinematic_data);
-  void load_data(const std::string & path);
 
   const std::array<keisan::Angle<double>, 19> & get_angles() const;
 

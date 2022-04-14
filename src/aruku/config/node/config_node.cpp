@@ -35,29 +35,21 @@ namespace aruku
 ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
 : config(path)
 {
-  {
-    using aruku_interfaces::srv::GetConfig;
+  get_config_server = node->create_service<GetConfig>(
+    get_node_prefix() + "/get_config",
+    [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
+      response->json_walking = this->config.get_config("walking");
+      response->json_kinematic = this->config.get_config("kinematic");
+    });
 
-    get_config_server = node->create_service<GetConfig>(
-      get_node_prefix() + "/get_config",
-      [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-        response->json_walking = this->config.get_config("walking");
-        response->json_kinematic = this->config.get_config("kinematic");
-      });
-  }
-
-  {
-    using aruku_interfaces::srv::SaveConfig;
-
-    save_config_server = node->create_service<SaveConfig>(
-      get_node_prefix() + "/save_config",
-      [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
-        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
-        this->config.set_config(kinematic_data, walking_data);
-        response->status = true;
-      });
-  }
+  save_config_server = node->create_service<SaveConfig>(
+    get_node_prefix() + "/save_config",
+    [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
+      nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+      nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+      this->config.set_config(kinematic_data, walking_data);
+      response->status = true;
+    });
 }
 
 std::string ConfigNode::get_node_prefix() const

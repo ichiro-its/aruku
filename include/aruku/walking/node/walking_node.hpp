@@ -39,6 +39,13 @@ namespace aruku
 class WalkingNode
 {
 public:
+  using Axis = kansei_interfaces::msg::Axis;
+  using Odometry = aruku_interfaces::msg::Odometry;
+  using SetConfig = aruku_interfaces::msg::SetConfig;
+  using SetJoints = tachimawari_interfaces::msg::SetJoints;
+  using SetWalking = aruku_interfaces::msg::SetWalking;
+  using Unit = kansei_interfaces::msg::Unit;
+
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 
@@ -50,15 +57,6 @@ private:
   void publish_joints();
 
   void publish_odometry();
-
-  using SetWalking = aruku_interfaces::msg::SetWalking;
-  using SetConfig = aruku_interfaces::msg::SetConfig;
-  using Odometry = aruku_interfaces::msg::Odometry;
-
-  using SetJoints = tachimawari_interfaces::msg::SetJoints;
-
-  using Axis = kansei_interfaces::msg::Axis;
-  using Unit = kansei_interfaces::msg::Unit;
   
   rclcpp::Node::SharedPtr node;
 

@@ -38,8 +38,8 @@ class WalkingManager
 public:
   WalkingManager();
 
-  void set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-  void load_data(const std::string & path);
+  void set_config(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data);
+  void load_config(const std::string & path);
 
   void update_imu(double orientation);
   void update_imu(double fb_gyro, double rl_gyro);

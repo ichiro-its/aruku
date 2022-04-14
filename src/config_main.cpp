@@ -33,10 +33,14 @@ int main(int argc, char * argv[])
     return 0;
   }
 
+  std::string path = argv[1];
   auto node = std::make_shared<rclcpp::Node>("aruku_node");
   auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
-  std::string path = argv[1];
+  auto walking_manager = std::make_shared<aruku::WalkingManager>();
+  walking_manager->load_config(path);
+
+  aruku_node->set_walking_manager(walking_manager);
   aruku_node->run_config_service(path);
 
   rclcpp::spin(node);

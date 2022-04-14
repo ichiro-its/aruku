@@ -51,17 +51,17 @@ install(TARGETS ${PROJECT_NAME}
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
 
-add_executable(aruku_main "src/aruku_main.cpp")
-target_include_directories(aruku_main PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(aruku_main ${PROJECT_NAME})
-
 add_executable(config_main "src/config_main.cpp")
 target_include_directories(config_main PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(config_main ${PROJECT_NAME})
+
+add_executable(main "src/aruku_main.cpp")
+target_include_directories(main PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(main ${PROJECT_NAME})
 
 add_executable(walking_main "src/walking_main.cpp")
 target_include_directories(walking_main PUBLIC
@@ -70,8 +70,8 @@ target_include_directories(walking_main PUBLIC
 target_link_libraries(walking_main ${PROJECT_NAME})
 
 install(TARGETS
-  aruku_main
   config_main
+  main
   walking_main
   DESTINATION lib/${PROJECT_NAME})
 

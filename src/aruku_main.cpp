@@ -34,12 +34,13 @@ int main(int argc, char * argv[])
     return 0;
   }
 
-  auto walking_manager = std::make_shared<aruku::WalkingManager>();
   std::string path = argv[1];
-  walking_manager->load_config(path);
-
   auto node = std::make_shared<rclcpp::Node>("aruku_node");
   auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
+
+  auto walking_manager = std::make_shared<aruku::WalkingManager>();
+  walking_manager->load_config(path);
+
   aruku_node->set_walking_manager(walking_manager);
 
   rclcpp::spin(node);

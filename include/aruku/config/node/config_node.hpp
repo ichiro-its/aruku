@@ -36,18 +36,24 @@ namespace aruku
 class ConfigNode
 {
 public:
-  using SaveConfig = aruku_interfaces::srv::SaveConfig;
   using GetConfig = aruku_interfaces::srv::GetConfig;
+  using SaveConfig = aruku_interfaces::srv::SaveConfig;
+  using SetConfig = aruku_interfaces::msg::SetConfig;
 
   explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path);
+
+  void set_config_callback(
+    const std::function<void(const SetConfig::SharedPtr)> & callback);
 
 private:
   std::string get_node_prefix() const;
 
   Config config;
+  rclcpp::Node::SharedPtr node;
 
-  rclcpp::Service<SaveConfig>::SharedPtr save_config_server;
   rclcpp::Service<GetConfig>::SharedPtr get_config_server;
+  rclcpp::Service<SaveConfig>::SharedPtr save_config_server;
+  rclcpp::Subscription<SetConfig>::SharedPtr set_config_subscriber;
 };
 
 }  // namespace aruku

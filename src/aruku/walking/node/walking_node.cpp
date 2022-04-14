@@ -26,7 +26,6 @@
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "nlohmann/json.hpp"
@@ -53,14 +52,6 @@ WalkingNode::WalkingNode(
       }
     });
 
-  set_config_subscriber = node->create_subscription<SetConfig>(
-    get_node_prefix() + "/set_config", 10,
-    [this](const SetConfig::SharedPtr message) {
-      nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
-      nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
-      this->walking_manager->set_config(kinematic_data, walking_data);
-    });
-
   orientation_subscriber = node->create_subscription<Axis>(
     "/measurement/orientation", 10,
     [this](const Axis::SharedPtr message) {
@@ -80,14 +71,10 @@ WalkingNode::WalkingNode(
     "/joint/set_joints", 10);
 }
 
-void WalkingNode::process()
+void WalkingNode::update()
 {
-  if (walking_manager->process()) {
-    if (walking_manager->is_runing()) {
-      publish_joints();
-      publish_odometry();
-    }
-  }
+  publish_joints();
+  publish_odometry();
 }
 
 std::string WalkingNode::get_node_prefix() const

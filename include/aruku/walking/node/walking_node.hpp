@@ -27,7 +27,6 @@
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
@@ -41,7 +40,6 @@ class WalkingNode
 public:
   using Axis = kansei_interfaces::msg::Axis;
   using Odometry = aruku_interfaces::msg::Odometry;
-  using SetConfig = aruku_interfaces::msg::SetConfig;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
   using Unit = kansei_interfaces::msg::Unit;
@@ -49,7 +47,7 @@ public:
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 
-  void process();
+  void update();
 
 private:
   std::string get_node_prefix() const;
@@ -63,7 +61,6 @@ private:
   std::shared_ptr<WalkingManager> walking_manager;
 
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
-  rclcpp::Subscription<SetConfig>::SharedPtr set_config_subscriber;
   rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
 
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;

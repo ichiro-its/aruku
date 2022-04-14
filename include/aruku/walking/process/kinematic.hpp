@@ -46,7 +46,7 @@ public:
   void set_config(const nlohmann::json & kinematic_data);
   void load_data(const std::string & path);
 
-  const std::array<double, 19> & get_angles() const;
+  const std::array<keisan::Angle<double>, 19> & get_angles() const;
 
   void set_running_state(bool running_state);
   bool get_running_state() const;
@@ -181,7 +181,7 @@ private:
 
   bool is_compute_odometry;
 
-  std::array<double, 19> angles;
+  std::array<keisan::Angle<double>, 19> angles;
 };
 
 }  // namespace aruku

@@ -58,7 +58,7 @@ public:
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
 
-  const keisan::Angle<double> & get_hip_offest() const;
+  keisan::Angle<double> get_hip_offest() const;
 
   bool time_to_compute_odometry() const;
 

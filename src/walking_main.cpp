@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
@@ -40,15 +39,12 @@ int main(int argc, char * argv[])
   std::string path = argv[1];
   walking_manager->load_config(path);
 
-  auto node = std::make_shared<rclcpp::Node>("walking_node");
-  aruku::WalkingNode walking_node(node, walking_manager);
-
   rclcpp::Rate rcl_rate(1s);
   while (rclcpp::ok()) {
     rcl_rate.sleep();
 
     walking_manager->run(0.0, 0.0, 0.0);
-    walking_node.process();
+    walking_manager->process();
 
     if (walking_manager->is_runing()) {
       auto joints = walking_manager->get_joints();

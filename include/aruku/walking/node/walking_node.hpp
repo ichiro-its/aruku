@@ -53,17 +53,16 @@ private:
   std::string get_node_prefix() const;
 
   void publish_joints();
-
   void publish_odometry();
-  
+
   rclcpp::Node::SharedPtr node;
 
   std::shared_ptr<WalkingManager> walking_manager;
 
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
-  rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
-
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
+
+  rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
 
   rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;

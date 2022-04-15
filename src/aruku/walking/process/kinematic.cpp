@@ -104,7 +104,7 @@ double Kinematic::get_y_move_amplitude() const
   return m_y_move_amplitude;
 }
 
-const keisan::Angle<double> & Kinematic::get_hip_offest() const
+keisan::Angle<double> Kinematic::get_hip_offest() const
 {
   return hip_pitch_offset + hip_comp;
 }
@@ -172,7 +172,8 @@ bool Kinematic::compute_inverse_kinematic(
   }
 
   double k = sqrt(matrix[1][3] * matrix[1][3] + matrix[2][3] * matrix[2][3]);
-  double l = sqrt(matrix[1][3] * matrix[1][3] + (matrix[2][3] - ankle_length) *
+  double l = sqrt(
+    matrix[1][3] * matrix[1][3] + (matrix[2][3] - ankle_length) *
     (matrix[2][3] - ankle_length));
   double m = (k * k - l * l - ankle_length * ankle_length) / (2 * l * ankle_length);
   m = keisan::clamp(m, -1.0, 1.0);
@@ -205,8 +206,10 @@ bool Kinematic::compute_inverse_kinematic(
   angles[JointId::RIGHT_HIP_YAW + index_addition] = keisan::make_radian(atan_result);
 
   // get hip roll
-  atan_result = atan2(matrix[2][1], -matrix[0][1] *
-    sin(angles[JointId::RIGHT_HIP_YAW + index_addition].radian() + matrix[1][1] *
+  atan_result = atan2(
+    matrix[2][1], -matrix[0][1] *
+    sin(
+      angles[JointId::RIGHT_HIP_YAW + index_addition].radian() + matrix[1][1] *
       angles[JointId::RIGHT_HIP_YAW + index_addition].cos()));
   if (std::isinf(atan_result)) {
     return false;
@@ -278,9 +281,10 @@ void Kinematic::update_times()
 
   m_arm_swing_gain = arm_swing_gain;
 
-  hip_comp = keisan::make_degree(m_x_move_amplitude *
+  hip_comp = keisan::make_degree(
+    m_x_move_amplitude *
     ((m_x_move_amplitude > 0) ? forward_hip_comp_ratio :
-      backward_hip_comp_ratio));
+    backward_hip_comp_ratio));
 
   foot_comp = fabs(m_x_move_amplitude) * foot_comp_ratio;
 }

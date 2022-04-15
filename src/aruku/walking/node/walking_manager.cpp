@@ -30,12 +30,14 @@
 #include "tachimawari/joint/model/joint_id.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 
+using keisan::literals::operator""_deg;
+
 namespace aruku
 {
 
 WalkingManager::WalkingManager()
-: kinematic(), orientation(0.0), inital_joints({0.0}), joints_direction({1}),
-  position(0.0, 0.0), fb_gyro(0.0), rl_gyro(0.0)
+: kinematic(), orientation(0_deg), inital_joints({0.0}), joints_direction({1}),
+  position(0.0, 0.0), gyro(keisan::Vector<3>::zero())
 {
   using tachimawari::joint::JointId;
   using tachimawari::joint::Joint;
@@ -154,15 +156,14 @@ void WalkingManager::load_config(const std::string & path)
   kinematic_file.close();
 }
 
-void WalkingManager::update_imu(double orientation)
+void WalkingManager::update_orientation(const keisan::Angle<double> & orientation)
 {
   this->orientation = orientation;
 }
 
-void WalkingManager::update_imu(double fb_gyro, double rl_gyro)
+void WalkingManager::update_gyro(const keisan::Vector<3> & gyro)
 {
-  this->fb_gyro = fb_gyro;
-  this->rl_gyro = rl_gyro;
+  this->gyro = gyro;
 }
 
 const keisan::Point2 & WalkingManager::get_position() const
@@ -198,10 +199,8 @@ bool WalkingManager::process()
           dy = -y_amplitude * odometry_ry_coefficient / 30.0;
         }
 
-        auto theta = keisan::make_degree(orientation);
-
-        position.x += dx * theta.cos() - dy * theta.sin();
-        position.y += dx * theta.sin() + dy * theta.cos();
+        position.x += dx * orientation.cos() - dy * orientation.sin();
+        position.y += dx * orientation.sin() + dy * orientation.cos();
       }
     }
 
@@ -225,19 +224,19 @@ bool WalkingManager::process()
 
         if (balance_enable) {
           if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL) {
-            offset += joints_direction[joint_id] * balance_hip_roll_gain * rl_gyro * 4;
+            offset += joints_direction[joint_id] * balance_hip_roll_gain * gyro[0] * 4;
           }
 
           if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
-            offset -= joints_direction[joint_id] * balance_ankle_roll_gain * rl_gyro * 4;
+            offset -= joints_direction[joint_id] * balance_ankle_roll_gain * gyro[0] * 4;
           }
 
           if (joint_id == JointId::LEFT_KNEE || joint_id == JointId::RIGHT_KNEE) {
-            offset -= joints_direction[joint_id] * balance_knee_gain * fb_gyro * 4;
+            offset -= joints_direction[joint_id] * balance_knee_gain * gyro[1] * 4;
           }
 
           if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-            offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * fb_gyro * 4;
+            offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * gyro[1] * 4;
           }
         }
 

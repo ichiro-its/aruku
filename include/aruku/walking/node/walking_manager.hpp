@@ -41,8 +41,8 @@ public:
   void set_config(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data);
   void load_config(const std::string & path);
 
-  void update_imu(double orientation);
-  void update_imu(double fb_gyro, double rl_gyro);
+  void update_orientation(const keisan::Angle<double> & orientation);
+  void update_gyro(const keisan::Vector<3> & gyro);
 
   const keisan::Point2 & get_position() const;
 
@@ -79,9 +79,8 @@ private:
 
   keisan::Point2 position;
 
-  double orientation;
-  double fb_gyro;
-  double rl_gyro;
+  keisan::Angle<double> orientation;
+  keisan::Vector<3> gyro;
 };
 
 }  // namespace aruku

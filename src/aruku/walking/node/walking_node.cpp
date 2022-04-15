@@ -28,6 +28,7 @@
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/joint.hpp"
@@ -55,13 +56,16 @@ WalkingNode::WalkingNode(
   orientation_subscriber = node->create_subscription<Axis>(
     "/measurement/orientation", 10,
     [this](const Axis::SharedPtr message) {
-      this->walking_manager->update_imu(message->yaw);
+      this->walking_manager->update_orientation(
+        keisan::make_degree(message->yaw));
     });
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
     [this](const Unit::SharedPtr message) {
-      this->walking_manager->update_imu(message->gyro.pitch, message->gyro.roll);
+      this->walking_manager->update_gyro(
+        keisan::Vector<3>(
+          message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
   odometry_publisher = node->create_publisher<Odometry>(

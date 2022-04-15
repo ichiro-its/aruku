@@ -157,7 +157,8 @@ bool Kinematic::compute_inverse_kinematic(
 
   // get knee
   double vector_magnitude = vector.magnitude();
-  double acos_result = acos((pow(vector_magnitude, 2) - pow(thigh_length, 2) -
+  double acos_result = acos(
+    (pow(vector_magnitude, 2) - pow(thigh_length, 2) -
     pow(calf_length, 2)) / (2 * thigh_length * calf_length));
 
   if (std::isnan(acos_result)) {

@@ -174,7 +174,7 @@ bool Kinematic::compute_inverse_kinematic(
 
   double k = std::hypot(matrix[1][3], matrix[2][3]);
   double l = std::hypot(matrix[1][3], (matrix[2][3] - ankle_length));
-  double m = (k * k - l * l - ankle_length * ankle_length) / (2 * l * ankle_length);
+  double m = (k * k - l * l - pow(ankle_length, 2)) / (2 * l * ankle_length);
   m = keisan::clamp(m, -1.0, 1.0);
 
   acos_result = acos(m);
@@ -182,15 +182,15 @@ bool Kinematic::compute_inverse_kinematic(
     return false;
   }
   if (matrix[1][3] < 0.0) {
-    angles[JointId::RIGHT_ANKLE_PITCH + index_addition] = keisan::make_radian(-acos_result);
+    angles[JointId::RIGHT_ANKLE_ROLL + index_addition] = keisan::make_radian(-acos_result);
   } else {
-    angles[JointId::RIGHT_ANKLE_PITCH + index_addition] = keisan::make_radian(acos_result);
+    angles[JointId::RIGHT_ANKLE_ROLL + index_addition] = keisan::make_radian(acos_result);
   }
 
   // get hip yaw
-  matrix_translation = keisan::translation_matrix(Point3(0, 0, ankle_length));
+  matrix_translation = keisan::translation_matrix(Point3(0, 0, -ankle_length));
   matrix_rotation = keisan::rotation_matrix(
-    Euler(angles[JointId::RIGHT_ANKLE_PITCH + index_addition], 0.0_pi_rad, 0.0_pi_rad));
+    Euler(angles[JointId::RIGHT_ANKLE_ROLL + index_addition], 0.0_pi_rad, 0.0_pi_rad));
 
   matrix = matrix_translation * matrix_rotation;
   if (!matrix.inverse()) {
@@ -207,7 +207,7 @@ bool Kinematic::compute_inverse_kinematic(
   // get hip roll
   k = -matrix[0][1] * angles[JointId::RIGHT_HIP_YAW + index_addition].sin();
   l = matrix[1][1] * angles[JointId::RIGHT_HIP_YAW + index_addition].cos();
-  atan_result = atan2(matrix[2][1], k * l);
+  atan_result = atan2(matrix[2][1], k + l);
 
   if (std::isinf(atan_result)) {
     return false;

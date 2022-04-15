@@ -173,7 +173,7 @@ const keisan::Point2 & WalkingManager::get_position() const
 
 void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
-  kinematic.set_move_amplitude(x_move, y_move, a_move, aim_on);
+  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
 }
 

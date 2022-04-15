@@ -53,7 +53,8 @@ public:
   void stop_kinematic();
   bool run_kinematic();
 
-  void set_move_amplitude(double x, double y, double a, bool aim_on = false);
+  void set_move_amplitude(
+    double x, double y, const keisan::Angle<double> & a, bool aim_on = false);
 
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
@@ -75,7 +76,7 @@ private:
   // input member
   double x_move;
   double y_move;
-  double a_move;
+  keisan::Angle<double> a_move;
   double a_move_aim_on;
 
   // config member

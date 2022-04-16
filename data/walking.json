@@ -17,12 +17,12 @@
     "ly_coefficient": 5.0
   },
   "init_angles": {    
-    "left_shoulder_pitch": 15,
-    "left_shoulder_roll": 40,
-    "left_elbow": -175,
-    "right_shoulder_pitch": -15,
-    "right_shoulder_roll": -40,
-    "right_elbow": 175,
+    "left_shoulder_pitch": -5,
+    "left_shoulder_roll": 20,
+    "left_elbow": -45,
+    "right_shoulder_pitch": 5,
+    "right_shoulder_roll": -20,
+    "right_elbow": 45,
     "left_hip_yaw": 0,
     "left_hip_roll": 0,
     "left_hip_pitch": 0,

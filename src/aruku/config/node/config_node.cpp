@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -45,10 +46,19 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
   save_config_server = node->create_service<SaveConfig>(
     get_node_prefix() + "/save_config",
     [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
-      nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
-      nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
-      this->config.set_config(kinematic_data, walking_data);
-      response->status = true;
+      try {
+        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+        
+        this->config.set_config(kinematic_data, walking_data);
+        response->status = true;
+      } catch (std::ofstream::failure) {
+        // TODO(maroqijalil): log it
+        response->status = false;
+      } catch (nlohmann::json::exception) {
+        // TODO(maroqijalil): log it
+        response->status = false;
+      }
     });
 }
 

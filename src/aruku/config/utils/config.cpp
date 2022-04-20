@@ -69,9 +69,11 @@ void Config::set_config(const nlohmann::json & kinematic_data, const nlohmann::j
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;
+  kinematic_file.close();
 
   std::ofstream walking_file(path + "walking.json", std::ios::out | std::ios::trunc);
   walking_file << std::setw(2) << walking_data << std::endl;
+  walking_file.close();
 }
 
 }  // namespace aruku

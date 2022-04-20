@@ -62,7 +62,7 @@ std::string Config::get_config(const std::string & key) const
     return kinematic_data.dump();
   }
 
-  return nullptr;
+  return "";
 }
 
 void Config::set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)

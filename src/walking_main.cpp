@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
 
   aruku::WalkingNode walking_node(node, walking_manager);
 
-  rclcpp::Rate rcl_rate(1s);
+  rclcpp::Rate rcl_rate(8ms);
   while (rclcpp::ok()) {
     rcl_rate.sleep();
 

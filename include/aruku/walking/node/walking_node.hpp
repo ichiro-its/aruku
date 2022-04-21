@@ -25,8 +25,10 @@
 #include <string>
 
 #include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/process/kinematic.hpp"
 #include "aruku_interfaces/msg/odometry.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
+#include "aruku_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/axis.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
@@ -42,6 +44,7 @@ public:
   using Odometry = aruku_interfaces::msg::Odometry;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
+  using Status = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
 
   explicit WalkingNode(
@@ -54,6 +57,7 @@ private:
 
   void publish_joints();
   void publish_odometry();
+  void publish_status();
 
   rclcpp::Node::SharedPtr node;
 
@@ -63,6 +67,7 @@ private:
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 
   rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
+  rclcpp::Publisher<Status>::SharedPtr status_publisher;
 
   rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;

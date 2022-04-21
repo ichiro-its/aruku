@@ -24,15 +24,11 @@
 #include "aruku/walking/node/walking_node.hpp"
 
 #include "aruku/walking/node/walking_manager.hpp"
-#include "aruku_interfaces/msg/odometry.hpp"
-#include "aruku_interfaces/msg/set_walking.hpp"
-#include "kansei_interfaces/msg/axis.hpp"
-#include "kansei_interfaces/msg/unit.hpp"
+#include "aruku/walking/process/kinematic.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/joint.hpp"
-#include "tachimawari_interfaces/msg/set_joints.hpp"
 
 namespace aruku
 {
@@ -60,6 +56,9 @@ WalkingNode::WalkingNode(
         keisan::make_degree(message->yaw));
     });
 
+  status_publisher = node->create_publisher<Status>(
+    get_node_prefix() + "/status", 10);
+
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
     [this](const Unit::SharedPtr message) {
@@ -79,6 +78,7 @@ void WalkingNode::update()
 {
   publish_joints();
   publish_odometry();
+  publish_status();
 }
 
 std::string WalkingNode::get_node_prefix() const
@@ -111,6 +111,18 @@ void WalkingNode::publish_odometry()
   odometry_msg.position_y = walking_manager->get_position().y;
 
   odometry_publisher->publish(odometry_msg);
+}
+
+void WalkingNode::publish_status()
+{
+  auto kinematic = walking_manager->get_kinematic();
+  auto status_msg = Status();
+
+  status_msg.is_running = walking_manager->is_runing();
+  status_msg.x_amplitude = kinematic.get_x_move_amplitude();
+  status_msg.y_amplitude = kinematic.get_y_move_amplitude();
+
+  status_publisher->publish(status_msg);
 }
 
 }  // namespace aruku

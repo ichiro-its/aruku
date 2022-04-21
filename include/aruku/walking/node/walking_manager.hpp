@@ -53,6 +53,7 @@ public:
   bool is_runing() const;
 
   std::vector<tachimawari::joint::Joint> get_joints() const;
+  const Kinematic & get_kinematic() const;
 
 private:
   // config member

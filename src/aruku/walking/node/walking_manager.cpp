@@ -260,5 +260,9 @@ std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const
   return joints;
 }
 
+const Kinematic & WalkingManager::get_kinematic() const
+{
+  return kinematic;
+}
 
 }  // namespace aruku

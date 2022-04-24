@@ -23,6 +23,7 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+
 #include "nlohmann/json.hpp"
 
 namespace aruku
@@ -65,7 +66,8 @@ std::string Config::get_config(const std::string & key) const
   return "";
 }
 
-void Config::set_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+void Config::save_config(
+  const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;

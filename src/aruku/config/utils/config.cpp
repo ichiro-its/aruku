@@ -39,26 +39,17 @@ std::string Config::get_config(const std::string & key) const
   if (key == "walking") {
     std::ifstream walking_file(path + "walking.json");
     nlohmann::json walking_data = nlohmann::json::parse(walking_file);
-
     walking_file.close();
-    nlohmann::json walking_patch =
-      R"([
-      { "op": "remove", "path": "/angles_direction" },
-      { "op": "remove", "path": "/pid" },
-    ])"_json;
-    walking_data = walking_data.patch(walking_patch);
+
+    walking_data.erase("angles_direction");
+    walking_data.erase("pid");
 
     return walking_data.dump();
   } else if (key == "kinematic") {
     std::ifstream kinematic_file(path + "kinematic.json");
     nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
 
-    kinematic_file.close();
-    nlohmann::json kinematic_patch =
-      R"([
-      { "op": "remove", "path": "/length" }
-    ])"_json;
-    kinematic_data = kinematic_data.patch(kinematic_patch);
+    kinematic_data.erase("length");
 
     return kinematic_data.dump();
   }

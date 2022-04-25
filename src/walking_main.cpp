@@ -48,6 +48,8 @@ int main(int argc, char * argv[])
   while (rclcpp::ok()) {
     rcl_rate.sleep();
 
+    rclcpp::spin_some(node);
+
     walking_manager->run(0.0, 0.0, 0.0);
     walking_manager->process();
 
@@ -64,6 +66,8 @@ int main(int argc, char * argv[])
       std::cout << "kinematic failed!\n";
     }
   }
+
+  rclcpp::shutdown();
 
   return 0;
 }

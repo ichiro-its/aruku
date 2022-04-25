@@ -21,11 +21,8 @@
 #include <string>
 #include <memory>
 
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
+#include "aruku/node/aruku_node.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
@@ -38,35 +35,15 @@ int main(int argc, char * argv[])
 
   std::string path = argv[1];
   auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
   auto walking_manager = std::make_shared<aruku::WalkingManager>();
   walking_manager->load_config(path);
 
-  aruku::WalkingNode walking_node(node, walking_manager);
+  aruku_node->set_walking_manager(walking_manager);
+  aruku_node->run_config_service(path);
 
-  rclcpp::Rate rcl_rate(8ms);
-  while (rclcpp::ok()) {
-    rcl_rate.sleep();
-
-    rclcpp::spin_some(node);
-
-    walking_manager->run(0.0, 0.0, 0.0);
-    walking_manager->process();
-
-    if (walking_manager->is_runing()) {
-      walking_node.update();
-
-      auto joints = walking_manager->get_joints();
-
-      for (const auto & joint : joints) {
-        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
-          joint.get_position() << "\n";
-      }
-    } else {
-      std::cout << "kinematic failed!\n";
-    }
-  }
-
+  rclcpp::spin(node);
   rclcpp::shutdown();
 
   return 0;

@@ -18,56 +18,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <string>
+#include <chrono>
 #include <memory>
+#include <string>
 
+#include "aruku/node/aruku_node.hpp"
+
+#include "aruku/config/node/config_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
 
-int main(int argc, char * argv[])
+namespace aruku
 {
-  rclcpp::init(argc, argv);
 
-  if (argc < 2) {
-    std::cerr << "Please specify the path!" << std::endl;
-    return 0;
-  }
-
-  std::string path = argv[1];
-  auto node = std::make_shared<rclcpp::Node>("aruku_node");
-
-  auto walking_manager = std::make_shared<aruku::WalkingManager>();
-  walking_manager->load_config(path);
-
-  aruku::WalkingNode walking_node(node, walking_manager);
-
-  rclcpp::Rate rcl_rate(8ms);
-  while (rclcpp::ok()) {
-    rcl_rate.sleep();
-
-    rclcpp::spin_some(node);
-
-    walking_manager->run(0.0, 0.0, 0.0);
-    walking_manager->process();
-
-    if (walking_manager->is_runing()) {
-      walking_node.update();
-
-      auto joints = walking_manager->get_joints();
-
-      for (const auto & joint : joints) {
-        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
-          joint.get_position() << "\n";
+ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
+: node(node), walking_manager(nullptr), walking_node(nullptr), config_node(nullptr)
+{
+  node_timer = node->create_wall_timer(
+    8ms,
+    [this]() {
+      if (this->walking_manager->process() && this->walking_manager->is_runing()) {
+        this->walking_node->update();
       }
-    } else {
-      std::cout << "kinematic failed!\n";
     }
-  }
-
-  rclcpp::shutdown();
-
-  return 0;
+  );
 }
+
+void ArukuNode::set_walking_manager(std::shared_ptr<WalkingManager> walking_manager)
+{
+  this->walking_manager = walking_manager;
+  walking_node = std::make_shared<WalkingNode>(node, walking_manager);
+}
+
+void ArukuNode::run_config_service(const std::string & path)
+{
+  config_node = std::make_shared<ConfigNode>(node, path);
+
+  if (walking_manager) {
+    config_node->set_config_callback(
+      [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
+        nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
+
+        this->walking_manager->set_config(walking_data, kinematic_data);
+      });
+  }
+}
+
+}  // namespace aruku

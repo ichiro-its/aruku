@@ -18,56 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <string>
-#include <memory>
+#ifndef ARUKU__NODE__ARUKU_NODE_HPP_
+#define ARUKU__NODE__ARUKU_NODE_HPP_
 
+#include <memory>
+#include <string>
+
+#include "aruku/config/node/config_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-using namespace std::chrono_literals;
-
-int main(int argc, char * argv[])
+namespace aruku
 {
-  rclcpp::init(argc, argv);
 
-  if (argc < 2) {
-    std::cerr << "Please specify the path!" << std::endl;
-    return 0;
-  }
+class ArukuNode
+{
+public:
+  explicit ArukuNode(rclcpp::Node::SharedPtr node);
 
-  std::string path = argv[1];
-  auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  void set_walking_manager(std::shared_ptr<WalkingManager> walking_manager);
 
-  auto walking_manager = std::make_shared<aruku::WalkingManager>();
-  walking_manager->load_config(path);
+  void run_config_service(const std::string & path);
 
-  aruku::WalkingNode walking_node(node, walking_manager);
+private:
+  rclcpp::Node::SharedPtr node;
+  rclcpp::TimerBase::SharedPtr node_timer;
 
-  rclcpp::Rate rcl_rate(8ms);
-  while (rclcpp::ok()) {
-    rcl_rate.sleep();
+  std::shared_ptr<WalkingManager> walking_manager;
+  std::shared_ptr<WalkingNode> walking_node;
 
-    rclcpp::spin_some(node);
+  std::shared_ptr<ConfigNode> config_node;
+};
 
-    walking_manager->run(0.0, 0.0, 0.0);
-    walking_manager->process();
+}  // namespace aruku
 
-    if (walking_manager->is_runing()) {
-      walking_node.update();
-
-      auto joints = walking_manager->get_joints();
-
-      for (const auto & joint : joints) {
-        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
-          joint.get_position() << "\n";
-      }
-    } else {
-      std::cout << "kinematic failed!\n";
-    }
-  }
-
-  rclcpp::shutdown();
-
-  return 0;
-}
+#endif  // ARUKU__NODE__ARUKU_NODE_HPP_

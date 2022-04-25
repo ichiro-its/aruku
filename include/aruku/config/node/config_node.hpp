@@ -18,56 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <string>
-#include <memory>
+#ifndef ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
+#define ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_
 
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
+#include <memory>
+#include <string>
+
+#include "aruku/config/utils/config.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/srv/get_config.hpp"
+#include "aruku_interfaces/srv/save_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-using namespace std::chrono_literals;
-
-int main(int argc, char * argv[])
+namespace aruku
 {
-  rclcpp::init(argc, argv);
 
-  if (argc < 2) {
-    std::cerr << "Please specify the path!" << std::endl;
-    return 0;
-  }
+class ConfigNode
+{
+public:
+  using GetConfig = aruku_interfaces::srv::GetConfig;
+  using SaveConfig = aruku_interfaces::srv::SaveConfig;
+  using SetConfig = aruku_interfaces::msg::SetConfig;
 
-  std::string path = argv[1];
-  auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path);
 
-  auto walking_manager = std::make_shared<aruku::WalkingManager>();
-  walking_manager->load_config(path);
+  void set_config_callback(
+    const std::function<void(const SetConfig::SharedPtr)> & callback);
 
-  aruku::WalkingNode walking_node(node, walking_manager);
+private:
+  std::string get_node_prefix() const;
 
-  rclcpp::Rate rcl_rate(8ms);
-  while (rclcpp::ok()) {
-    rcl_rate.sleep();
+  Config config;
+  rclcpp::Node::SharedPtr node;
 
-    rclcpp::spin_some(node);
+  rclcpp::Service<GetConfig>::SharedPtr get_config_server;
+  rclcpp::Service<SaveConfig>::SharedPtr save_config_server;
+  rclcpp::Subscription<SetConfig>::SharedPtr set_config_subscriber;
+};
 
-    walking_manager->run(0.0, 0.0, 0.0);
-    walking_manager->process();
+}  // namespace aruku
 
-    if (walking_manager->is_runing()) {
-      walking_node.update();
-
-      auto joints = walking_manager->get_joints();
-
-      for (const auto & joint : joints) {
-        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
-          joint.get_position() << "\n";
-      }
-    } else {
-      std::cout << "kinematic failed!\n";
-    }
-  }
-
-  rclcpp::shutdown();
-
-  return 0;
-}
+#endif  // ARUKU__CONFIG__NODE__CONFIG_NODE_HPP_

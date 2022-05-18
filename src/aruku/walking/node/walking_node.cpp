@@ -58,7 +58,6 @@ std::string WalkingNode::odometry_topic()
   return get_node_prefix() + "/odometry";
 }
 
-
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)

@@ -67,6 +67,13 @@ WalkingNode::WalkingNode(
           message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
+  set_odometry_subscriber = node->create_subscription<Odometry>(
+    get_node_prefix() + "/unit", 10,
+    [this](const Odometry::SharedPtr message) {
+      this->walking_manager->set_position(
+        keisan::Point2(message->position_x, message->position_y));
+    });
+
   odometry_publisher = node->create_publisher<Odometry>(
     get_node_prefix() + "/odometry", 10);
 

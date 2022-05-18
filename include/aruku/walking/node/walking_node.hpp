@@ -67,6 +67,7 @@ private:
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 
   rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
+  rclcpp::Subscription<Odometry>::SharedPtr set_odometry_subscriber;
   rclcpp::Publisher<Status>::SharedPtr status_publisher;
 
   rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;

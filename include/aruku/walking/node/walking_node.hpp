@@ -47,14 +47,18 @@ public:
   using Status = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
 
+  static std::string get_node_prefix();
+  static std::string set_walking_topic();
+  static std::string status_topic();
+  static std::string set_odometry_topic();
+  static std::string odometry_topic();
+
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 
   void update();
 
 private:
-  std::string get_node_prefix() const;
-
   void publish_joints();
   void publish_odometry();
   void publish_status();

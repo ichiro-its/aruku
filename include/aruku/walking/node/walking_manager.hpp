@@ -76,8 +76,8 @@ private:
   Kinematic kinematic;
 
   std::vector<tachimawari::joint::Joint> joints;
-  std::array<double, 18> inital_joints;
-  std::array<double, 18> joints_direction;
+  std::array<double, 19> inital_joints;
+  std::array<double, 19> joints_direction;
 
   keisan::Point2 position;
 

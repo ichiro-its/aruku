@@ -148,6 +148,7 @@ void WalkingNode::publish_status()
   status_msg.is_running = walking_manager->is_runing();
   status_msg.x_amplitude = kinematic.get_x_move_amplitude();
   status_msg.y_amplitude = kinematic.get_y_move_amplitude();
+  status_msg.a_amplitude = kinematic.get_a_move_amplitude();
 
   status_publisher->publish(status_msg);
 }

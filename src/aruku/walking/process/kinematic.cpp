@@ -105,6 +105,11 @@ double Kinematic::get_y_move_amplitude() const
   return m_y_move_amplitude;
 }
 
+double Kinematic::get_a_move_amplitude() const
+{
+  return m_a_move_amplitude;
+}
+
 keisan::Angle<double> Kinematic::get_hip_offest() const
 {
   return hip_pitch_offset + hip_comp;

@@ -25,6 +25,7 @@
 
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/process/kinematic.hpp"
+#include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -74,15 +75,14 @@ WalkingNode::WalkingNode(
       }
     });
 
-  orientation_subscriber = node->create_subscription<Axis>(
-    "/measurement/orientation", 10,
-    [this](const Axis::SharedPtr message) {
+  measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
+    kansei::measurement::MeasurementNode::status_topic(), 10,
+    [this](const MeasurementStatus::SharedPtr message) {
       this->walking_manager->update_orientation(
-        keisan::make_degree(message->yaw));
+        keisan::make_degree(message->orientation.yaw));
     });
 
-  status_publisher = node->create_publisher<Status>(
-    status_topic(), 10);
+  status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
@@ -143,7 +143,7 @@ void WalkingNode::publish_odometry()
 void WalkingNode::publish_status()
 {
   auto kinematic = walking_manager->get_kinematic();
-  auto status_msg = Status();
+  auto status_msg = WalkingStatus();
 
   status_msg.is_running = walking_manager->is_runing();
   status_msg.x_amplitude = kinematic.get_x_move_amplitude();

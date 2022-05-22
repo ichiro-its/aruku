@@ -16,6 +16,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(aruku_interfaces REQUIRED)
+find_package(kansei REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -37,6 +38,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
   aruku_interfaces
+  kansei
   kansei_interfaces
   keisan
   rclcpp
@@ -90,6 +92,7 @@ endif()
 ament_export_dependencies(
   ament_index_cpp
   aruku_interfaces
+  kansei
   kansei_interfaces
   keisan
   rclcpp

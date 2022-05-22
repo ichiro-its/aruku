@@ -30,7 +30,7 @@
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "aruku_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "kansei_interfaces/msg/axis.hpp"
+#include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
@@ -40,11 +40,11 @@ namespace aruku
 class WalkingNode
 {
 public:
-  using Axis = kansei_interfaces::msg::Axis;
   using Odometry = aruku_interfaces::msg::Odometry;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
-  using Status = aruku_interfaces::msg::Status;
+  using MeasurementStatus = kansei_interfaces::msg::Status;
+  using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
 
   static std::string get_node_prefix();
@@ -72,9 +72,9 @@ private:
 
   rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
   rclcpp::Subscription<Odometry>::SharedPtr set_odometry_subscriber;
-  rclcpp::Publisher<Status>::SharedPtr status_publisher;
+  rclcpp::Publisher<WalkingStatus>::SharedPtr status_publisher;
 
-  rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;
+  rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   int status;

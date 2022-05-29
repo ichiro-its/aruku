@@ -26,7 +26,7 @@
 
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/process/kinematic.hpp"
-#include "aruku_interfaces/msg/odometry.hpp"
+#include "aruku_interfaces/msg/point2.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "aruku_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -40,7 +40,7 @@ namespace aruku
 class WalkingNode
 {
 public:
-  using Odometry = aruku_interfaces::msg::Odometry;
+  using Point2 = aruku_interfaces::msg::Point2;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
   using MeasurementStatus = kansei_interfaces::msg::Status;
@@ -51,7 +51,6 @@ public:
   static std::string set_walking_topic();
   static std::string status_topic();
   static std::string set_odometry_topic();
-  static std::string odometry_topic();
 
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
@@ -60,7 +59,6 @@ public:
 
 private:
   void publish_joints();
-  void publish_odometry();
   void publish_status();
 
   rclcpp::Node::SharedPtr node;
@@ -70,8 +68,7 @@ private:
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 
-  rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
-  rclcpp::Subscription<Odometry>::SharedPtr set_odometry_subscriber;
+  rclcpp::Subscription<Point2>::SharedPtr set_odometry_subscriber;
   rclcpp::Publisher<WalkingStatus>::SharedPtr status_publisher;
 
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;

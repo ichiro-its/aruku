@@ -54,11 +54,6 @@ std::string WalkingNode::set_odometry_topic()
   return get_node_prefix() + "/set_odometry";
 }
 
-std::string WalkingNode::odometry_topic()
-{
-  return get_node_prefix() + "/odometry";
-}
-
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
@@ -92,15 +87,12 @@ WalkingNode::WalkingNode(
           message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
-  set_odometry_subscriber = node->create_subscription<Odometry>(
+  set_odometry_subscriber = node->create_subscription<Point2>(
     set_odometry_topic(), 10,
-    [this](const Odometry::SharedPtr message) {
+    [this](const Point2::SharedPtr message) {
       this->walking_manager->set_position(
-        keisan::Point2(message->position_x, message->position_y));
+        keisan::Point2(message->x, message->y));
     });
-
-  odometry_publisher = node->create_publisher<Odometry>(
-    odometry_topic(), 10);
 
   set_joints_publisher = node->create_publisher<SetJoints>(
     "/joint/set_joints", 10);
@@ -109,7 +101,6 @@ WalkingNode::WalkingNode(
 void WalkingNode::update()
 {
   publish_joints();
-  publish_odometry();
   publish_status();
 }
 
@@ -130,25 +121,19 @@ void WalkingNode::publish_joints()
   set_joints_publisher->publish(joints_msg);
 }
 
-void WalkingNode::publish_odometry()
-{
-  auto odometry_msg = Odometry();
-
-  odometry_msg.position_x = walking_manager->get_position().x;
-  odometry_msg.position_y = walking_manager->get_position().y;
-
-  odometry_publisher->publish(odometry_msg);
-}
-
 void WalkingNode::publish_status()
 {
   auto kinematic = walking_manager->get_kinematic();
   auto status_msg = WalkingStatus();
 
   status_msg.is_running = walking_manager->is_runing();
+
   status_msg.x_amplitude = kinematic.get_x_move_amplitude();
   status_msg.y_amplitude = kinematic.get_y_move_amplitude();
   status_msg.a_amplitude = kinematic.get_a_move_amplitude();
+
+  status_msg.odometry.x = walking_manager->get_position().x;
+  status_msg.odometry.y = walking_manager->get_position().y;
 
   status_publisher->publish(status_msg);
 }

@@ -59,6 +59,7 @@ def generate_launch_description():
             secondPackage,
             ' main ',
             host,
+            ' ',
             port
         ]],
         shell=True

@@ -24,7 +24,7 @@
 
 namespace ar = aruku;
 
-TEST(InitPositionTest, GetAngles)
+TEST(KinematicTest, get_angles)
 {
   float max_error = 0.5;
 
@@ -33,4 +33,12 @@ TEST(InitPositionTest, GetAngles)
   for (int i = 0; i < 20; i++) {
     EXPECT_NEAR(0.0, current_angles[i], max_error);
   }
+}
+
+TEST(KinematicTest, stop_kinematic)
+{
+  ar::Kinematic::stop_kinematic();
+  ASSERT_EQ(ar::Kinematic::get_running_state(), false);
+  ASSERT_EQ(ar::Kinematic::get_x_move_amplitude(), 0.0);
+  ASSERT_EQ(ar::Kinematic::get_y_move_amplitude(), 0.0);
 }

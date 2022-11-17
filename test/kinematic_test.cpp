@@ -42,3 +42,28 @@ TEST(KinematicTest, stop_kinematic)
   ASSERT_EQ(ar::Kinematic::get_x_move_amplitude(), 0.0);
   ASSERT_EQ(ar::Kinematic::get_y_move_amplitude(), 0.0);
 }
+
+TEST(KinematicTest, set_move_amplitude)
+{
+  ar::Kinematic::set_move_amplitude(5.0, 4.0, 3.0, true)
+  ASSERT_EQ(ar::Kinematic::get_x_move_amplitude(), 5.0);
+  ASSERT_EQ(ar::Kinematic::get_y_move_amplitude(), 4.0);
+}
+
+TEST(KinematicTest, stop)
+{
+  ar::WalkingManager::stop();
+  ASSERT_EQ(ar::Kinematic::get_running_state(), false);
+}
+
+TEST(KinematicTest, run)
+{
+  ar::WalkingManager::run(1.0, 2.0, 3.0, false)
+  ASSERT_EQ(ar::WalkingManager::is_running(), false);
+  ASSERT_EQ(ar::Kinematic::get_x_move_amplitude(), 1.0);
+  ASSERT_EQ(ar::Kinematic::get_y_move_amplitude(), 2.0);
+}
+
+// get_kinematic
+// get_joints
+// is running

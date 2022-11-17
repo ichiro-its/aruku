@@ -63,7 +63,3 @@ TEST(KinematicTest, run)
   ASSERT_EQ(ar::Kinematic::get_x_move_amplitude(), 1.0);
   ASSERT_EQ(ar::Kinematic::get_y_move_amplitude(), 2.0);
 }
-
-// get_kinematic
-// get_joints
-// is running

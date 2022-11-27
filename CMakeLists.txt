@@ -16,6 +16,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(aruku_interfaces REQUIRED)
+find_package(kansei REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -37,6 +38,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
   aruku_interfaces
+  kansei
   kansei_interfaces
   keisan
   rclcpp
@@ -57,6 +59,12 @@ target_include_directories(config PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(config ${PROJECT_NAME})
 
+add_executable(control "src/control_main.cpp")
+target_include_directories(control PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(control ${PROJECT_NAME})
+
 add_executable(main "src/aruku_main.cpp")
 target_include_directories(main PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -71,6 +79,7 @@ target_link_libraries(walking ${PROJECT_NAME})
 
 install(TARGETS
   config
+  control
   main
   walking
   DESTINATION lib/${PROJECT_NAME})
@@ -83,6 +92,7 @@ endif()
 ament_export_dependencies(
   ament_index_cpp
   aruku_interfaces
+  kansei
   kansei_interfaces
   keisan
   rclcpp

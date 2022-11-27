@@ -26,11 +26,11 @@
 
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/process/kinematic.hpp"
-#include "aruku_interfaces/msg/odometry.hpp"
+#include "aruku_interfaces/msg/point2.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "aruku_interfaces/msg/status.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "kansei_interfaces/msg/axis.hpp"
+#include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
@@ -40,12 +40,17 @@ namespace aruku
 class WalkingNode
 {
 public:
-  using Axis = kansei_interfaces::msg::Axis;
-  using Odometry = aruku_interfaces::msg::Odometry;
+  using Point2 = aruku_interfaces::msg::Point2;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
-  using Status = aruku_interfaces::msg::Status;
+  using MeasurementStatus = kansei_interfaces::msg::Status;
+  using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
+
+  static std::string get_node_prefix();
+  static std::string set_walking_topic();
+  static std::string status_topic();
+  static std::string set_odometry_topic();
 
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
@@ -53,10 +58,7 @@ public:
   void update();
 
 private:
-  std::string get_node_prefix() const;
-
   void publish_joints();
-  void publish_odometry();
   void publish_status();
 
   rclcpp::Node::SharedPtr node;
@@ -66,10 +68,10 @@ private:
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 
-  rclcpp::Publisher<Odometry>::SharedPtr odometry_publisher;
-  rclcpp::Publisher<Status>::SharedPtr status_publisher;
+  rclcpp::Subscription<Point2>::SharedPtr set_odometry_subscriber;
+  rclcpp::Publisher<WalkingStatus>::SharedPtr status_publisher;
 
-  rclcpp::Subscription<Axis>::SharedPtr orientation_subscriber;
+  rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   int status;

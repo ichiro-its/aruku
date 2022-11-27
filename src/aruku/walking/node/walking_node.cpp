@@ -25,6 +25,7 @@
 
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/process/kinematic.hpp"
+#include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -33,12 +34,32 @@
 namespace aruku
 {
 
+std::string WalkingNode::get_node_prefix()
+{
+  return "walking";
+}
+
+std::string WalkingNode::set_walking_topic()
+{
+  return get_node_prefix() + "/set_walking";
+}
+
+std::string WalkingNode::status_topic()
+{
+  return get_node_prefix() + "/status";
+}
+
+std::string WalkingNode::set_odometry_topic()
+{
+  return get_node_prefix() + "/set_odometry";
+}
+
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    get_node_prefix() + "/set_walking", 10,
+    set_walking_topic(), 10,
     [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
@@ -49,15 +70,14 @@ WalkingNode::WalkingNode(
       }
     });
 
-  orientation_subscriber = node->create_subscription<Axis>(
-    "/measurement/orientation", 10,
-    [this](const Axis::SharedPtr message) {
+  measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
+    kansei::measurement::MeasurementNode::status_topic(), 10,
+    [this](const MeasurementStatus::SharedPtr message) {
       this->walking_manager->update_orientation(
-        keisan::make_degree(message->yaw));
+        keisan::make_degree(message->orientation.yaw));
     });
 
-  status_publisher = node->create_publisher<Status>(
-    get_node_prefix() + "/status", 10);
+  status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
   unit_subscriber = node->create_subscription<Unit>(
     "/imu/unit", 10,
@@ -67,8 +87,12 @@ WalkingNode::WalkingNode(
           message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
-  odometry_publisher = node->create_publisher<Odometry>(
-    get_node_prefix() + "/odometry", 10);
+  set_odometry_subscriber = node->create_subscription<Point2>(
+    set_odometry_topic(), 10,
+    [this](const Point2::SharedPtr message) {
+      this->walking_manager->set_position(
+        keisan::Point2(message->x, message->y));
+    });
 
   set_joints_publisher = node->create_publisher<SetJoints>(
     "/joint/set_joints", 10);
@@ -77,13 +101,7 @@ WalkingNode::WalkingNode(
 void WalkingNode::update()
 {
   publish_joints();
-  publish_odometry();
   publish_status();
-}
-
-std::string WalkingNode::get_node_prefix() const
-{
-  return "walking";
 }
 
 void WalkingNode::publish_joints()
@@ -103,24 +121,19 @@ void WalkingNode::publish_joints()
   set_joints_publisher->publish(joints_msg);
 }
 
-void WalkingNode::publish_odometry()
-{
-  auto odometry_msg = Odometry();
-
-  odometry_msg.position_x = walking_manager->get_position().x;
-  odometry_msg.position_y = walking_manager->get_position().y;
-
-  odometry_publisher->publish(odometry_msg);
-}
-
 void WalkingNode::publish_status()
 {
   auto kinematic = walking_manager->get_kinematic();
-  auto status_msg = Status();
+  auto status_msg = WalkingStatus();
 
   status_msg.is_running = walking_manager->is_runing();
+
   status_msg.x_amplitude = kinematic.get_x_move_amplitude();
   status_msg.y_amplitude = kinematic.get_y_move_amplitude();
+  status_msg.a_amplitude = kinematic.get_a_move_amplitude();
+
+  status_msg.odometry.x = walking_manager->get_position().x;
+  status_msg.odometry.y = walking_manager->get_position().y;
 
   status_publisher->publish(status_msg);
 }

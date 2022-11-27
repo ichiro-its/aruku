@@ -166,6 +166,11 @@ void WalkingManager::update_gyro(const keisan::Vector<3> & gyro)
   this->gyro = gyro;
 }
 
+void WalkingManager::set_position(const keisan::Point2 & position)
+{
+  this->position = position;
+}
+
 const keisan::Point2 & WalkingManager::get_position() const
 {
   return position;

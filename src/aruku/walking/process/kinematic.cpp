@@ -105,6 +105,11 @@ double Kinematic::get_y_move_amplitude() const
   return m_y_move_amplitude;
 }
 
+double Kinematic::get_a_move_amplitude() const
+{
+  return m_a_move_amplitude;
+}
+
 keisan::Angle<double> Kinematic::get_hip_offest() const
 {
   return hip_pitch_offset + hip_comp;
@@ -319,13 +324,25 @@ void Kinematic::update_move_amplitude()
   m_z_swap_amplitude = z_swap_amplitude;
 
   if (!a_move_aim_on) {
-    m_a_move_amplitude = keisan::smooth(
-      m_a_move_amplitude, a_input.radian() / 2, move_accel_ratio);
-    m_a_move_amplitude_shift = fabs(m_a_move_amplitude);
+    if (m_a_move_amplitude_shift < -0.005) {
+      m_a_move_amplitude = keisan::smooth(
+        m_a_move_amplitude, 0.0, move_accel_ratio);
+      m_a_move_amplitude_shift = -fabs(m_a_move_amplitude);
+    } else {
+      m_a_move_amplitude = keisan::smooth(
+        m_a_move_amplitude, a_input.radian() / 2, move_accel_ratio);
+      m_a_move_amplitude_shift = fabs(m_a_move_amplitude);
+    }
   } else {
-    m_a_move_amplitude = keisan::smooth(
-      m_a_move_amplitude, -a_input.radian() / 2, move_accel_ratio);
-    m_a_move_amplitude_shift = -fabs(m_a_move_amplitude);
+    if (m_a_move_amplitude_shift > 0.005) {
+      m_a_move_amplitude = keisan::smooth(
+        m_a_move_amplitude, 0.0, move_accel_ratio);
+      m_a_move_amplitude_shift = fabs(m_a_move_amplitude);
+    } else {
+      m_a_move_amplitude = keisan::smooth(
+        m_a_move_amplitude, -a_input.radian() / 2, move_accel_ratio);
+      m_a_move_amplitude_shift = -fabs(m_a_move_amplitude);
+    }
   }
 }
 

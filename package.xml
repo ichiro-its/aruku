@@ -9,6 +9,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <depend>ament_index_cpp</depend>
   <depend>aruku_interfaces</depend>
+  <depend>kansei</depend>
   <depend>kansei_interfaces</depend>
   <depend>keisan</depend>
   <depend>nlohmann-json-dev</depend>

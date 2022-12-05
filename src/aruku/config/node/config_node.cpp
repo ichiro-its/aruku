@@ -63,29 +63,14 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, s
 
   this->walking_manager = walking_manager;
   this->walking_node = walking_node;
-
-  set_config_subscriber = node->create_subscription<SetConfig>(
-    get_node_prefix() + "/set_config",
-    10,
-    [this](const SetConfig::SharedPtr message) {
-      nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
-      nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
-
-      std::cout << "Subscriber called" << std::endl;
-      this->walking_manager->set_config(walking_data, kinematic_data);
-      this->walking_manager->reinit_joints();
-      this->walking_node->update();
-
-      std::cout << kinematic_data.front() << std::endl;
-    });
 }
 
-// void ConfigNode::set_config_callback(
-//   const std::function<void(const SetConfig::SharedPtr)> & callback)
-// {
-//   set_config_subscriber = node->create_subscription<SetConfig>(
-//     get_node_prefix() + "/set_config", 10, callback);
-// }
+void ConfigNode::set_config_callback(
+  const std::function<void(const SetConfig::SharedPtr)> & callback)
+{
+  set_config_subscriber = node->create_subscription<SetConfig>(
+    get_node_prefix() + "/set_config", 10, callback);
+}
 
 std::string ConfigNode::get_node_prefix() const
 {

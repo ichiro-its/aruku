@@ -61,12 +61,21 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
       }
     });
 
-    set_config_server = node->create_service<SetConfig>(
-      get_node_prefix() + "/set_config",
-      [this](SaveConfig::Request::SharedPtr request, SetConfig::Respinse::SharedPtr response) {
+  set_config_subscriber = node->create_subscription<SetConfig>(
+    get_node_prefix() + "/set_config",
+    10,
+    [this](SetConfig::SharedPtr request) {
+      try {
+        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+
+        this->config.set_config(kinematic_data, walking_data);
+      } catch (std::ofstream::failure) {
+        //
+      } catch (nlohmann::json::exception) {
         //
       }
-    )
+    });
 }
 
 void ConfigNode::set_config_callback(

@@ -60,6 +60,13 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         response->status = false;
       }
     });
+
+    set_config_server = node->create_service<SetConfig>(
+      get_node_prefix() + "/set_config",
+      [this](SaveConfig::Request::SharedPtr request, SetConfig::Respinse::SharedPtr response) {
+        //
+      }
+    )
 }
 
 void ConfigNode::set_config_callback(

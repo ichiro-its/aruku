@@ -69,7 +69,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
         nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
 
-        this->config.set_config(kinematic_data, walking_data);
+        this->config.set_config(kinematic_data);
       } catch (std::ofstream::failure) {
         //
       } catch (nlohmann::json::exception) {

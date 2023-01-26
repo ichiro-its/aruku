@@ -26,6 +26,7 @@
 #include <string>
 
 #include "nlohmann/json.hpp"
+#include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
 {
@@ -38,9 +39,16 @@ public:
   std::string get_config(const std::string & key) const;
   void save_config(
     const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
+  void set_config(const nlohmann::json & walking_data);
 
 private:
   std::string path;
+
+  // Kinematic kinematic;
+
+  std::vector<tachimawari::joint::Joint> joints;
+  std::array<double, 19> inital_joints;
+  std::array<double, 19> joints_direction;
 };
 
 }  // namespace aruku

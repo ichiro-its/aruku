@@ -133,34 +133,6 @@ void Config::set_config(const nlohmann::json & walking_data)
     uint8_t joint_id = joint.get_id();
 
     joint.set_position(inital_joints[joint_id]);
-
-    // double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
-    // if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
-    //   offset -= joints_direction[joint_id] *
-    //     Joint::angle_to_value(kinematic.get_hip_offest());
-    // }
-
-    // offset += joint.get_position_value();
-
-    // if (balance_enable) {
-    //   if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL) {
-    //     offset += joints_direction[joint_id] * balance_hip_roll_gain * gyro[0] * 4;
-    //   }
-
-    //   if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
-    //     offset -= joints_direction[joint_id] * balance_ankle_roll_gain * gyro[0] * 4;
-    //   }
-
-    //   if (joint_id == JointId::LEFT_KNEE || joint_id == JointId::RIGHT_KNEE) {
-    //     offset -= joints_direction[joint_id] * balance_knee_gain * gyro[1] * 4;
-    //   }
-
-    //   if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-    //     offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * gyro[1] * 4;
-    //   }
-    // }
-
-    // joint.set_position_value(offset);
   }
   // std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   // kinematic_file << std::setw(2) << kinematic_data << std::endl;

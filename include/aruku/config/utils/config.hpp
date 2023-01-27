@@ -27,6 +27,8 @@
 
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
+#include "aruku/walking/process/kinematic.hpp"
+#include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
 {
@@ -44,11 +46,30 @@ public:
 private:
   std::string path;
 
+  // config member
+  // bool balance_enable;
+  // double balance_knee_gain;
+  // double balance_ankle_pitch_gain;
+  // double balance_hip_roll_gain;
+  // double balance_ankle_roll_gain;
+
+  // int p_gain;
+  // int i_gain;
+  // int d_gain;
+
+  // double odometry_fx_coefficient;
+  // double odometry_ly_coefficient;
+  // double odometry_ry_coefficient;
+
   // Kinematic kinematic;
 
   std::vector<tachimawari::joint::Joint> joints;
   std::array<double, 19> inital_joints;
   std::array<double, 19> joints_direction;
+
+  // keisan::Point2 position;
+
+  // keisan::Angle<double> orientation;
 };
 
 }  // namespace aruku

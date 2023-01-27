@@ -82,7 +82,18 @@ void ConfigNode::set_config_callback(
   const std::function<void(const SetConfig::SharedPtr)> & callback)
 {
   set_config_subscriber = node->create_subscription<SetConfig>(
-    get_node_prefix() + "/set_config", 10, callback);
+    get_node_prefix() + "/set_config", 10, callback) {
+      try {
+        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+
+        this->config.set_config(kinematic_data);
+      } catch (std::ofstream::failure) {
+        //
+      } catch (nlohmann::json::exception) {
+        //
+      }
+    };
 }
 
 std::string ConfigNode::get_node_prefix() const

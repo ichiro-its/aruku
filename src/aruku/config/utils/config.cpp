@@ -76,6 +76,32 @@ void Config::set_config(const nlohmann::json & walking_data)
   using tachimawari::joint::Joint;
 
   for (auto &[key, val] : walking_data.items()) {
+    // if (key == "balance") {
+    //   try {
+    //     val.at("enable").get_to(balance_enable);
+    //     val.at("balance_knee_gain").get_to(balance_knee_gain);
+    //     val.at("balance_ankle_pitch_gain").get_to(balance_ankle_pitch_gain);
+    //     val.at("balance_hip_roll_gain").get_to(balance_hip_roll_gain);
+    //     val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
+    //   } catch (nlohmann::json::parse_error & ex) {
+    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+    //   }
+    // } else if (key == "pid") {
+    //   try {
+    //     val.at("p_gain").get_to(p_gain);
+    //     val.at("i_gain").get_to(i_gain);
+    //     val.at("d_gain").get_to(d_gain);
+    //   } catch (nlohmann::json::parse_error & ex) {
+    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+    //   }
+    // } else if (key == "odometry") {
+    //   try {
+    //     val.at("fx_coefficient").get_to(odometry_fx_coefficient);
+    //     val.at("ly_coefficient").get_to(odometry_ly_coefficient);
+    //     val.at("ry_coefficient").get_to(odometry_ry_coefficient);
+    //   } catch (nlohmann::json::parse_error & ex) {
+    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+    //   }
     if (key == "init_angles") {
       try {
         {
@@ -134,13 +160,6 @@ void Config::set_config(const nlohmann::json & walking_data)
 
     joint.set_position(inital_joints[joint_id]);
   }
-  // std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
-  // kinematic_file << std::setw(2) << kinematic_data << std::endl;
-  // kinematic_file.close();
-
-  // std::ofstream walking_file(path + "walking.json", std::ios::out | std::ios::trunc);
-  // walking_file << std::setw(2) << walking_data << std::endl;
-  // walking_file.close();
 }
 
 }  // namespace aruku

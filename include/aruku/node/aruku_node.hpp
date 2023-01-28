@@ -49,6 +49,7 @@ private:
   std::shared_ptr<WalkingNode> walking_node;
 
   std::shared_ptr<ConfigNode> config_node;
+  std::shared_ptr<Config> config;
 };
 
 }  // namespace aruku

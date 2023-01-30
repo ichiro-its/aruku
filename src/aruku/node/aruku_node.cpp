@@ -27,7 +27,6 @@
 #include "aruku/config/node/config_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;

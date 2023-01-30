@@ -64,16 +64,17 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
   set_config_subscriber = node->create_subscription<SetConfig>(
     get_node_prefix() + "/set_config",
     10,
-    [this](SetConfig::SharedPtr request) {
+    [this](const SetConfig::SharedPtr message) {
+      // RCLCPP_INFO(this->get_logger(), "Created subscription");
       try {
-        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+        nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
+        nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
         this->config.set_config(kinematic_data);
       } catch (std::ofstream::failure) {
-        //
+          // RCLCPP_INFO(this->get_logger(), "Failed to open data");
       } catch (nlohmann::json::exception) {
-        //
+          // RCLCPP_INFO(this->get_logger(), "Exception error");
       }
     });
 }
@@ -84,7 +85,7 @@ void ConfigNode::set_config_callback(
   set_config_subscriber = node->create_subscription<SetConfig>(
     get_node_prefix() + "/set_config", 10, callback);
 
-    RCLCPP_INFO(this->get_logger(), "Sending request");
+    // RCLCPP_INFO(this->get_logger(), "Receiving %s");
     // auto request = std::make_shared<::Request>();
     // auto result_future = client_ptr_->async_send_request(request);
     // std::future_status status = result_future.wait_for(10s);  // timeout to guarantee a graceful finish

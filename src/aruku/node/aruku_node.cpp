@@ -64,13 +64,6 @@ void ArukuNode::run_config_service(const std::string & path)
         nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
         this->walking_manager->set_config(walking_data, kinematic_data);
-      });
-  } else {
-    config_node->set_config_callback(
-      [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
-        nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
-
         this->config->set_config(walking_data);
       });
   }

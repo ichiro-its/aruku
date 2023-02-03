@@ -116,6 +116,7 @@ void WalkingNode::publish_joints()
   for (size_t i = 0; i < joints.size() && i < joint_msgs.size(); ++i) {
     joint_msgs[i].id = joints[i].get_id();
     joint_msgs[i].position = joints[i].get_position();
+    std::cout << joints[i].get_position() << std::endl;
   }
 
   set_joints_publisher->publish(joints_msg);

@@ -70,7 +70,7 @@ void Config::save_config(
   walking_file.close();
 }
 
-void Config::set_config(const nlohmann::json & walking_data)
+// void Config::set_config(const nlohmann::json & walking_data)
 {
   using tachimawari::joint::JointId;
   using tachimawari::joint::Joint;

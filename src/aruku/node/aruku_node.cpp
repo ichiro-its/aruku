@@ -64,8 +64,8 @@ void ArukuNode::run_config_service(const std::string & path)
         nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
         this->walking_manager->set_config(walking_data, kinematic_data);
-        // this->config->set_config(walking_data);
-        this->walking_manager->update();
+        this->walking_manager->reinit_joints(walking_data, kinematic_data);
+        this->walking_node->update();
       });
   }
 }

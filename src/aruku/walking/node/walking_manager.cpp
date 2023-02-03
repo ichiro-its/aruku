@@ -166,6 +166,17 @@ void WalkingManager::update_gyro(const keisan::Vector<3> & gyro)
   this->gyro = gyro;
 }
 
+void WalkingManager::reinit_joints(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data) 
+{
+  using tachimawari::joint::JointId;
+  using tachimawari::joint::Joint;
+
+  for (auto & joint : joints) {
+    uint8_t joint_id = joint.get_id();
+    joint.set_position(inital_joints[joint_id]);
+  }
+}
+
 void WalkingManager::set_position(const keisan::Point2 & position)
 {
   this->position = position;

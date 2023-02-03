@@ -71,95 +71,95 @@ void Config::save_config(
 }
 
 // void Config::set_config(const nlohmann::json & walking_data)
-{
-  using tachimawari::joint::JointId;
-  using tachimawari::joint::Joint;
+// {
+//   using tachimawari::joint::JointId;
+//   using tachimawari::joint::Joint;
 
-  for (auto &[key, val] : walking_data.items()) {
-    // if (key == "balance") {
-    //   try {
-    //     val.at("enable").get_to(balance_enable);
-    //     val.at("balance_knee_gain").get_to(balance_knee_gain);
-    //     val.at("balance_ankle_pitch_gain").get_to(balance_ankle_pitch_gain);
-    //     val.at("balance_hip_roll_gain").get_to(balance_hip_roll_gain);
-    //     val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
-    //   } catch (nlohmann::json::parse_error & ex) {
-    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
-    //   }
-    // } else if (key == "pid") {
-    //   try {
-    //     val.at("p_gain").get_to(p_gain);
-    //     val.at("i_gain").get_to(i_gain);
-    //     val.at("d_gain").get_to(d_gain);
-    //   } catch (nlohmann::json::parse_error & ex) {
-    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
-    //   }
-    // } else if (key == "odometry") {
-    //   try {
-    //     val.at("fx_coefficient").get_to(odometry_fx_coefficient);
-    //     val.at("ly_coefficient").get_to(odometry_ly_coefficient);
-    //     val.at("ry_coefficient").get_to(odometry_ry_coefficient);
-    //   } catch (nlohmann::json::parse_error & ex) {
-    //     std::cerr << "parse error at byte " << ex.byte << std::endl;
-    //   }
-    if (key == "init_angles") {
-      try {
-        {
-          val.at("right_hip_yaw").get_to(inital_joints[JointId::RIGHT_HIP_YAW]);
-          val.at("right_hip_pitch").get_to(inital_joints[JointId::RIGHT_HIP_PITCH]);
-          val.at("right_hip_roll").get_to(inital_joints[JointId::RIGHT_HIP_ROLL]);
-          val.at("right_knee").get_to(inital_joints[JointId::RIGHT_KNEE]);
-          val.at("right_ankle_pitch").get_to(inital_joints[JointId::RIGHT_ANKLE_PITCH]);
-          val.at("right_ankle_roll").get_to(inital_joints[JointId::RIGHT_ANKLE_ROLL]);
-          val.at("left_hip_yaw").get_to(inital_joints[JointId::LEFT_HIP_YAW]);
-          val.at("left_hip_pitch").get_to(inital_joints[JointId::LEFT_HIP_PITCH]);
-          val.at("left_hip_roll").get_to(inital_joints[JointId::LEFT_HIP_ROLL]);
-          val.at("left_knee").get_to(inital_joints[JointId::LEFT_KNEE]);
-          val.at("left_ankle_pitch").get_to(inital_joints[JointId::LEFT_ANKLE_PITCH]);
-          val.at("left_ankle_roll").get_to(inital_joints[JointId::LEFT_ANKLE_ROLL]);
-          val.at("right_shoulder_pitch").get_to(inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
-          val.at("right_shoulder_roll").get_to(inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
-          val.at("right_elbow").get_to(inital_joints[JointId::RIGHT_ELBOW]);
-          val.at("left_shoulder_pitch").get_to(inital_joints[JointId::LEFT_SHOULDER_PITCH]);
-          val.at("left_shoulder_roll").get_to(inital_joints[JointId::LEFT_SHOULDER_ROLL]);
-          val.at("left_elbow").get_to(inital_joints[JointId::LEFT_ELBOW]);
-        }
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    } else if (key == "angles_direction") {
-      try {
-        {
-          val.at("right_hip_yaw").get_to(joints_direction[JointId::RIGHT_HIP_YAW]);
-          val.at("right_hip_pitch").get_to(joints_direction[JointId::RIGHT_HIP_PITCH]);
-          val.at("right_hip_roll").get_to(joints_direction[JointId::RIGHT_HIP_ROLL]);
-          val.at("right_knee").get_to(joints_direction[JointId::RIGHT_KNEE]);
-          val.at("right_ankle_pitch").get_to(joints_direction[JointId::RIGHT_ANKLE_PITCH]);
-          val.at("right_ankle_roll").get_to(joints_direction[JointId::RIGHT_ANKLE_ROLL]);
-          val.at("left_hip_yaw").get_to(joints_direction[JointId::LEFT_HIP_YAW]);
-          val.at("left_hip_pitch").get_to(joints_direction[JointId::LEFT_HIP_PITCH]);
-          val.at("left_hip_roll").get_to(joints_direction[JointId::LEFT_HIP_ROLL]);
-          val.at("left_knee").get_to(joints_direction[JointId::LEFT_KNEE]);
-          val.at("left_ankle_pitch").get_to(joints_direction[JointId::LEFT_ANKLE_PITCH]);
-          val.at("left_ankle_roll").get_to(joints_direction[JointId::LEFT_ANKLE_ROLL]);
-          val.at("right_shoulder_pitch").get_to(joints_direction[JointId::RIGHT_SHOULDER_PITCH]);
-          val.at("right_shoulder_roll").get_to(joints_direction[JointId::RIGHT_SHOULDER_ROLL]);
-          val.at("right_elbow").get_to(joints_direction[JointId::RIGHT_ELBOW]);
-          val.at("left_shoulder_pitch").get_to(joints_direction[JointId::LEFT_SHOULDER_PITCH]);
-          val.at("left_shoulder_roll").get_to(joints_direction[JointId::LEFT_SHOULDER_ROLL]);
-          val.at("left_elbow").get_to(joints_direction[JointId::LEFT_ELBOW]);
-        }
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-      }
-    }
-  }
+//   for (auto &[key, val] : walking_data.items()) {
+//     // if (key == "balance") {
+//     //   try {
+//     //     val.at("enable").get_to(balance_enable);
+//     //     val.at("balance_knee_gain").get_to(balance_knee_gain);
+//     //     val.at("balance_ankle_pitch_gain").get_to(balance_ankle_pitch_gain);
+//     //     val.at("balance_hip_roll_gain").get_to(balance_hip_roll_gain);
+//     //     val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
+//     //   } catch (nlohmann::json::parse_error & ex) {
+//     //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+//     //   }
+//     // } else if (key == "pid") {
+//     //   try {
+//     //     val.at("p_gain").get_to(p_gain);
+//     //     val.at("i_gain").get_to(i_gain);
+//     //     val.at("d_gain").get_to(d_gain);
+//     //   } catch (nlohmann::json::parse_error & ex) {
+//     //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+//     //   }
+//     // } else if (key == "odometry") {
+//     //   try {
+//     //     val.at("fx_coefficient").get_to(odometry_fx_coefficient);
+//     //     val.at("ly_coefficient").get_to(odometry_ly_coefficient);
+//     //     val.at("ry_coefficient").get_to(odometry_ry_coefficient);
+//     //   } catch (nlohmann::json::parse_error & ex) {
+//     //     std::cerr << "parse error at byte " << ex.byte << std::endl;
+//     //   }
+//     if (key == "init_angles") {
+//       try {
+//         {
+//           val.at("right_hip_yaw").get_to(inital_joints[JointId::RIGHT_HIP_YAW]);
+//           val.at("right_hip_pitch").get_to(inital_joints[JointId::RIGHT_HIP_PITCH]);
+//           val.at("right_hip_roll").get_to(inital_joints[JointId::RIGHT_HIP_ROLL]);
+//           val.at("right_knee").get_to(inital_joints[JointId::RIGHT_KNEE]);
+//           val.at("right_ankle_pitch").get_to(inital_joints[JointId::RIGHT_ANKLE_PITCH]);
+//           val.at("right_ankle_roll").get_to(inital_joints[JointId::RIGHT_ANKLE_ROLL]);
+//           val.at("left_hip_yaw").get_to(inital_joints[JointId::LEFT_HIP_YAW]);
+//           val.at("left_hip_pitch").get_to(inital_joints[JointId::LEFT_HIP_PITCH]);
+//           val.at("left_hip_roll").get_to(inital_joints[JointId::LEFT_HIP_ROLL]);
+//           val.at("left_knee").get_to(inital_joints[JointId::LEFT_KNEE]);
+//           val.at("left_ankle_pitch").get_to(inital_joints[JointId::LEFT_ANKLE_PITCH]);
+//           val.at("left_ankle_roll").get_to(inital_joints[JointId::LEFT_ANKLE_ROLL]);
+//           val.at("right_shoulder_pitch").get_to(inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
+//           val.at("right_shoulder_roll").get_to(inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
+//           val.at("right_elbow").get_to(inital_joints[JointId::RIGHT_ELBOW]);
+//           val.at("left_shoulder_pitch").get_to(inital_joints[JointId::LEFT_SHOULDER_PITCH]);
+//           val.at("left_shoulder_roll").get_to(inital_joints[JointId::LEFT_SHOULDER_ROLL]);
+//           val.at("left_elbow").get_to(inital_joints[JointId::LEFT_ELBOW]);
+//         }
+//       } catch (nlohmann::json::parse_error & ex) {
+//         std::cerr << "parse error at byte " << ex.byte << std::endl;
+//       }
+//     } else if (key == "angles_direction") {
+//       try {
+//         {
+//           val.at("right_hip_yaw").get_to(joints_direction[JointId::RIGHT_HIP_YAW]);
+//           val.at("right_hip_pitch").get_to(joints_direction[JointId::RIGHT_HIP_PITCH]);
+//           val.at("right_hip_roll").get_to(joints_direction[JointId::RIGHT_HIP_ROLL]);
+//           val.at("right_knee").get_to(joints_direction[JointId::RIGHT_KNEE]);
+//           val.at("right_ankle_pitch").get_to(joints_direction[JointId::RIGHT_ANKLE_PITCH]);
+//           val.at("right_ankle_roll").get_to(joints_direction[JointId::RIGHT_ANKLE_ROLL]);
+//           val.at("left_hip_yaw").get_to(joints_direction[JointId::LEFT_HIP_YAW]);
+//           val.at("left_hip_pitch").get_to(joints_direction[JointId::LEFT_HIP_PITCH]);
+//           val.at("left_hip_roll").get_to(joints_direction[JointId::LEFT_HIP_ROLL]);
+//           val.at("left_knee").get_to(joints_direction[JointId::LEFT_KNEE]);
+//           val.at("left_ankle_pitch").get_to(joints_direction[JointId::LEFT_ANKLE_PITCH]);
+//           val.at("left_ankle_roll").get_to(joints_direction[JointId::LEFT_ANKLE_ROLL]);
+//           val.at("right_shoulder_pitch").get_to(joints_direction[JointId::RIGHT_SHOULDER_PITCH]);
+//           val.at("right_shoulder_roll").get_to(joints_direction[JointId::RIGHT_SHOULDER_ROLL]);
+//           val.at("right_elbow").get_to(joints_direction[JointId::RIGHT_ELBOW]);
+//           val.at("left_shoulder_pitch").get_to(joints_direction[JointId::LEFT_SHOULDER_PITCH]);
+//           val.at("left_shoulder_roll").get_to(joints_direction[JointId::LEFT_SHOULDER_ROLL]);
+//           val.at("left_elbow").get_to(joints_direction[JointId::LEFT_ELBOW]);
+//         }
+//       } catch (nlohmann::json::parse_error & ex) {
+//         std::cerr << "parse error at byte " << ex.byte << std::endl;
+//       }
+//     }
+//   }
 
-  for (auto & joint : joints) {
-    uint8_t joint_id = joint.get_id();
+//   for (auto & joint : joints) {
+//     uint8_t joint_id = joint.get_id();
 
-    joint.set_position(inital_joints[joint_id]);
-  }
-}
+//     joint.set_position(inital_joints[joint_id]);
+//   }
+// }
 
 }  // namespace aruku

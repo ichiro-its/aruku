@@ -58,16 +58,16 @@ void ArukuNode::run_config_service(const std::string & path)
   config_node = std::make_shared<ConfigNode>(node, path);
 
   // if (walking_manager) {
-    config_node->set_config_callback(
-      [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
-        nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
+    // config_node->set_config_callback(
+    //   [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
+    //     nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
+    //     nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
-        this->walking_manager->set_config(walking_data, kinematic_data);
-        this->walking_manager->reinit_joints();
-        this->walking_node->update();
-        std::cout << "Callback called" << std::endl;
-      });
+    //     this->walking_manager->set_config(walking_data, kinematic_data);
+    //     this->walking_manager->reinit_joints();
+    //     this->walking_node->update();
+    //     std::cout << "Callback called" << std::endl;
+    //   });
   // }
 }
 

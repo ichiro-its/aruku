@@ -25,6 +25,8 @@
 #include "aruku/config/node/config_node.hpp"
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "nlohmann/json.hpp"
@@ -33,7 +35,7 @@
 namespace aruku
 {
 
-ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, std::shared_ptr<WalkingManager> walking_manager, std::shared_ptr<WalkingNode> walking_node)
 : node(node), config(path), set_config_subscriber(nullptr)
 {
   get_config_server = node->create_service<GetConfig>(
@@ -67,6 +69,10 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
     [this](const SetConfig::SharedPtr message) {
       nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
       nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
+
+      this->walking_manager->set_config(walking_data, kinematic_data);
+      this->walking_manager->reinit_joints();
+      this->walking_node->update();
 
       std::cout << kinematic_data.front() << std::endl;
     });

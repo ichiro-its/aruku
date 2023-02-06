@@ -55,7 +55,7 @@ void ArukuNode::set_walking_manager(std::shared_ptr<WalkingManager> walking_mana
 
 void ArukuNode::run_config_service(const std::string & path)
 {
-  config_node = std::make_shared<ConfigNode>(node, path);
+  config_node = std::make_shared<ConfigNode>(node, path, walking_manager, walking_node);
 
   // if (walking_manager) {
     // config_node->set_config_callback(
@@ -63,9 +63,9 @@ void ArukuNode::run_config_service(const std::string & path)
     //     nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
     //     nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
-    //     this->walking_manager->set_config(walking_data, kinematic_data);
-    //     this->walking_manager->reinit_joints();
-    //     this->walking_node->update();
+        // this->walking_manager->set_config(walking_data, kinematic_data);
+        // this->walking_manager->reinit_joints();
+        // this->walking_node->update();
     //     std::cout << "Callback called" << std::endl;
     //   });
   // }

@@ -25,6 +25,8 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
@@ -40,13 +42,16 @@ public:
   using SaveConfig = aruku_interfaces::srv::SaveConfig;
   using SetConfig = aruku_interfaces::msg::SetConfig;
 
-  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path);
+  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, std::shared_ptr<WalkingManager> walking_manager, std::shared_ptr<WalkingNode> walking_node);
 
   void set_config_callback(
     const std::function<void(const SetConfig::SharedPtr)> & callback);
 
 private:
   std::string get_node_prefix() const;
+
+  std::shared_ptr<WalkingManager> walking_manager;
+  std::shared_ptr<WalkingNode> walking_node;
 
   Config config;
   rclcpp::Node::SharedPtr node;

@@ -33,7 +33,7 @@
 namespace aruku
 {
 
-ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, std::shared_ptr<WalkingManager> walking_manager, std::shared_ptr<WalkingNode> walking_node)
 : node(node), config(path), set_config_subscriber(nullptr)
 {
   get_config_server = node->create_service<GetConfig>(
@@ -60,6 +60,9 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         response->status = false;
       }
     });
+
+  this->walking_manager = walking_manager;
+  this->walking_node = walking_node;
 
   set_config_subscriber = node->create_subscription<SetConfig>(
     get_node_prefix() + "/set_config",

@@ -23,10 +23,8 @@
 #include <string>
 
 #include "aruku/config/node/config_node.hpp"
-
+#include "aruku/node/aruku_node.hpp"
 #include "aruku/config/utils/config.hpp"
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "nlohmann/json.hpp"
@@ -35,7 +33,7 @@
 namespace aruku
 {
 
-ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, std::shared_ptr<WalkingManager> walking_manager, std::shared_ptr<WalkingNode> walking_node)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
 : node(node), config(path), set_config_subscriber(nullptr)
 {
   get_config_server = node->create_service<GetConfig>(

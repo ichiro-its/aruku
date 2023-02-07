@@ -71,6 +71,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, s
       nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
       nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
+      std::cout << "Subscriber called" << std::endl;
       this->walking_manager->set_config(walking_data, kinematic_data);
       this->walking_manager->reinit_joints();
       this->walking_node->update();

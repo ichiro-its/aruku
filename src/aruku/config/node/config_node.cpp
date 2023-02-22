@@ -60,9 +60,6 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         response->status = false;
       }
     });
-
-  this->walking_manager = walking_manager;
-  this->walking_node = walking_node;
 }
 
 void ConfigNode::set_config_callback(

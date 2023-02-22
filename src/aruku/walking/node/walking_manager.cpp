@@ -168,9 +168,6 @@ void WalkingManager::update_gyro(const keisan::Vector<3> & gyro)
 
 void WalkingManager::reinit_joints() 
 {
-  using tachimawari::joint::JointId;
-  using tachimawari::joint::Joint;
-
   for (auto & joint : joints) {
     uint8_t joint_id = joint.get_id();
     joint.set_position(inital_joints[joint_id]);

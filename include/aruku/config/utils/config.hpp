@@ -28,7 +28,6 @@
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 #include "aruku/walking/process/kinematic.hpp"
-#include "tachimawari/joint/model/joint.hpp"
 
 namespace aruku
 {

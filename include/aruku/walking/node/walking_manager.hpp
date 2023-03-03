@@ -43,6 +43,7 @@ public:
 
   void update_orientation(const keisan::Angle<double> & orientation);
   void update_gyro(const keisan::Vector<3> & gyro);
+  void reinit_joints();
 
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;

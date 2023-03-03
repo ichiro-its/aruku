@@ -27,7 +27,6 @@
 #include "aruku/config/node/config_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using namespace std::chrono_literals;
@@ -41,7 +40,7 @@ ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
   node_timer = node->create_wall_timer(
     8ms,
     [this]() {
-      if (this->walking_manager->process() && this->walking_manager->is_runing()) {
+      if (this->walking_manager->process()) {
         this->walking_node->update();
       }
     }
@@ -65,6 +64,8 @@ void ArukuNode::run_config_service(const std::string & path)
         nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
         this->walking_manager->set_config(walking_data, kinematic_data);
+        this->walking_manager->reinit_joints();
+        this->walking_node->update();
       });
   }
 }

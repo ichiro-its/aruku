@@ -23,7 +23,7 @@
 #include <string>
 
 #include "aruku/config/node/config_node.hpp"
-
+#include "aruku/node/aruku_node.hpp"
 #include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"

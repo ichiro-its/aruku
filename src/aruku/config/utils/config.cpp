@@ -23,6 +23,7 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/walking/process/kinematic.hpp"
 
 #include "nlohmann/json.hpp"
 

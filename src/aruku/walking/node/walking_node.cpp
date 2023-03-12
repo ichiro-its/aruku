@@ -126,7 +126,7 @@ void WalkingNode::publish_status()
   auto kinematic = walking_manager->get_kinematic();
   auto status_msg = WalkingStatus();
 
-  status_msg.is_running = walking_manager->is_runing();
+  status_msg.is_running = walking_manager->is_running();
 
   status_msg.x_amplitude = kinematic.get_x_move_amplitude();
   status_msg.y_amplitude = kinematic.get_y_move_amplitude();

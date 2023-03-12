@@ -263,7 +263,7 @@ bool WalkingManager::process()
   return false;
 }
 
-bool WalkingManager::is_runing() const
+bool WalkingManager::is_running() const
 {
   return kinematic.get_running_state();
 }

@@ -52,7 +52,7 @@ public:
   void stop();
   bool process();
 
-  bool is_runing() const;
+  bool is_running() const;
 
   std::vector<tachimawari::joint::Joint> get_joints() const;
   const Kinematic & get_kinematic() const;

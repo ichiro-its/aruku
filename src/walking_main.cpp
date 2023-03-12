@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
     walking_manager->run(0.0, 0.0, 0.0);
     walking_manager->process();
 
-    if (walking_manager->is_runing()) {
+    if (walking_manager->is_running()) {
       walking_node.update();
 
       auto joints = walking_manager->get_joints();

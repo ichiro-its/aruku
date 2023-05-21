@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package helloworld;
+
+service GetConfig {
+  rpc GetConfig (Empty) returns (ConfigWalking) {}
+}
+
+service SaveConfig {
+  rpc SaveConfig (ConfigWalking) returns (Empty) {}
+}
+
+message Empty {}
+
+message Point2 {
+  double x = 1;
+  double y = 2;
+}
+
+message ConfigWalking {
+  string json_kinematic = 1;
+  string json_walking = 2;
+}
+
+message SetWalking {
+    bool run = 1;
+    double x_move = 2;
+    double y_move = 3;
+    double a_move = 4;
+    bool aim_on = 5;
+}
+
+message Status {
+    bool is_running = 1;
+    double x_amplitude = 2;
+    double y_amplitude = 3;
+    double a_amplitude  = 4;
+    Point2 odometry = 5;
+}
+

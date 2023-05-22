@@ -45,7 +45,9 @@ struct TableStruct_aruku_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_aruku_2eproto;
-namespace helloworld {
+namespace ros2_ws {
+namespace aruku {
+namespace proto {
 class ConfigWalking;
 struct ConfigWalkingDefaultTypeInternal;
 extern ConfigWalkingDefaultTypeInternal _ConfigWalking_default_instance_;
@@ -61,20 +63,24 @@ extern SetWalkingDefaultTypeInternal _SetWalking_default_instance_;
 class Status;
 struct StatusDefaultTypeInternal;
 extern StatusDefaultTypeInternal _Status_default_instance_;
-}  // namespace helloworld
+}  // namespace proto
+}  // namespace aruku
+}  // namespace ros2_ws
 PROTOBUF_NAMESPACE_OPEN
-template<> ::helloworld::ConfigWalking* Arena::CreateMaybeMessage<::helloworld::ConfigWalking>(Arena*);
-template<> ::helloworld::Empty* Arena::CreateMaybeMessage<::helloworld::Empty>(Arena*);
-template<> ::helloworld::Point2* Arena::CreateMaybeMessage<::helloworld::Point2>(Arena*);
-template<> ::helloworld::SetWalking* Arena::CreateMaybeMessage<::helloworld::SetWalking>(Arena*);
-template<> ::helloworld::Status* Arena::CreateMaybeMessage<::helloworld::Status>(Arena*);
+template<> ::ros2_ws::aruku::proto::ConfigWalking* Arena::CreateMaybeMessage<::ros2_ws::aruku::proto::ConfigWalking>(Arena*);
+template<> ::ros2_ws::aruku::proto::Empty* Arena::CreateMaybeMessage<::ros2_ws::aruku::proto::Empty>(Arena*);
+template<> ::ros2_ws::aruku::proto::Point2* Arena::CreateMaybeMessage<::ros2_ws::aruku::proto::Point2>(Arena*);
+template<> ::ros2_ws::aruku::proto::SetWalking* Arena::CreateMaybeMessage<::ros2_ws::aruku::proto::SetWalking>(Arena*);
+template<> ::ros2_ws::aruku::proto::Status* Arena::CreateMaybeMessage<::ros2_ws::aruku::proto::Status>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
-namespace helloworld {
+namespace ros2_ws {
+namespace aruku {
+namespace proto {
 
 // ===================================================================
 
 class Empty final :
-    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:helloworld.Empty) */ {
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:ros2_ws.aruku.proto.Empty) */ {
  public:
   inline Empty() : Empty(nullptr) {}
   explicit PROTOBUF_CONSTEXPR Empty(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
@@ -162,7 +168,7 @@ class Empty final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "helloworld.Empty";
+    return "ros2_ws.aruku.proto.Empty";
   }
   protected:
   explicit Empty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -178,7 +184,7 @@ class Empty final :
 
   // accessors -------------------------------------------------------
 
-  // @@protoc_insertion_point(class_scope:helloworld.Empty)
+  // @@protoc_insertion_point(class_scope:ros2_ws.aruku.proto.Empty)
  private:
   class _Internal;
 
@@ -192,7 +198,7 @@ class Empty final :
 // -------------------------------------------------------------------
 
 class Point2 final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:helloworld.Point2) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ros2_ws.aruku.proto.Point2) */ {
  public:
   inline Point2() : Point2(nullptr) {}
   ~Point2() override;
@@ -295,7 +301,7 @@ class Point2 final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "helloworld.Point2";
+    return "ros2_ws.aruku.proto.Point2";
   }
   protected:
   explicit Point2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -333,7 +339,7 @@ class Point2 final :
   void _internal_set_y(double value);
   public:
 
-  // @@protoc_insertion_point(class_scope:helloworld.Point2)
+  // @@protoc_insertion_point(class_scope:ros2_ws.aruku.proto.Point2)
  private:
   class _Internal;
 
@@ -351,7 +357,7 @@ class Point2 final :
 // -------------------------------------------------------------------
 
 class ConfigWalking final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:helloworld.ConfigWalking) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ros2_ws.aruku.proto.ConfigWalking) */ {
  public:
   inline ConfigWalking() : ConfigWalking(nullptr) {}
   ~ConfigWalking() override;
@@ -454,7 +460,7 @@ class ConfigWalking final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "helloworld.ConfigWalking";
+    return "ros2_ws.aruku.proto.ConfigWalking";
   }
   protected:
   explicit ConfigWalking(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -502,7 +508,7 @@ class ConfigWalking final :
   std::string* _internal_mutable_json_walking();
   public:
 
-  // @@protoc_insertion_point(class_scope:helloworld.ConfigWalking)
+  // @@protoc_insertion_point(class_scope:ros2_ws.aruku.proto.ConfigWalking)
  private:
   class _Internal;
 
@@ -520,7 +526,7 @@ class ConfigWalking final :
 // -------------------------------------------------------------------
 
 class SetWalking final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:helloworld.SetWalking) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ros2_ws.aruku.proto.SetWalking) */ {
  public:
   inline SetWalking() : SetWalking(nullptr) {}
   ~SetWalking() override;
@@ -623,7 +629,7 @@ class SetWalking final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "helloworld.SetWalking";
+    return "ros2_ws.aruku.proto.SetWalking";
   }
   protected:
   explicit SetWalking(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -691,7 +697,7 @@ class SetWalking final :
   void _internal_set_aim_on(bool value);
   public:
 
-  // @@protoc_insertion_point(class_scope:helloworld.SetWalking)
+  // @@protoc_insertion_point(class_scope:ros2_ws.aruku.proto.SetWalking)
  private:
   class _Internal;
 
@@ -712,7 +718,7 @@ class SetWalking final :
 // -------------------------------------------------------------------
 
 class Status final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:helloworld.Status) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:ros2_ws.aruku.proto.Status) */ {
  public:
   inline Status() : Status(nullptr) {}
   ~Status() override;
@@ -815,7 +821,7 @@ class Status final :
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "helloworld.Status";
+    return "ros2_ws.aruku.proto.Status";
   }
   protected:
   explicit Status(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -838,23 +844,23 @@ class Status final :
     kAAmplitudeFieldNumber = 4,
     kIsRunningFieldNumber = 1,
   };
-  // .helloworld.Point2 odometry = 5;
+  // .ros2_ws.aruku.proto.Point2 odometry = 5;
   bool has_odometry() const;
   private:
   bool _internal_has_odometry() const;
   public:
   void clear_odometry();
-  const ::helloworld::Point2& odometry() const;
-  PROTOBUF_NODISCARD ::helloworld::Point2* release_odometry();
-  ::helloworld::Point2* mutable_odometry();
-  void set_allocated_odometry(::helloworld::Point2* odometry);
+  const ::ros2_ws::aruku::proto::Point2& odometry() const;
+  PROTOBUF_NODISCARD ::ros2_ws::aruku::proto::Point2* release_odometry();
+  ::ros2_ws::aruku::proto::Point2* mutable_odometry();
+  void set_allocated_odometry(::ros2_ws::aruku::proto::Point2* odometry);
   private:
-  const ::helloworld::Point2& _internal_odometry() const;
-  ::helloworld::Point2* _internal_mutable_odometry();
+  const ::ros2_ws::aruku::proto::Point2& _internal_odometry() const;
+  ::ros2_ws::aruku::proto::Point2* _internal_mutable_odometry();
   public:
   void unsafe_arena_set_allocated_odometry(
-      ::helloworld::Point2* odometry);
-  ::helloworld::Point2* unsafe_arena_release_odometry();
+      ::ros2_ws::aruku::proto::Point2* odometry);
+  ::ros2_ws::aruku::proto::Point2* unsafe_arena_release_odometry();
 
   // double x_amplitude = 2;
   void clear_x_amplitude();
@@ -892,7 +898,7 @@ class Status final :
   void _internal_set_is_running(bool value);
   public:
 
-  // @@protoc_insertion_point(class_scope:helloworld.Status)
+  // @@protoc_insertion_point(class_scope:ros2_ws.aruku.proto.Status)
  private:
   class _Internal;
 
@@ -900,7 +906,7 @@ class Status final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::helloworld::Point2* odometry_;
+    ::ros2_ws::aruku::proto::Point2* odometry_;
     double x_amplitude_;
     double y_amplitude_;
     double a_amplitude_;
@@ -933,7 +939,7 @@ inline double Point2::_internal_x() const {
   return _impl_.x_;
 }
 inline double Point2::x() const {
-  // @@protoc_insertion_point(field_get:helloworld.Point2.x)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Point2.x)
   return _internal_x();
 }
 inline void Point2::_internal_set_x(double value) {
@@ -942,7 +948,7 @@ inline void Point2::_internal_set_x(double value) {
 }
 inline void Point2::set_x(double value) {
   _internal_set_x(value);
-  // @@protoc_insertion_point(field_set:helloworld.Point2.x)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Point2.x)
 }
 
 // double y = 2;
@@ -953,7 +959,7 @@ inline double Point2::_internal_y() const {
   return _impl_.y_;
 }
 inline double Point2::y() const {
-  // @@protoc_insertion_point(field_get:helloworld.Point2.y)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Point2.y)
   return _internal_y();
 }
 inline void Point2::_internal_set_y(double value) {
@@ -962,7 +968,7 @@ inline void Point2::_internal_set_y(double value) {
 }
 inline void Point2::set_y(double value) {
   _internal_set_y(value);
-  // @@protoc_insertion_point(field_set:helloworld.Point2.y)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Point2.y)
 }
 
 // -------------------------------------------------------------------
@@ -974,7 +980,7 @@ inline void ConfigWalking::clear_json_kinematic() {
   _impl_.json_kinematic_.ClearToEmpty();
 }
 inline const std::string& ConfigWalking::json_kinematic() const {
-  // @@protoc_insertion_point(field_get:helloworld.ConfigWalking.json_kinematic)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.ConfigWalking.json_kinematic)
   return _internal_json_kinematic();
 }
 template <typename ArgT0, typename... ArgT>
@@ -982,11 +988,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ConfigWalking::set_json_kinematic(ArgT0&& arg0, ArgT... args) {
  
  _impl_.json_kinematic_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:helloworld.ConfigWalking.json_kinematic)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.ConfigWalking.json_kinematic)
 }
 inline std::string* ConfigWalking::mutable_json_kinematic() {
   std::string* _s = _internal_mutable_json_kinematic();
-  // @@protoc_insertion_point(field_mutable:helloworld.ConfigWalking.json_kinematic)
+  // @@protoc_insertion_point(field_mutable:ros2_ws.aruku.proto.ConfigWalking.json_kinematic)
   return _s;
 }
 inline const std::string& ConfigWalking::_internal_json_kinematic() const {
@@ -1001,7 +1007,7 @@ inline std::string* ConfigWalking::_internal_mutable_json_kinematic() {
   return _impl_.json_kinematic_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ConfigWalking::release_json_kinematic() {
-  // @@protoc_insertion_point(field_release:helloworld.ConfigWalking.json_kinematic)
+  // @@protoc_insertion_point(field_release:ros2_ws.aruku.proto.ConfigWalking.json_kinematic)
   return _impl_.json_kinematic_.Release();
 }
 inline void ConfigWalking::set_allocated_json_kinematic(std::string* json_kinematic) {
@@ -1016,7 +1022,7 @@ inline void ConfigWalking::set_allocated_json_kinematic(std::string* json_kinema
     _impl_.json_kinematic_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:helloworld.ConfigWalking.json_kinematic)
+  // @@protoc_insertion_point(field_set_allocated:ros2_ws.aruku.proto.ConfigWalking.json_kinematic)
 }
 
 // string json_walking = 2;
@@ -1024,7 +1030,7 @@ inline void ConfigWalking::clear_json_walking() {
   _impl_.json_walking_.ClearToEmpty();
 }
 inline const std::string& ConfigWalking::json_walking() const {
-  // @@protoc_insertion_point(field_get:helloworld.ConfigWalking.json_walking)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.ConfigWalking.json_walking)
   return _internal_json_walking();
 }
 template <typename ArgT0, typename... ArgT>
@@ -1032,11 +1038,11 @@ inline PROTOBUF_ALWAYS_INLINE
 void ConfigWalking::set_json_walking(ArgT0&& arg0, ArgT... args) {
  
  _impl_.json_walking_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:helloworld.ConfigWalking.json_walking)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.ConfigWalking.json_walking)
 }
 inline std::string* ConfigWalking::mutable_json_walking() {
   std::string* _s = _internal_mutable_json_walking();
-  // @@protoc_insertion_point(field_mutable:helloworld.ConfigWalking.json_walking)
+  // @@protoc_insertion_point(field_mutable:ros2_ws.aruku.proto.ConfigWalking.json_walking)
   return _s;
 }
 inline const std::string& ConfigWalking::_internal_json_walking() const {
@@ -1051,7 +1057,7 @@ inline std::string* ConfigWalking::_internal_mutable_json_walking() {
   return _impl_.json_walking_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ConfigWalking::release_json_walking() {
-  // @@protoc_insertion_point(field_release:helloworld.ConfigWalking.json_walking)
+  // @@protoc_insertion_point(field_release:ros2_ws.aruku.proto.ConfigWalking.json_walking)
   return _impl_.json_walking_.Release();
 }
 inline void ConfigWalking::set_allocated_json_walking(std::string* json_walking) {
@@ -1066,7 +1072,7 @@ inline void ConfigWalking::set_allocated_json_walking(std::string* json_walking)
     _impl_.json_walking_.Set("", GetArenaForAllocation());
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:helloworld.ConfigWalking.json_walking)
+  // @@protoc_insertion_point(field_set_allocated:ros2_ws.aruku.proto.ConfigWalking.json_walking)
 }
 
 // -------------------------------------------------------------------
@@ -1081,7 +1087,7 @@ inline bool SetWalking::_internal_run() const {
   return _impl_.run_;
 }
 inline bool SetWalking::run() const {
-  // @@protoc_insertion_point(field_get:helloworld.SetWalking.run)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.SetWalking.run)
   return _internal_run();
 }
 inline void SetWalking::_internal_set_run(bool value) {
@@ -1090,7 +1096,7 @@ inline void SetWalking::_internal_set_run(bool value) {
 }
 inline void SetWalking::set_run(bool value) {
   _internal_set_run(value);
-  // @@protoc_insertion_point(field_set:helloworld.SetWalking.run)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.SetWalking.run)
 }
 
 // double x_move = 2;
@@ -1101,7 +1107,7 @@ inline double SetWalking::_internal_x_move() const {
   return _impl_.x_move_;
 }
 inline double SetWalking::x_move() const {
-  // @@protoc_insertion_point(field_get:helloworld.SetWalking.x_move)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.SetWalking.x_move)
   return _internal_x_move();
 }
 inline void SetWalking::_internal_set_x_move(double value) {
@@ -1110,7 +1116,7 @@ inline void SetWalking::_internal_set_x_move(double value) {
 }
 inline void SetWalking::set_x_move(double value) {
   _internal_set_x_move(value);
-  // @@protoc_insertion_point(field_set:helloworld.SetWalking.x_move)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.SetWalking.x_move)
 }
 
 // double y_move = 3;
@@ -1121,7 +1127,7 @@ inline double SetWalking::_internal_y_move() const {
   return _impl_.y_move_;
 }
 inline double SetWalking::y_move() const {
-  // @@protoc_insertion_point(field_get:helloworld.SetWalking.y_move)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.SetWalking.y_move)
   return _internal_y_move();
 }
 inline void SetWalking::_internal_set_y_move(double value) {
@@ -1130,7 +1136,7 @@ inline void SetWalking::_internal_set_y_move(double value) {
 }
 inline void SetWalking::set_y_move(double value) {
   _internal_set_y_move(value);
-  // @@protoc_insertion_point(field_set:helloworld.SetWalking.y_move)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.SetWalking.y_move)
 }
 
 // double a_move = 4;
@@ -1141,7 +1147,7 @@ inline double SetWalking::_internal_a_move() const {
   return _impl_.a_move_;
 }
 inline double SetWalking::a_move() const {
-  // @@protoc_insertion_point(field_get:helloworld.SetWalking.a_move)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.SetWalking.a_move)
   return _internal_a_move();
 }
 inline void SetWalking::_internal_set_a_move(double value) {
@@ -1150,7 +1156,7 @@ inline void SetWalking::_internal_set_a_move(double value) {
 }
 inline void SetWalking::set_a_move(double value) {
   _internal_set_a_move(value);
-  // @@protoc_insertion_point(field_set:helloworld.SetWalking.a_move)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.SetWalking.a_move)
 }
 
 // bool aim_on = 5;
@@ -1161,7 +1167,7 @@ inline bool SetWalking::_internal_aim_on() const {
   return _impl_.aim_on_;
 }
 inline bool SetWalking::aim_on() const {
-  // @@protoc_insertion_point(field_get:helloworld.SetWalking.aim_on)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.SetWalking.aim_on)
   return _internal_aim_on();
 }
 inline void SetWalking::_internal_set_aim_on(bool value) {
@@ -1170,7 +1176,7 @@ inline void SetWalking::_internal_set_aim_on(bool value) {
 }
 inline void SetWalking::set_aim_on(bool value) {
   _internal_set_aim_on(value);
-  // @@protoc_insertion_point(field_set:helloworld.SetWalking.aim_on)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.SetWalking.aim_on)
 }
 
 // -------------------------------------------------------------------
@@ -1185,7 +1191,7 @@ inline bool Status::_internal_is_running() const {
   return _impl_.is_running_;
 }
 inline bool Status::is_running() const {
-  // @@protoc_insertion_point(field_get:helloworld.Status.is_running)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Status.is_running)
   return _internal_is_running();
 }
 inline void Status::_internal_set_is_running(bool value) {
@@ -1194,7 +1200,7 @@ inline void Status::_internal_set_is_running(bool value) {
 }
 inline void Status::set_is_running(bool value) {
   _internal_set_is_running(value);
-  // @@protoc_insertion_point(field_set:helloworld.Status.is_running)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Status.is_running)
 }
 
 // double x_amplitude = 2;
@@ -1205,7 +1211,7 @@ inline double Status::_internal_x_amplitude() const {
   return _impl_.x_amplitude_;
 }
 inline double Status::x_amplitude() const {
-  // @@protoc_insertion_point(field_get:helloworld.Status.x_amplitude)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Status.x_amplitude)
   return _internal_x_amplitude();
 }
 inline void Status::_internal_set_x_amplitude(double value) {
@@ -1214,7 +1220,7 @@ inline void Status::_internal_set_x_amplitude(double value) {
 }
 inline void Status::set_x_amplitude(double value) {
   _internal_set_x_amplitude(value);
-  // @@protoc_insertion_point(field_set:helloworld.Status.x_amplitude)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Status.x_amplitude)
 }
 
 // double y_amplitude = 3;
@@ -1225,7 +1231,7 @@ inline double Status::_internal_y_amplitude() const {
   return _impl_.y_amplitude_;
 }
 inline double Status::y_amplitude() const {
-  // @@protoc_insertion_point(field_get:helloworld.Status.y_amplitude)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Status.y_amplitude)
   return _internal_y_amplitude();
 }
 inline void Status::_internal_set_y_amplitude(double value) {
@@ -1234,7 +1240,7 @@ inline void Status::_internal_set_y_amplitude(double value) {
 }
 inline void Status::set_y_amplitude(double value) {
   _internal_set_y_amplitude(value);
-  // @@protoc_insertion_point(field_set:helloworld.Status.y_amplitude)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Status.y_amplitude)
 }
 
 // double a_amplitude = 4;
@@ -1245,7 +1251,7 @@ inline double Status::_internal_a_amplitude() const {
   return _impl_.a_amplitude_;
 }
 inline double Status::a_amplitude() const {
-  // @@protoc_insertion_point(field_get:helloworld.Status.a_amplitude)
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Status.a_amplitude)
   return _internal_a_amplitude();
 }
 inline void Status::_internal_set_a_amplitude(double value) {
@@ -1254,10 +1260,10 @@ inline void Status::_internal_set_a_amplitude(double value) {
 }
 inline void Status::set_a_amplitude(double value) {
   _internal_set_a_amplitude(value);
-  // @@protoc_insertion_point(field_set:helloworld.Status.a_amplitude)
+  // @@protoc_insertion_point(field_set:ros2_ws.aruku.proto.Status.a_amplitude)
 }
 
-// .helloworld.Point2 odometry = 5;
+// .ros2_ws.aruku.proto.Point2 odometry = 5;
 inline bool Status::_internal_has_odometry() const {
   return this != internal_default_instance() && _impl_.odometry_ != nullptr;
 }
@@ -1270,17 +1276,17 @@ inline void Status::clear_odometry() {
   }
   _impl_.odometry_ = nullptr;
 }
-inline const ::helloworld::Point2& Status::_internal_odometry() const {
-  const ::helloworld::Point2* p = _impl_.odometry_;
-  return p != nullptr ? *p : reinterpret_cast<const ::helloworld::Point2&>(
-      ::helloworld::_Point2_default_instance_);
+inline const ::ros2_ws::aruku::proto::Point2& Status::_internal_odometry() const {
+  const ::ros2_ws::aruku::proto::Point2* p = _impl_.odometry_;
+  return p != nullptr ? *p : reinterpret_cast<const ::ros2_ws::aruku::proto::Point2&>(
+      ::ros2_ws::aruku::proto::_Point2_default_instance_);
 }
-inline const ::helloworld::Point2& Status::odometry() const {
-  // @@protoc_insertion_point(field_get:helloworld.Status.odometry)
+inline const ::ros2_ws::aruku::proto::Point2& Status::odometry() const {
+  // @@protoc_insertion_point(field_get:ros2_ws.aruku.proto.Status.odometry)
   return _internal_odometry();
 }
 inline void Status::unsafe_arena_set_allocated_odometry(
-    ::helloworld::Point2* odometry) {
+    ::ros2_ws::aruku::proto::Point2* odometry) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.odometry_);
   }
@@ -1290,11 +1296,11 @@ inline void Status::unsafe_arena_set_allocated_odometry(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:helloworld.Status.odometry)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:ros2_ws.aruku.proto.Status.odometry)
 }
-inline ::helloworld::Point2* Status::release_odometry() {
+inline ::ros2_ws::aruku::proto::Point2* Status::release_odometry() {
   
-  ::helloworld::Point2* temp = _impl_.odometry_;
+  ::ros2_ws::aruku::proto::Point2* temp = _impl_.odometry_;
   _impl_.odometry_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
@@ -1307,27 +1313,27 @@ inline ::helloworld::Point2* Status::release_odometry() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::helloworld::Point2* Status::unsafe_arena_release_odometry() {
-  // @@protoc_insertion_point(field_release:helloworld.Status.odometry)
+inline ::ros2_ws::aruku::proto::Point2* Status::unsafe_arena_release_odometry() {
+  // @@protoc_insertion_point(field_release:ros2_ws.aruku.proto.Status.odometry)
   
-  ::helloworld::Point2* temp = _impl_.odometry_;
+  ::ros2_ws::aruku::proto::Point2* temp = _impl_.odometry_;
   _impl_.odometry_ = nullptr;
   return temp;
 }
-inline ::helloworld::Point2* Status::_internal_mutable_odometry() {
+inline ::ros2_ws::aruku::proto::Point2* Status::_internal_mutable_odometry() {
   
   if (_impl_.odometry_ == nullptr) {
-    auto* p = CreateMaybeMessage<::helloworld::Point2>(GetArenaForAllocation());
+    auto* p = CreateMaybeMessage<::ros2_ws::aruku::proto::Point2>(GetArenaForAllocation());
     _impl_.odometry_ = p;
   }
   return _impl_.odometry_;
 }
-inline ::helloworld::Point2* Status::mutable_odometry() {
-  ::helloworld::Point2* _msg = _internal_mutable_odometry();
-  // @@protoc_insertion_point(field_mutable:helloworld.Status.odometry)
+inline ::ros2_ws::aruku::proto::Point2* Status::mutable_odometry() {
+  ::ros2_ws::aruku::proto::Point2* _msg = _internal_mutable_odometry();
+  // @@protoc_insertion_point(field_mutable:ros2_ws.aruku.proto.Status.odometry)
   return _msg;
 }
-inline void Status::set_allocated_odometry(::helloworld::Point2* odometry) {
+inline void Status::set_allocated_odometry(::ros2_ws::aruku::proto::Point2* odometry) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete _impl_.odometry_;
@@ -1344,7 +1350,7 @@ inline void Status::set_allocated_odometry(::helloworld::Point2* odometry) {
     
   }
   _impl_.odometry_ = odometry;
-  // @@protoc_insertion_point(field_set_allocated:helloworld.Status.odometry)
+  // @@protoc_insertion_point(field_set_allocated:ros2_ws.aruku.proto.Status.odometry)
 }
 
 #ifdef __GNUC__
@@ -1361,7 +1367,9 @@ inline void Status::set_allocated_odometry(::helloworld::Point2* odometry) {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace helloworld
+}  // namespace proto
+}  // namespace aruku
+}  // namespace ros2_ws
 
 // @@protoc_insertion_point(global_scope)
 

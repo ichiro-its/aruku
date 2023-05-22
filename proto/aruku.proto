@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package helloworld;
+package ros2_ws.aruku.proto;
 
 service GetConfig {
   rpc GetConfig (Empty) returns (ConfigWalking) {}

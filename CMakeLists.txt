@@ -35,6 +35,11 @@ else()
   set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 endif()
 
+# Find gRPC installation
+# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
+find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}");
+
 set(_GRPC_GRPCPP  gRPC::grpc++)
 if(CMAKE_CROSSCOMPILING)
   find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
@@ -69,8 +74,15 @@ ament_target_dependencies(${PROJECT_NAME}
   tachimawari
   tachimawari_interfaces
   rclcpp
-  # gRPC
+  gRPC
   )
+
+target_link_libraries(${PROJECT_NAME}
+  ${_REFLECTION}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+)
+
 
 install(DIRECTORY "include" DESTINATION ".")
 

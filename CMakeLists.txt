@@ -23,13 +23,37 @@ find_package(rclcpp REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
 
+set(protobuf_MODULE_COMPATIBLE TRUE)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
+set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+set(_REFLECTION gRPC::grpc++_reflection)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_PROTOBUF_PROTOC protoc)
+else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+endif()
+
+set(_GRPC_GRPCPP  gRPC::grpc++)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+else()
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+endif()
+
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
   "src/${PROJECT_NAME}/config/utils/config.cpp"
   "src/${PROJECT_NAME}/node/aruku_node.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
-  "src/${PROJECT_NAME}/walking/process/kinematic.cpp")
+  "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
+  "src/${PROJECT_NAME}/proto/aruku.pb.h"
+  "src/${PROJECT_NAME}/proto/aruku.pb.cc"
+  "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h"
+  "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc"
+  )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -43,7 +67,10 @@ ament_target_dependencies(${PROJECT_NAME}
   keisan
   rclcpp
   tachimawari
-  tachimawari_interfaces)
+  tachimawari_interfaces
+  rclcpp
+  # gRPC
+  )
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -82,6 +109,7 @@ install(TARGETS
   control
   main
   walking
+  # proto
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

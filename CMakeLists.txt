@@ -38,14 +38,36 @@ endif()
 # Find gRPC installation
 # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
 find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}");
+message(STATUS "Using gRPC ${gRPC_VERSION}")
 
-set(_GRPC_GRPCPP  gRPC::grpc++)
+set(_GRPC_GRPCPP gRPC::grpc++)
 if(CMAKE_CROSSCOMPILING)
   find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 else()
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 endif()
+
+# Proto file
+get_filename_component(aruku_proto "../aruku_interfaces/proto/aruku.proto" ABSOLUTE)
+get_filename_component(aruku_proto_path "${aruku_proto}" PATH)
+
+# Generated sources
+set(aruku_proto_srcs "src/${PROJECT_NAME}/proto/aruku.pb.cc")
+set(aruku_proto_hdrs "src/${PROJECT_NAME}/proto/aruku.pb.h")
+set(aruku_grpc_srcs "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc")
+set(aruku_grpc_hdrs "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h")
+add_custom_command(
+      OUTPUT "${aruku_proto_srcs}" "${aruku_proto_hdrs}" "${aruku_grpc_srcs}" "${aruku_grpc_hdrs}"
+      COMMAND ${_PROTOBUF_PROTOC}
+      ARGS --grpc_out "src/${PROJECT_NAME}/proto"
+        --cpp_out "src/${PROJECT_NAME}/proto"
+        -I "${aruku_proto_path}"
+        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+        "${aruku_proto}"
+      DEPENDS "${aruku_proto}")
+  #     protoc -I=. aruku.proto \
+  # --cpp_out=./cpp_out \                       
+  # --grpc_out=./cpp_out --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -54,10 +76,10 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
-  "src/${PROJECT_NAME}/proto/aruku.pb.h"
-  "src/${PROJECT_NAME}/proto/aruku.pb.cc"
-  "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h"
-  "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc"
+  # "src/${PROJECT_NAME}/proto/aruku.pb.h"
+  # "src/${PROJECT_NAME}/proto/aruku.pb.cc"
+  # "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h"
+  # "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc"
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

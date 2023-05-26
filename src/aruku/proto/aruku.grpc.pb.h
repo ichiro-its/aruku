@@ -4,687 +4,448 @@
 #ifndef GRPC_aruku_2eproto__INCLUDED
 #define GRPC_aruku_2eproto__INCLUDED
 
-#include <grpcpp/client_context.h>
-#include <grpcpp/completion_queue.h>
+#include "aruku.pb.h"
+
+#include <functional>
 #include <grpcpp/generic/async_generic_service.h>
-#include <grpcpp/impl/proto_utils.h>
-#include <grpcpp/impl/rpc_method.h>
-#include <grpcpp/impl/server_callback_handlers.h>
-#include <grpcpp/impl/service_type.h>
-#include <grpcpp/server_context.h>
 #include <grpcpp/support/async_stream.h>
 #include <grpcpp/support/async_unary_call.h>
 #include <grpcpp/support/client_callback.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/completion_queue.h>
 #include <grpcpp/support/message_allocator.h>
 #include <grpcpp/support/method_handler.h>
+#include <grpcpp/impl/proto_utils.h>
+#include <grpcpp/impl/rpc_method.h>
 #include <grpcpp/support/server_callback.h>
+#include <grpcpp/impl/server_callback_handlers.h>
+#include <grpcpp/server_context.h>
+#include <grpcpp/impl/service_type.h>
 #include <grpcpp/support/status.h>
 #include <grpcpp/support/stub_options.h>
 #include <grpcpp/support/sync_stream.h>
 
-#include <functional>
+namespace ros2_ws {
+namespace aruku {
+namespace proto {
 
-#include "aruku.pb.h"
-
-namespace ros2_ws
-{
-namespace aruku
-{
-namespace proto
-{
-
-class GetConfig final
-{
-public:
-  static constexpr char const * service_full_name() { return "ros2_ws.aruku.proto.GetConfig"; }
-  class StubInterface
-  {
-  public:
+class GetConfig final {
+ public:
+  static constexpr char const* service_full_name() {
+    return "ros2_ws.aruku.proto.GetConfig";
+  }
+  class StubInterface {
+   public:
     virtual ~StubInterface() {}
-    virtual ::grpc::Status GetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::ros2_ws::aruku::proto::ConfigWalking * response) = 0;
-    std::unique_ptr<
-      ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking>>
-    AsyncGetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking>>(
-        AsyncGetConfigRaw(context, request, cq));
+    virtual ::grpc::Status GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::ros2_ws::aruku::proto::ConfigWalking* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>> AsyncGetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>>(AsyncGetConfigRaw(context, request, cq));
     }
-    std::unique_ptr<
-      ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking>>
-    PrepareAsyncGetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking>>(
-        PrepareAsyncGetConfigRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>> PrepareAsyncGetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>>(PrepareAsyncGetConfigRaw(context, request, cq));
     }
-    class async_interface
-    {
-    public:
+    class async_interface {
+     public:
       virtual ~async_interface() {}
-      virtual void GetConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-        ::ros2_ws::aruku::proto::ConfigWalking * response, std::function<void(::grpc::Status)>) = 0;
-      virtual void GetConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-        ::ros2_ws::aruku::proto::ConfigWalking * response,
-        ::grpc::ClientUnaryReactor * reactor) = 0;
+      virtual void GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
-    virtual class async_interface * async() { return nullptr; }
-    class async_interface * experimental_async() { return async(); }
-
-  private:
-    virtual ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking> *
-    AsyncGetConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::ConfigWalking> *
-    PrepareAsyncGetConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq) = 0;
+    virtual class async_interface* async() { return nullptr; }
+    class async_interface* experimental_async() { return async(); }
+   private:
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>* AsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::ConfigWalking>* PrepareAsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) = 0;
   };
-  class Stub final : public StubInterface
-  {
-  public:
-    Stub(
-      const std::shared_ptr<::grpc::ChannelInterface> & channel,
-      const ::grpc::StubOptions & options = ::grpc::StubOptions());
-    ::grpc::Status GetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::ros2_ws::aruku::proto::ConfigWalking * response) override;
-    std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking>>
-    AsyncGetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking>>(
-        AsyncGetConfigRaw(context, request, cq));
+  class Stub final : public StubInterface {
+   public:
+    Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
+    ::grpc::Status GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::ros2_ws::aruku::proto::ConfigWalking* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>> AsyncGetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>>(AsyncGetConfigRaw(context, request, cq));
     }
-    std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking>>
-    PrepareAsyncGetConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking>>(
-        PrepareAsyncGetConfigRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>> PrepareAsyncGetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>>(PrepareAsyncGetConfigRaw(context, request, cq));
     }
-    class async final : public StubInterface::async_interface
-    {
-    public:
-      void GetConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-        ::ros2_ws::aruku::proto::ConfigWalking * response,
-        std::function<void(::grpc::Status)>) override;
-      void GetConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-        ::ros2_ws::aruku::proto::ConfigWalking * response,
-        ::grpc::ClientUnaryReactor * reactor) override;
-
-    private:
+    class async final :
+      public StubInterface::async_interface {
+     public:
+      void GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, std::function<void(::grpc::Status)>) override;
+      void GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, ::grpc::ClientUnaryReactor* reactor) override;
+     private:
       friend class Stub;
-      explicit async(Stub * stub) : stub_(stub) {}
-      Stub * stub() { return stub_; }
-      Stub * stub_;
+      explicit async(Stub* stub): stub_(stub) { }
+      Stub* stub() { return stub_; }
+      Stub* stub_;
     };
-    class async * async() override { return &async_stub_; }
+    class async* async() override { return &async_stub_; }
 
-  private:
-    std::shared_ptr<::grpc::ChannelInterface> channel_;
-    class async async_stub_
-    {
-      this
-    };
-    ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking> * AsyncGetConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq) override;
-    ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::ConfigWalking> *
-    PrepareAsyncGetConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::Empty & request,
-      ::grpc::CompletionQueue * cq) override;
+   private:
+    std::shared_ptr< ::grpc::ChannelInterface> channel_;
+    class async async_stub_{this};
+    ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>* AsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>* PrepareAsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_GetConfig_;
   };
-  static std::unique_ptr<Stub> NewStub(
-    const std::shared_ptr<::grpc::ChannelInterface> & channel,
-    const ::grpc::StubOptions & options = ::grpc::StubOptions());
+  static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
-  class Service : public ::grpc::Service
-  {
-  public:
+  class Service : public ::grpc::Service {
+   public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status GetConfig(
-      ::grpc::ServerContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-      ::ros2_ws::aruku::proto::ConfigWalking * response);
+    virtual ::grpc::Status GetConfig(::grpc::ServerContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response);
   };
   template <class BaseClass>
-  class WithAsyncMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithAsyncMethod_GetConfig() { ::grpc::Service::MarkMethodAsync(0); }
-    ~WithAsyncMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithAsyncMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_GetConfig() {
+      ::grpc::Service::MarkMethodAsync(0);
+    }
+    ~WithAsyncMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetConfig(
-      ::grpc::ServerContext * context, ::ros2_ws::aruku::proto::Empty * request,
-      ::grpc::ServerAsyncResponseWriter<::ros2_ws::aruku::proto::ConfigWalking> * response,
-      ::grpc::CompletionQueue * new_call_cq, ::grpc::ServerCompletionQueue * notification_cq,
-      void * tag)
-    {
-      ::grpc::Service::RequestAsyncUnary(
-        0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetConfig(::grpc::ServerContext* context, ::ros2_ws::aruku::proto::Empty* request, ::grpc::ServerAsyncResponseWriter< ::ros2_ws::aruku::proto::ConfigWalking>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_GetConfig<Service> AsyncService;
+  typedef WithAsyncMethod_GetConfig<Service > AsyncService;
   template <class BaseClass>
-  class WithCallbackMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithCallbackMethod_GetConfig()
-    {
-      ::grpc::Service::MarkMethodCallback(
-        0,
-        new ::grpc::internal::CallbackUnaryHandler<
-          ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>(
-          [this](
-            ::grpc::CallbackServerContext * context, const ::ros2_ws::aruku::proto::Empty * request,
-            ::ros2_ws::aruku::proto::ConfigWalking * response) {
-            return this->GetConfig(context, request, response);
-          }));
-    }
+  class WithCallbackMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_GetConfig() {
+      ::grpc::Service::MarkMethodCallback(0,
+          new ::grpc::internal::CallbackUnaryHandler< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response) { return this->GetConfig(context, request, response); }));}
     void SetMessageAllocatorFor_GetConfig(
-      ::grpc::MessageAllocator<
-        ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking> * allocator)
-    {
-      ::grpc::internal::MethodHandler * const handler = ::grpc::Service::GetHandler(0);
-      static_cast<::grpc::internal::CallbackUnaryHandler<
-        ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking> *>(handler)
-        ->SetMessageAllocator(allocator);
+        ::grpc::MessageAllocator< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>*>(handler)
+              ->SetMessageAllocator(allocator);
     }
-    ~WithCallbackMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithCallbackMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor * GetConfig(
-      ::grpc::CallbackServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/)
-    {
-      return nullptr;
-    }
+    virtual ::grpc::ServerUnaryReactor* GetConfig(
+      ::grpc::CallbackServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_GetConfig<Service> CallbackService;
+  typedef WithCallbackMethod_GetConfig<Service > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
-  class WithGenericMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithGenericMethod_GetConfig() { ::grpc::Service::MarkMethodGeneric(0); }
-    ~WithGenericMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithGenericMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_GetConfig() {
+      ::grpc::Service::MarkMethodGeneric(0);
+    }
+    ~WithGenericMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
   template <class BaseClass>
-  class WithRawMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithRawMethod_GetConfig() { ::grpc::Service::MarkMethodRaw(0); }
-    ~WithRawMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithRawMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_GetConfig() {
+      ::grpc::Service::MarkMethodRaw(0);
+    }
+    ~WithRawMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetConfig(
-      ::grpc::ServerContext * context, ::grpc::ByteBuffer * request,
-      ::grpc::ServerAsyncResponseWriter<::grpc::ByteBuffer> * response,
-      ::grpc::CompletionQueue * new_call_cq, ::grpc::ServerCompletionQueue * notification_cq,
-      void * tag)
-    {
-      ::grpc::Service::RequestAsyncUnary(
-        0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestGetConfig(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithRawCallbackMethod_GetConfig()
-    {
-      ::grpc::Service::MarkMethodRawCallback(
-        0, new ::grpc::internal::CallbackUnaryHandler<::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-             [this](
-               ::grpc::CallbackServerContext * context, const ::grpc::ByteBuffer * request,
-               ::grpc::ByteBuffer * response) {
-               return this->GetConfig(context, request, response);
-             }));
+  class WithRawCallbackMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_GetConfig() {
+      ::grpc::Service::MarkMethodRawCallback(0,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetConfig(context, request, response); }));
     }
-    ~WithRawCallbackMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithRawCallbackMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor * GetConfig(
-      ::grpc::CallbackServerContext * /*context*/, const ::grpc::ByteBuffer * /*request*/,
-      ::grpc::ByteBuffer * /*response*/)
-    {
-      return nullptr;
-    }
+    virtual ::grpc::ServerUnaryReactor* GetConfig(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_GetConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithStreamedUnaryMethod_GetConfig()
-    {
-      ::grpc::Service::MarkMethodStreamed(
-        0,
+  class WithStreamedUnaryMethod_GetConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_GetConfig() {
+      ::grpc::Service::MarkMethodStreamed(0,
         new ::grpc::internal::StreamedUnaryHandler<
           ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>(
-          [this](
-            ::grpc::ServerContext * context,
-            ::grpc::ServerUnaryStreamer<
-              ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking> * streamer) {
-            return this->StreamedGetConfig(context, streamer);
-          }));
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking>* streamer) {
+                       return this->StreamedGetConfig(context,
+                         streamer);
+                  }));
     }
-    ~WithStreamedUnaryMethod_GetConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithStreamedUnaryMethod_GetConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable regular version of this method
-    ::grpc::Status GetConfig(
-      ::grpc::ServerContext * /*context*/, const ::ros2_ws::aruku::proto::Empty * /*request*/,
-      ::ros2_ws::aruku::proto::ConfigWalking * /*response*/) override
-    {
+    ::grpc::Status GetConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::Empty* /*request*/, ::ros2_ws::aruku::proto::ConfigWalking* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedGetConfig(
-      ::grpc::ServerContext * context,
-      ::grpc::ServerUnaryStreamer<
-        ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking> *
-        server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedGetConfig(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ros2_ws::aruku::proto::Empty,::ros2_ws::aruku::proto::ConfigWalking>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_GetConfig<Service> StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_GetConfig<Service > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_GetConfig<Service> StreamedService;
+  typedef WithStreamedUnaryMethod_GetConfig<Service > StreamedService;
 };
 
-class SaveConfig final
-{
-public:
-  static constexpr char const * service_full_name() { return "ros2_ws.aruku.proto.SaveConfig"; }
-  class StubInterface
-  {
-  public:
+class SaveConfig final {
+ public:
+  static constexpr char const* service_full_name() {
+    return "ros2_ws.aruku.proto.SaveConfig";
+  }
+  class StubInterface {
+   public:
     virtual ~StubInterface() {}
-    virtual ::grpc::Status SaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::ros2_ws::aruku::proto::Empty * response) = 0;
-    std::unique_ptr<::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty>>
-    AsyncSaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty>>(
-        AsyncSaveConfigRaw(context, request, cq));
+    virtual ::grpc::Status SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::ros2_ws::aruku::proto::Empty* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>> AsyncSaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>>(AsyncSaveConfigRaw(context, request, cq));
     }
-    std::unique_ptr<::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty>>
-    PrepareAsyncSaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<
-        ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty>>(
-        PrepareAsyncSaveConfigRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>> PrepareAsyncSaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>>(PrepareAsyncSaveConfigRaw(context, request, cq));
     }
-    class async_interface
-    {
-    public:
+    class async_interface {
+     public:
       virtual ~async_interface() {}
-      virtual void SaveConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking * request,
-        ::ros2_ws::aruku::proto::Empty * response, std::function<void(::grpc::Status)>) = 0;
-      virtual void SaveConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking * request,
-        ::ros2_ws::aruku::proto::Empty * response, ::grpc::ClientUnaryReactor * reactor) = 0;
+      virtual void SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
-    virtual class async_interface * async() { return nullptr; }
-    class async_interface * experimental_async() { return async(); }
-
-  private:
-    virtual ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty> *
-    AsyncSaveConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface<::ros2_ws::aruku::proto::Empty> *
-    PrepareAsyncSaveConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq) = 0;
+    virtual class async_interface* async() { return nullptr; }
+    class async_interface* experimental_async() { return async(); }
+   private:
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>* AsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::ros2_ws::aruku::proto::Empty>* PrepareAsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) = 0;
   };
-  class Stub final : public StubInterface
-  {
-  public:
-    Stub(
-      const std::shared_ptr<::grpc::ChannelInterface> & channel,
-      const ::grpc::StubOptions & options = ::grpc::StubOptions());
-    ::grpc::Status SaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::ros2_ws::aruku::proto::Empty * response) override;
-    std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty>>
-    AsyncSaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty>>(
-        AsyncSaveConfigRaw(context, request, cq));
+  class Stub final : public StubInterface {
+   public:
+    Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
+    ::grpc::Status SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::ros2_ws::aruku::proto::Empty* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>> AsyncSaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>>(AsyncSaveConfigRaw(context, request, cq));
     }
-    std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty>>
-    PrepareAsyncSaveConfig(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq)
-    {
-      return std::unique_ptr<::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty>>(
-        PrepareAsyncSaveConfigRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>> PrepareAsyncSaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>>(PrepareAsyncSaveConfigRaw(context, request, cq));
     }
-    class async final : public StubInterface::async_interface
-    {
-    public:
-      void SaveConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking * request,
-        ::ros2_ws::aruku::proto::Empty * response, std::function<void(::grpc::Status)>) override;
-      void SaveConfig(
-        ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking * request,
-        ::ros2_ws::aruku::proto::Empty * response, ::grpc::ClientUnaryReactor * reactor) override;
-
-    private:
+    class async final :
+      public StubInterface::async_interface {
+     public:
+      void SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, std::function<void(::grpc::Status)>) override;
+      void SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, ::grpc::ClientUnaryReactor* reactor) override;
+     private:
       friend class Stub;
-      explicit async(Stub * stub) : stub_(stub) {}
-      Stub * stub() { return stub_; }
-      Stub * stub_;
+      explicit async(Stub* stub): stub_(stub) { }
+      Stub* stub() { return stub_; }
+      Stub* stub_;
     };
-    class async * async() override { return &async_stub_; }
+    class async* async() override { return &async_stub_; }
 
-  private:
-    std::shared_ptr<::grpc::ChannelInterface> channel_;
-    class async async_stub_
-    {
-      this
-    };
-    ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty> * AsyncSaveConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq) override;
-    ::grpc::ClientAsyncResponseReader<::ros2_ws::aruku::proto::Empty> * PrepareAsyncSaveConfigRaw(
-      ::grpc::ClientContext * context, const ::ros2_ws::aruku::proto::ConfigWalking & request,
-      ::grpc::CompletionQueue * cq) override;
+   private:
+    std::shared_ptr< ::grpc::ChannelInterface> channel_;
+    class async async_stub_{this};
+    ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>* AsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>* PrepareAsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_SaveConfig_;
   };
-  static std::unique_ptr<Stub> NewStub(
-    const std::shared_ptr<::grpc::ChannelInterface> & channel,
-    const ::grpc::StubOptions & options = ::grpc::StubOptions());
+  static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
-  class Service : public ::grpc::Service
-  {
-  public:
+  class Service : public ::grpc::Service {
+   public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * context, const ::ros2_ws::aruku::proto::ConfigWalking * request,
-      ::ros2_ws::aruku::proto::Empty * response);
+    virtual ::grpc::Status SaveConfig(::grpc::ServerContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response);
   };
   template <class BaseClass>
-  class WithAsyncMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithAsyncMethod_SaveConfig() { ::grpc::Service::MarkMethodAsync(0); }
-    ~WithAsyncMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithAsyncMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodAsync(0);
+    }
+    ~WithAsyncMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestSaveConfig(
-      ::grpc::ServerContext * context, ::ros2_ws::aruku::proto::ConfigWalking * request,
-      ::grpc::ServerAsyncResponseWriter<::ros2_ws::aruku::proto::Empty> * response,
-      ::grpc::CompletionQueue * new_call_cq, ::grpc::ServerCompletionQueue * notification_cq,
-      void * tag)
-    {
-      ::grpc::Service::RequestAsyncUnary(
-        0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestSaveConfig(::grpc::ServerContext* context, ::ros2_ws::aruku::proto::ConfigWalking* request, ::grpc::ServerAsyncResponseWriter< ::ros2_ws::aruku::proto::Empty>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_SaveConfig<Service> AsyncService;
+  typedef WithAsyncMethod_SaveConfig<Service > AsyncService;
   template <class BaseClass>
-  class WithCallbackMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithCallbackMethod_SaveConfig()
-    {
-      ::grpc::Service::MarkMethodCallback(
-        0, new ::grpc::internal::CallbackUnaryHandler<
-             ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>(
-             [this](
-               ::grpc::CallbackServerContext * context,
-               const ::ros2_ws::aruku::proto::ConfigWalking * request,
-               ::ros2_ws::aruku::proto::Empty * response) {
-               return this->SaveConfig(context, request, response);
-             }));
-    }
+  class WithCallbackMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodCallback(0,
+          new ::grpc::internal::CallbackUnaryHandler< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response) { return this->SaveConfig(context, request, response); }));}
     void SetMessageAllocatorFor_SaveConfig(
-      ::grpc::MessageAllocator<
-        ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty> * allocator)
-    {
-      ::grpc::internal::MethodHandler * const handler = ::grpc::Service::GetHandler(0);
-      static_cast<::grpc::internal::CallbackUnaryHandler<
-        ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty> *>(handler)
-        ->SetMessageAllocator(allocator);
+        ::grpc::MessageAllocator< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>*>(handler)
+              ->SetMessageAllocator(allocator);
     }
-    ~WithCallbackMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithCallbackMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor * SaveConfig(
-      ::grpc::CallbackServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/)
-    {
-      return nullptr;
-    }
+    virtual ::grpc::ServerUnaryReactor* SaveConfig(
+      ::grpc::CallbackServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_SaveConfig<Service> CallbackService;
+  typedef WithCallbackMethod_SaveConfig<Service > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
-  class WithGenericMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithGenericMethod_SaveConfig() { ::grpc::Service::MarkMethodGeneric(0); }
-    ~WithGenericMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithGenericMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodGeneric(0);
+    }
+    ~WithGenericMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
   template <class BaseClass>
-  class WithRawMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithRawMethod_SaveConfig() { ::grpc::Service::MarkMethodRaw(0); }
-    ~WithRawMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+  class WithRawMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodRaw(0);
+    }
+    ~WithRawMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestSaveConfig(
-      ::grpc::ServerContext * context, ::grpc::ByteBuffer * request,
-      ::grpc::ServerAsyncResponseWriter<::grpc::ByteBuffer> * response,
-      ::grpc::CompletionQueue * new_call_cq, ::grpc::ServerCompletionQueue * notification_cq,
-      void * tag)
-    {
-      ::grpc::Service::RequestAsyncUnary(
-        0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestSaveConfig(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithRawCallbackMethod_SaveConfig()
-    {
-      ::grpc::Service::MarkMethodRawCallback(
-        0, new ::grpc::internal::CallbackUnaryHandler<::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-             [this](
-               ::grpc::CallbackServerContext * context, const ::grpc::ByteBuffer * request,
-               ::grpc::ByteBuffer * response) {
-               return this->SaveConfig(context, request, response);
-             }));
+  class WithRawCallbackMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodRawCallback(0,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->SaveConfig(context, request, response); }));
     }
-    ~WithRawCallbackMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithRawCallbackMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable synchronous version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerUnaryReactor * SaveConfig(
-      ::grpc::CallbackServerContext * /*context*/, const ::grpc::ByteBuffer * /*request*/,
-      ::grpc::ByteBuffer * /*response*/)
-    {
-      return nullptr;
-    }
+    virtual ::grpc::ServerUnaryReactor* SaveConfig(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_SaveConfig : public BaseClass
-  {
-  private:
-    void BaseClassMustBeDerivedFromService(const Service * /*service*/) {}
-
-  public:
-    WithStreamedUnaryMethod_SaveConfig()
-    {
-      ::grpc::Service::MarkMethodStreamed(
-        0,
+  class WithStreamedUnaryMethod_SaveConfig : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_SaveConfig() {
+      ::grpc::Service::MarkMethodStreamed(0,
         new ::grpc::internal::StreamedUnaryHandler<
           ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>(
-          [this](
-            ::grpc::ServerContext * context,
-            ::grpc::ServerUnaryStreamer<
-              ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty> * streamer) {
-            return this->StreamedSaveConfig(context, streamer);
-          }));
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty>* streamer) {
+                       return this->StreamedSaveConfig(context,
+                         streamer);
+                  }));
     }
-    ~WithStreamedUnaryMethod_SaveConfig() override { BaseClassMustBeDerivedFromService(this); }
+    ~WithStreamedUnaryMethod_SaveConfig() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
     // disable regular version of this method
-    ::grpc::Status SaveConfig(
-      ::grpc::ServerContext * /*context*/,
-      const ::ros2_ws::aruku::proto::ConfigWalking * /*request*/,
-      ::ros2_ws::aruku::proto::Empty * /*response*/) override
-    {
+    ::grpc::Status SaveConfig(::grpc::ServerContext* /*context*/, const ::ros2_ws::aruku::proto::ConfigWalking* /*request*/, ::ros2_ws::aruku::proto::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedSaveConfig(
-      ::grpc::ServerContext * context,
-      ::grpc::ServerUnaryStreamer<
-        ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty> *
-        server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedSaveConfig(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::ros2_ws::aruku::proto::ConfigWalking,::ros2_ws::aruku::proto::Empty>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_SaveConfig<Service> StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_SaveConfig<Service > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_SaveConfig<Service> StreamedService;
+  typedef WithStreamedUnaryMethod_SaveConfig<Service > StreamedService;
 };
 
 }  // namespace proto
 }  // namespace aruku
 }  // namespace ros2_ws
+
 
 #endif  // GRPC_aruku_2eproto__INCLUDED

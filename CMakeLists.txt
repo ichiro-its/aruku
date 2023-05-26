@@ -52,15 +52,16 @@ get_filename_component(aruku_proto "../aruku_interfaces/proto/aruku.proto" ABSOL
 get_filename_component(aruku_proto_path "${aruku_proto}" PATH)
 
 # Generated sources
-set(aruku_proto_srcs "src/${PROJECT_NAME}/proto/aruku.pb.cc")
-set(aruku_proto_hdrs "src/${PROJECT_NAME}/proto/aruku.pb.h")
-set(aruku_grpc_srcs "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc")
-set(aruku_grpc_hdrs "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h")
+make_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto")
+set(aruku_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.cc")
+set(aruku_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.h")
+set(aruku_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc")
+set(aruku_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.grpc.pb.h")
 add_custom_command(
       OUTPUT "${aruku_proto_srcs}" "${aruku_proto_hdrs}" "${aruku_grpc_srcs}" "${aruku_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
-      ARGS --grpc_out "src/${PROJECT_NAME}/proto"
-        --cpp_out "src/${PROJECT_NAME}/proto"
+      ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto"
+        --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto"
         -I "${aruku_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${aruku_proto}"
@@ -76,10 +77,10 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
-  # "src/${PROJECT_NAME}/proto/aruku.pb.h"
-  # "src/${PROJECT_NAME}/proto/aruku.pb.cc"
-  # "src/${PROJECT_NAME}/proto/aruku.grpc.pb.h"
-  # "src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc"
+  "${aruku_proto_srcs}"
+  "${aruku_proto_hdrs}"
+  "${aruku_grpc_srcs}"
+  "${aruku_grpc_hdrs}"
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

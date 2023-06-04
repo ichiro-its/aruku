@@ -57,27 +57,58 @@ private:
   static void signintHandler(int signum);
   void set(GrpcNode *grpcnod);
   GrpcNode *get();
+};
+class CallDataBase {
+public:
+  virtual void proceed() = 0;
+  CallDataBase();
 
-  class CallData {
-  public:
-    CallData(ros2_ws::aruku::proto::Config::AsyncService *service,
-             grpc::ServerCompletionQueue *cq, const std::string path);
+protected:
+  virtual void waitForRequest() = 0;
+  virtual void handleRequest() = 0;
+};
 
-    void proceed();
+template <class RequestType, class ReplyType> class CallDataT : CallDataBase {
+protected:
+  enum CallStatus { CREATE, PROCESS, FINISH };
+  CallStatus status_;
+  const std::string path_;
+  grpc::ServerCompletionQueue *cq_;
+  grpc::ServerContext ctx_;
+  ros2_ws::aruku::proto::Config::AsyncService *service_;
+  RequestType request_;
+  grpc::ServerAsyncResponseWriter<ReplyType> responder_;
+  ReplyType reply_;
+  virtual void addNextToCompletionQueue() = 0;
 
-  private:
-    enum CallStatus { CREATE, PROCESS, FINISH };
-    CallStatus status_;
-    const std::string path_;
-    grpc::ServerCompletionQueue *cq_;
-    grpc::ServerContext ctx_;
-    ros2_ws::aruku::proto::Config::AsyncService *service_;
-    ros2_ws::aruku::proto::Empty request_;
-    grpc::ServerAsyncResponseWriter<ros2_ws::aruku::proto::ConfigWalking>
-        responder_;
-    ros2_ws::aruku::proto::ConfigWalking reply_;
-    rclcpp::Node::SharedPtr node_;
-  };
+public:
+  CallDataT(ros2_ws::aruku::proto::Config::AsyncService *service,
+            grpc::ServerCompletionQueue *cq, const std::string path);
+  virtual void proceed() override;
+};
+
+class CallDataGetConfig : CallDataT<ros2_ws::aruku::proto::Empty,
+                                    ros2_ws::aruku::proto::ConfigWalking> {
+public:
+  CallDataGetConfig(ros2_ws::aruku::proto::Config::AsyncService *service,
+                    grpc::ServerCompletionQueue *cq, const std::string path);
+
+protected:
+  virtual void addNextToCompletionQueue() override;
+  virtual void waitForRequest() override;
+  virtual void handleRequest() override;
+};
+
+class CallDataSetConfig : CallDataT<ros2_ws::aruku::proto::ConfigWalking,
+                                    ros2_ws::aruku::proto::Empty> {
+public:
+  CallDataSetConfig(ros2_ws::aruku::proto::Config::AsyncService *service,
+                    grpc::ServerCompletionQueue *cq, const std::string path);
+
+protected:
+  virtual void addNextToCompletionQueue() override;
+  virtual void waitForRequest() override;
+  virtual void handleRequest() override;
 };
 } // namespace aruku
 

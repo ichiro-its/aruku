@@ -40,9 +40,9 @@ ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
   node_timer = node->create_wall_timer(
     8ms,
     [this]() {
-      if (this->walking_manager->process()) {
-        this->walking_node->update();
-      }
+    if (this->walking_manager->process()) {
+      this->walking_node->update();
+    }
     }
   );
 }
@@ -59,15 +59,21 @@ void ArukuNode::run_config_service(const std::string &path)
 
   if (walking_manager) {
     config_node->set_config_callback(
-      [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
+        [this](const aruku_interfaces::msg::SetConfig::SharedPtr message) {
         nlohmann::json kinematic_data = nlohmann::json::parse(message->json_kinematic);
         nlohmann::json walking_data = nlohmann::json::parse(message->json_walking);
 
-        this->walking_manager->set_config(walking_data, kinematic_data);
-        this->walking_manager->reinit_joints();
-        this->walking_node->update();
-      });
+          this->walking_manager->set_config(walking_data, kinematic_data);
+          this->walking_manager->reinit_joints();
+          this->walking_node->update();
+        });
   }
 }
 
-}  // namespace aruku
+void ArukuNode::run_grpc_service(const std::string &path,
+                                 rclcpp::Node::SharedPtr n) {
+  GrpcNode grpc_node;
+  grpc_node.run(5050, path);
+}
+
+} // namespace aruku

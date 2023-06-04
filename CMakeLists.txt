@@ -52,7 +52,7 @@ get_filename_component(aruku_proto "../aruku_interfaces/proto/aruku.proto" ABSOL
 get_filename_component(aruku_proto_path "${aruku_proto}" PATH)
 
 # Generated sources
-make_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto")
 set(aruku_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.cc")
 set(aruku_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.h")
 set(aruku_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc")
@@ -66,9 +66,6 @@ add_custom_command(
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${aruku_proto}"
       DEPENDS "${aruku_proto}")
-  #     protoc -I=. aruku.proto \
-  # --cpp_out=./cpp_out \                       
-  # --grpc_out=./cpp_out --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -77,6 +74,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
+  "src/${PROJECT_NAME}/grpc/node/grpc_node.cpp"
   "${aruku_proto_srcs}"
   "${aruku_proto_hdrs}"
   "${aruku_grpc_srcs}"
@@ -84,6 +82,7 @@ add_library(${PROJECT_NAME} SHARED
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
@@ -139,12 +138,18 @@ target_include_directories(walking PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(walking ${PROJECT_NAME})
 
+add_executable(grpc "src/grpc_main.cpp")
+target_include_directories(grpc PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(grpc ${PROJECT_NAME})
+
 install(TARGETS
   config
   control
   main
   walking
-  # proto
+  grpc
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

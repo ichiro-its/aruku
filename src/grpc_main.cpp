@@ -18,44 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__NODE__ARUKU_NODE_HPP_
-#define ARUKU__NODE__ARUKU_NODE_HPP_
-
+#include <chrono>
 #include <memory>
 #include <string>
 
-#include "aruku/config/node/config_node.hpp"
-#include "aruku/grpc/node/grpc_node.hpp"
-#include "aruku/walking/node/walking_manager.hpp"
-#include "aruku/walking/node/walking_node.hpp"
+#include "aruku/node/aruku_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace aruku
-{
+using namespace std::chrono_literals;
+int main(int argc, char *argv[]) {
+  rclcpp::init(argc, argv);
 
-class ArukuNode
-{
-public:
-  explicit ArukuNode(rclcpp::Node::SharedPtr node);
+  if (argc < 2) {
+    std::cerr << "Please specify the path!" << std::endl;
+    return 0;
+  }
 
-  void set_walking_manager(std::shared_ptr<WalkingManager> walking_manager);
+  std::string path = argv[1];
+  auto node = std::make_shared<rclcpp::Node>("aruku_node");
+  auto grpc_node = std::make_shared<rclcpp::Node>("grpc_node");
+  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
-  void run_config_service(const std::string &path);
+  auto walking_manager = std::make_shared<aruku::WalkingManager>();
+  walking_manager->load_config(path);
 
-  void run_grpc_service(const std::string &path, rclcpp::Node::SharedPtr n);
+  aruku_node->set_walking_manager(walking_manager);
+  aruku_node->run_grpc_service(path, grpc_node);
 
-private:
-  rclcpp::Node::SharedPtr node;
-  rclcpp::TimerBase::SharedPtr node_timer;
+  rclcpp::executors::MultiThreadedExecutor executor;
+  executor.add_node(node);
+  rclcpp::Rate loop_rate(100ms);
+  while (rclcpp::ok()) {
+    executor.spin_some();
+    loop_rate.sleep();
+  }
+  rclcpp::shutdown();
 
-  std::shared_ptr<WalkingManager> walking_manager;
-  std::shared_ptr<WalkingNode> walking_node;
-  std::shared_ptr<GrpcNode> grpc_node;
-
-  std::shared_ptr<ConfigNode> config_node;
-  std::shared_ptr<Config> config;
-};
-
-}  // namespace aruku
-
-#endif  // ARUKU__NODE__ARUKU_NODE_HPP_
+  return 0;
+}

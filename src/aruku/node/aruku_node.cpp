@@ -53,7 +53,7 @@ void ArukuNode::set_walking_manager(std::shared_ptr<WalkingManager> walking_mana
   walking_node = std::make_shared<WalkingNode>(node, walking_manager);
 }
 
-void ArukuNode::run_config_service(const std::string & path)
+void ArukuNode::run_config_service(const std::string &path) 
 {
   config_node = std::make_shared<ConfigNode>(node, path);
 

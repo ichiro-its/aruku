@@ -52,7 +52,7 @@ get_filename_component(aruku_proto "../aruku_interfaces/proto/aruku.proto" ABSOL
 get_filename_component(aruku_proto_path "${aruku_proto}" PATH)
 
 # Generated sources
-make_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto")
 set(aruku_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.cc")
 set(aruku_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.pb.h")
 set(aruku_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}/proto/aruku.grpc.pb.cc")
@@ -66,9 +66,6 @@ add_custom_command(
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${aruku_proto}"
       DEPENDS "${aruku_proto}")
-  #     protoc -I=. aruku.proto \
-  # --cpp_out=./cpp_out \                       
-  # --grpc_out=./cpp_out --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"

@@ -70,10 +70,5 @@ void ArukuNode::run_config_service(const std::string &path)
   }
 }
 
-void ArukuNode::run_grpc_service(const std::string &path,
-                                 rclcpp::Node::SharedPtr n) {
-  GrpcNode grpc_node;
-  grpc_node.run(5050, path);
-}
 
 } // namespace aruku

@@ -25,7 +25,6 @@
 #include <string>
 
 #include "aruku/config/node/config_node.hpp"
-#include "aruku/grpc/node/grpc_node.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -42,15 +41,12 @@ public:
 
   void run_config_service(const std::string &path);
 
-  void run_grpc_service(const std::string &path, rclcpp::Node::SharedPtr n);
-
 private:
   rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
 
   std::shared_ptr<WalkingManager> walking_manager;
   std::shared_ptr<WalkingNode> walking_node;
-  std::shared_ptr<GrpcNode> grpc_node;
 
   std::shared_ptr<ConfigNode> config_node;
   std::shared_ptr<Config> config;

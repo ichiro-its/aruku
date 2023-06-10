@@ -25,12 +25,21 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/config/grpc/config.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
+#include "aruku.grpc.pb.h"
+#include "aruku.pb.h"
 #include "rclcpp/rclcpp.hpp"
+
+#include "grpc/support/log.h"
+#include "grpcpp/grpcpp.h"
+
+using aruku_interfaces::proto::Config;
+
 
 namespace aruku
 {
@@ -53,8 +62,16 @@ private:
   std::shared_ptr<WalkingManager> walking_manager;
   std::shared_ptr<WalkingNode> walking_node;
 
+  std::shared_ptr<std::thread> thread_;
+  std::unique_ptr<grpc::ServerCompletionQueue> cq_;
+  std::unique_ptr<grpc::Server> server_;
+
+  aruku_interfaces::proto::Config::AsyncService service_;
+
   Config config;
+  ConfigGrpc config_grpc;
   rclcpp::Node::SharedPtr node;
+  rclcpp::TimerBase::SharedPtr timer_;
 
   rclcpp::Service<GetConfig>::SharedPtr get_config_server;
   rclcpp::Service<SaveConfig>::SharedPtr save_config_server;

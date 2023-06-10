@@ -18,11 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <chrono>
 #include <string>
 #include <memory>
 
 #include "aruku/node/aruku_node.hpp"
 #include "rclcpp/rclcpp.hpp"
+
+using namespace std::chrono_literals;
 
 int main(int argc, char * argv[])
 {
@@ -42,6 +45,7 @@ int main(int argc, char * argv[])
 
   aruku_node->set_walking_manager(walking_manager);
   aruku_node->run_config_service(path);
+  aruku_node->run_grpc_service(path);
 
   rclcpp::spin(node);
   rclcpp::shutdown();

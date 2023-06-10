@@ -75,7 +75,6 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
-  "src/${PROJECT_NAME}/grpc/node/grpc_node.cpp"
   "${aruku_proto_srcs}"
   "${aruku_proto_hdrs}"
   "${aruku_grpc_srcs}"
@@ -139,18 +138,11 @@ target_include_directories(walking PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(walking ${PROJECT_NAME})
 
-add_executable(grpc "src/grpc_main.cpp")
-target_include_directories(grpc PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(grpc ${PROJECT_NAME})
-
 install(TARGETS
   config
   control
   main
   walking
-  grpc
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

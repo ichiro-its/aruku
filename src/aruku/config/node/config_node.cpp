@@ -23,6 +23,7 @@
 #include <string>
 
 #include "aruku/config/node/config_node.hpp"
+#include "aruku/config/grpc/config.hpp"
 #include "aruku/node/aruku_node.hpp"
 #include "aruku/config/utils/config.hpp"
 #include "aruku/config/grpc/config.hpp"
@@ -37,30 +38,30 @@ namespace aruku
 ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
 : node(node), config(path), set_config_subscriber(nullptr)
 {
-  get_config_server = node->create_service<GetConfig>(
-    get_node_prefix() + "/get_config",
-    [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-      response->json_walking = this->config.get_config("walking");
-      response->json_kinematic = this->config.get_config("kinematic");
-    });
+  // get_config_server = node->create_service<GetConfig>(
+  //   get_node_prefix() + "/get_config",
+  //   [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
+  //     response->json_walking = this->config.get_config("walking");
+  //     response->json_kinematic = this->config.get_config("kinematic");
+  //   });
 
-  save_config_server = node->create_service<SaveConfig>(
-    get_node_prefix() + "/save_config",
-    [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
-      try {
-        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+  // save_config_server = node->create_service<SaveConfig>(
+  //   get_node_prefix() + "/save_config",
+  //   [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
+  //     try {
+  //       nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
+  //       nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
 
-        this->config.save_config(kinematic_data, walking_data);
-        response->status = true;
-      } catch (std::ofstream::failure) {
-        // TODO(maroqijalil): log it
-        response->status = false;
-      } catch (nlohmann::json::exception) {
-        // TODO(maroqijalil): log it
-        response->status = false;
-      }
-    });
+  //       this->config.save_config(kinematic_data, walking_data);
+  //       response->status = true;
+  //     } catch (std::ofstream::failure) {
+  //       // TODO(maroqijalil): log it
+  //       response->status = false;
+  //     } catch (nlohmann::json::exception) {
+  //       // TODO(maroqijalil): log it
+  //       response->status = false;
+  //     }
+  //   });
 
     config_grpc.Run(5050, path);
 }

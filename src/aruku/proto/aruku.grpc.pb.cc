@@ -19,125 +19,105 @@
 #include <grpcpp/server_context.h>
 #include <grpcpp/impl/service_type.h>
 #include <grpcpp/support/sync_stream.h>
-namespace ros2_ws {
-namespace aruku {
+namespace aruku_interfaces {
 namespace proto {
 
-static const char* GetConfig_method_names[] = {
-  "/ros2_ws.aruku.proto.GetConfig/GetConfig",
+static const char* Config_method_names[] = {
+  "/aruku_interfaces.proto.Config/GetConfig",
+  "/aruku_interfaces.proto.Config/SaveConfig",
 };
 
-std::unique_ptr< GetConfig::Stub> GetConfig::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
+std::unique_ptr< Config::Stub> Config::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
   (void)options;
-  std::unique_ptr< GetConfig::Stub> stub(new GetConfig::Stub(channel, options));
+  std::unique_ptr< Config::Stub> stub(new Config::Stub(channel, options));
   return stub;
 }
 
-GetConfig::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_GetConfig_(GetConfig_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+Config::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
+  : channel_(channel), rpcmethod_GetConfig_(Config_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_SaveConfig_(Config_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::Status GetConfig::Stub::GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::ros2_ws::aruku::proto::ConfigWalking* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetConfig_, context, request, response);
+::grpc::Status Config::Stub::GetConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::Empty& request, ::aruku_interfaces::proto::ConfigWalking* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::aruku_interfaces::proto::Empty, ::aruku_interfaces::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetConfig_, context, request, response);
 }
 
-void GetConfig::Stub::async::GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetConfig_, context, request, response, std::move(f));
+void Config::Stub::async::GetConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::Empty* request, ::aruku_interfaces::proto::ConfigWalking* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::aruku_interfaces::proto::Empty, ::aruku_interfaces::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetConfig_, context, request, response, std::move(f));
 }
 
-void GetConfig::Stub::async::GetConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response, ::grpc::ClientUnaryReactor* reactor) {
+void Config::Stub::async::GetConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::Empty* request, ::aruku_interfaces::proto::ConfigWalking* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetConfig_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>* GetConfig::Stub::PrepareAsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetConfig_, context, request);
+::grpc::ClientAsyncResponseReader< ::aruku_interfaces::proto::ConfigWalking>* Config::Stub::PrepareAsyncGetConfigRaw(::grpc::ClientContext* context, const ::aruku_interfaces::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::aruku_interfaces::proto::ConfigWalking, ::aruku_interfaces::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetConfig_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::ConfigWalking>* GetConfig::Stub::AsyncGetConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::Empty& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::aruku_interfaces::proto::ConfigWalking>* Config::Stub::AsyncGetConfigRaw(::grpc::ClientContext* context, const ::aruku_interfaces::proto::Empty& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncGetConfigRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-GetConfig::Service::Service() {
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      GetConfig_method_names[0],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< GetConfig::Service, ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](GetConfig::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::ros2_ws::aruku::proto::Empty* req,
-             ::ros2_ws::aruku::proto::ConfigWalking* resp) {
-               return service->GetConfig(ctx, req, resp);
-             }, this)));
+::grpc::Status Config::Stub::SaveConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::ConfigWalking& request, ::aruku_interfaces::proto::Empty* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::aruku_interfaces::proto::ConfigWalking, ::aruku_interfaces::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SaveConfig_, context, request, response);
 }
 
-GetConfig::Service::~Service() {
+void Config::Stub::async::SaveConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::ConfigWalking* request, ::aruku_interfaces::proto::Empty* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::aruku_interfaces::proto::ConfigWalking, ::aruku_interfaces::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SaveConfig_, context, request, response, std::move(f));
 }
 
-::grpc::Status GetConfig::Service::GetConfig(::grpc::ServerContext* context, const ::ros2_ws::aruku::proto::Empty* request, ::ros2_ws::aruku::proto::ConfigWalking* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-
-static const char* SaveConfig_method_names[] = {
-  "/ros2_ws.aruku.proto.SaveConfig/SaveConfig",
-};
-
-std::unique_ptr< SaveConfig::Stub> SaveConfig::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
-  (void)options;
-  std::unique_ptr< SaveConfig::Stub> stub(new SaveConfig::Stub(channel, options));
-  return stub;
-}
-
-SaveConfig::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_SaveConfig_(SaveConfig_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  {}
-
-::grpc::Status SaveConfig::Stub::SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::ros2_ws::aruku::proto::Empty* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SaveConfig_, context, request, response);
-}
-
-void SaveConfig::Stub::async::SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SaveConfig_, context, request, response, std::move(f));
-}
-
-void SaveConfig::Stub::async::SaveConfig(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
+void Config::Stub::async::SaveConfig(::grpc::ClientContext* context, const ::aruku_interfaces::proto::ConfigWalking* request, ::aruku_interfaces::proto::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SaveConfig_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>* SaveConfig::Stub::PrepareAsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::ros2_ws::aruku::proto::Empty, ::ros2_ws::aruku::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SaveConfig_, context, request);
+::grpc::ClientAsyncResponseReader< ::aruku_interfaces::proto::Empty>* Config::Stub::PrepareAsyncSaveConfigRaw(::grpc::ClientContext* context, const ::aruku_interfaces::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::aruku_interfaces::proto::Empty, ::aruku_interfaces::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SaveConfig_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::ros2_ws::aruku::proto::Empty>* SaveConfig::Stub::AsyncSaveConfigRaw(::grpc::ClientContext* context, const ::ros2_ws::aruku::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::aruku_interfaces::proto::Empty>* Config::Stub::AsyncSaveConfigRaw(::grpc::ClientContext* context, const ::aruku_interfaces::proto::ConfigWalking& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncSaveConfigRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-SaveConfig::Service::Service() {
+Config::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      SaveConfig_method_names[0],
+      Config_method_names[0],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< SaveConfig::Service, ::ros2_ws::aruku::proto::ConfigWalking, ::ros2_ws::aruku::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](SaveConfig::Service* service,
+      new ::grpc::internal::RpcMethodHandler< Config::Service, ::aruku_interfaces::proto::Empty, ::aruku_interfaces::proto::ConfigWalking, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](Config::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::ros2_ws::aruku::proto::ConfigWalking* req,
-             ::ros2_ws::aruku::proto::Empty* resp) {
+             const ::aruku_interfaces::proto::Empty* req,
+             ::aruku_interfaces::proto::ConfigWalking* resp) {
+               return service->GetConfig(ctx, req, resp);
+             }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      Config_method_names[1],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< Config::Service, ::aruku_interfaces::proto::ConfigWalking, ::aruku_interfaces::proto::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](Config::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::aruku_interfaces::proto::ConfigWalking* req,
+             ::aruku_interfaces::proto::Empty* resp) {
                return service->SaveConfig(ctx, req, resp);
              }, this)));
 }
 
-SaveConfig::Service::~Service() {
+Config::Service::~Service() {
 }
 
-::grpc::Status SaveConfig::Service::SaveConfig(::grpc::ServerContext* context, const ::ros2_ws::aruku::proto::ConfigWalking* request, ::ros2_ws::aruku::proto::Empty* response) {
+::grpc::Status Config::Service::GetConfig(::grpc::ServerContext* context, const ::aruku_interfaces::proto::Empty* request, ::aruku_interfaces::proto::ConfigWalking* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status Config::Service::SaveConfig(::grpc::ServerContext* context, const ::aruku_interfaces::proto::ConfigWalking* request, ::aruku_interfaces::proto::Empty* response) {
   (void) context;
   (void) request;
   (void) response;
@@ -145,7 +125,6 @@ SaveConfig::Service::~Service() {
 }
 
 
-}  // namespace ros2_ws
-}  // namespace aruku
+}  // namespace aruku_interfaces
 }  // namespace proto
 

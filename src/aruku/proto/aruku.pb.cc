@@ -20,8 +20,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::PROTOBUF_NAMESPACE_ID;
 namespace _pbi = _pb::internal;
 
-namespace ros2_ws {
-namespace aruku {
+namespace aruku_interfaces {
 namespace proto {
 PROTOBUF_CONSTEXPR Empty::Empty(
     ::_pbi::ConstantInitialized) {}
@@ -97,94 +96,93 @@ struct StatusDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 StatusDefaultTypeInternal _Status_default_instance_;
 }  // namespace proto
-}  // namespace aruku
-}  // namespace ros2_ws
+}  // namespace aruku_interfaces
 static ::_pb::Metadata file_level_metadata_aruku_2eproto[5];
 static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_aruku_2eproto = nullptr;
 static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_aruku_2eproto = nullptr;
 
 const uint32_t TableStruct_aruku_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Empty, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Empty, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Point2, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Point2, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Point2, _impl_.x_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Point2, _impl_.y_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Point2, _impl_.x_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Point2, _impl_.y_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::ConfigWalking, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::ConfigWalking, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::ConfigWalking, _impl_.json_kinematic_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::ConfigWalking, _impl_.json_walking_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::ConfigWalking, _impl_.json_kinematic_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::ConfigWalking, _impl_.json_walking_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _impl_.run_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _impl_.x_move_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _impl_.y_move_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _impl_.a_move_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::SetWalking, _impl_.aim_on_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _impl_.run_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _impl_.x_move_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _impl_.y_move_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _impl_.a_move_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::SetWalking, _impl_.aim_on_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _impl_.is_running_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _impl_.x_amplitude_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _impl_.y_amplitude_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _impl_.a_amplitude_),
-  PROTOBUF_FIELD_OFFSET(::ros2_ws::aruku::proto::Status, _impl_.odometry_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _impl_.is_running_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _impl_.x_amplitude_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _impl_.y_amplitude_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _impl_.a_amplitude_),
+  PROTOBUF_FIELD_OFFSET(::aruku_interfaces::proto::Status, _impl_.odometry_),
 };
 static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, -1, sizeof(::ros2_ws::aruku::proto::Empty)},
-  { 6, -1, -1, sizeof(::ros2_ws::aruku::proto::Point2)},
-  { 14, -1, -1, sizeof(::ros2_ws::aruku::proto::ConfigWalking)},
-  { 22, -1, -1, sizeof(::ros2_ws::aruku::proto::SetWalking)},
-  { 33, -1, -1, sizeof(::ros2_ws::aruku::proto::Status)},
+  { 0, -1, -1, sizeof(::aruku_interfaces::proto::Empty)},
+  { 6, -1, -1, sizeof(::aruku_interfaces::proto::Point2)},
+  { 14, -1, -1, sizeof(::aruku_interfaces::proto::ConfigWalking)},
+  { 22, -1, -1, sizeof(::aruku_interfaces::proto::SetWalking)},
+  { 33, -1, -1, sizeof(::aruku_interfaces::proto::Status)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
-  &::ros2_ws::aruku::proto::_Empty_default_instance_._instance,
-  &::ros2_ws::aruku::proto::_Point2_default_instance_._instance,
-  &::ros2_ws::aruku::proto::_ConfigWalking_default_instance_._instance,
-  &::ros2_ws::aruku::proto::_SetWalking_default_instance_._instance,
-  &::ros2_ws::aruku::proto::_Status_default_instance_._instance,
+  &::aruku_interfaces::proto::_Empty_default_instance_._instance,
+  &::aruku_interfaces::proto::_Point2_default_instance_._instance,
+  &::aruku_interfaces::proto::_ConfigWalking_default_instance_._instance,
+  &::aruku_interfaces::proto::_SetWalking_default_instance_._instance,
+  &::aruku_interfaces::proto::_Status_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_aruku_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013aruku.proto\022\023ros2_ws.aruku.proto\"\007\n\005Em"
-  "pty\"\036\n\006Point2\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\"=\n\rC"
-  "onfigWalking\022\026\n\016json_kinematic\030\001 \001(\t\022\024\n\014"
-  "json_walking\030\002 \001(\t\"Y\n\nSetWalking\022\013\n\003run\030"
-  "\001 \001(\010\022\016\n\006x_move\030\002 \001(\001\022\016\n\006y_move\030\003 \001(\001\022\016\n"
-  "\006a_move\030\004 \001(\001\022\016\n\006aim_on\030\005 \001(\010\"\212\001\n\006Status"
-  "\022\022\n\nis_running\030\001 \001(\010\022\023\n\013x_amplitude\030\002 \001("
-  "\001\022\023\n\013y_amplitude\030\003 \001(\001\022\023\n\013a_amplitude\030\004 "
-  "\001(\001\022-\n\010odometry\030\005 \001(\0132\033.ros2_ws.aruku.pr"
-  "oto.Point22Z\n\tGetConfig\022M\n\tGetConfig\022\032.r"
-  "os2_ws.aruku.proto.Empty\032\".ros2_ws.aruku"
-  ".proto.ConfigWalking\"\0002\\\n\nSaveConfig\022N\n\n"
-  "SaveConfig\022\".ros2_ws.aruku.proto.ConfigW"
-  "alking\032\032.ros2_ws.aruku.proto.Empty\"\000b\006pr"
-  "oto3"
+  "\n\013aruku.proto\022\026aruku_interfaces.proto\"\007\n"
+  "\005Empty\"\036\n\006Point2\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\"="
+  "\n\rConfigWalking\022\026\n\016json_kinematic\030\001 \001(\t\022"
+  "\024\n\014json_walking\030\002 \001(\t\"Y\n\nSetWalking\022\013\n\003r"
+  "un\030\001 \001(\010\022\016\n\006x_move\030\002 \001(\001\022\016\n\006y_move\030\003 \001(\001"
+  "\022\016\n\006a_move\030\004 \001(\001\022\016\n\006aim_on\030\005 \001(\010\"\215\001\n\006Sta"
+  "tus\022\022\n\nis_running\030\001 \001(\010\022\023\n\013x_amplitude\030\002"
+  " \001(\001\022\023\n\013y_amplitude\030\003 \001(\001\022\023\n\013a_amplitude"
+  "\030\004 \001(\001\0220\n\010odometry\030\005 \001(\0132\036.aruku_interfa"
+  "ces.proto.Point22\263\001\n\006Config\022S\n\tGetConfig"
+  "\022\035.aruku_interfaces.proto.Empty\032%.aruku_"
+  "interfaces.proto.ConfigWalking\"\000\022T\n\nSave"
+  "Config\022%.aruku_interfaces.proto.ConfigWa"
+  "lking\032\035.aruku_interfaces.proto.Empty\"\000b\006"
+  "proto3"
   ;
 static ::_pbi::once_flag descriptor_table_aruku_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_aruku_2eproto = {
-    false, false, 564, descriptor_table_protodef_aruku_2eproto,
+    false, false, 566, descriptor_table_protodef_aruku_2eproto,
     "aruku.proto",
     &descriptor_table_aruku_2eproto_once, nullptr, 0, 5,
     schemas, file_default_instances, TableStruct_aruku_2eproto::offsets,
@@ -197,8 +195,7 @@ PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_aruku_2e
 
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_aruku_2eproto(&descriptor_table_aruku_2eproto);
-namespace ros2_ws {
-namespace aruku {
+namespace aruku_interfaces {
 namespace proto {
 
 // ===================================================================
@@ -210,13 +207,13 @@ class Empty::_Internal {
 Empty::Empty(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
-  // @@protoc_insertion_point(arena_constructor:ros2_ws.aruku.proto.Empty)
+  // @@protoc_insertion_point(arena_constructor:aruku_interfaces.proto.Empty)
 }
 Empty::Empty(const Empty& from)
   : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
   Empty* const _this = this; (void)_this;
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:ros2_ws.aruku.proto.Empty)
+  // @@protoc_insertion_point(copy_constructor:aruku_interfaces.proto.Empty)
 }
 
 
@@ -251,7 +248,7 @@ Point2::Point2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(arena_constructor:aruku_interfaces.proto.Point2)
 }
 Point2::Point2(const Point2& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -265,7 +262,7 @@ Point2::Point2(const Point2& from)
   ::memcpy(&_impl_.x_, &from._impl_.x_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.y_) -
     reinterpret_cast<char*>(&_impl_.x_)) + sizeof(_impl_.y_));
-  // @@protoc_insertion_point(copy_constructor:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(copy_constructor:aruku_interfaces.proto.Point2)
 }
 
 inline void Point2::SharedCtor(
@@ -280,7 +277,7 @@ inline void Point2::SharedCtor(
 }
 
 Point2::~Point2() {
-  // @@protoc_insertion_point(destructor:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(destructor:aruku_interfaces.proto.Point2)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -297,7 +294,7 @@ void Point2::SetCachedSize(int size) const {
 }
 
 void Point2::Clear() {
-// @@protoc_insertion_point(message_clear_start:ros2_ws.aruku.proto.Point2)
+// @@protoc_insertion_point(message_clear_start:aruku_interfaces.proto.Point2)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -355,7 +352,7 @@ failure:
 
 uint8_t* Point2::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(serialize_to_array_start:aruku_interfaces.proto.Point2)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -383,12 +380,12 @@ uint8_t* Point2::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(serialize_to_array_end:aruku_interfaces.proto.Point2)
   return target;
 }
 
 size_t Point2::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ros2_ws.aruku.proto.Point2)
+// @@protoc_insertion_point(message_byte_size_start:aruku_interfaces.proto.Point2)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -426,7 +423,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Point2::GetClassData() const {
 void Point2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<Point2*>(&to_msg);
   auto& from = static_cast<const Point2&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ros2_ws.aruku.proto.Point2)
+  // @@protoc_insertion_point(class_specific_merge_from_start:aruku_interfaces.proto.Point2)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -449,7 +446,7 @@ void Point2::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBU
 }
 
 void Point2::CopyFrom(const Point2& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ros2_ws.aruku.proto.Point2)
+// @@protoc_insertion_point(class_specific_copy_from_start:aruku_interfaces.proto.Point2)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -486,7 +483,7 @@ ConfigWalking::ConfigWalking(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(arena_constructor:aruku_interfaces.proto.ConfigWalking)
 }
 ConfigWalking::ConfigWalking(const ConfigWalking& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -513,7 +510,7 @@ ConfigWalking::ConfigWalking(const ConfigWalking& from)
     _this->_impl_.json_walking_.Set(from._internal_json_walking(), 
       _this->GetArenaForAllocation());
   }
-  // @@protoc_insertion_point(copy_constructor:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(copy_constructor:aruku_interfaces.proto.ConfigWalking)
 }
 
 inline void ConfigWalking::SharedCtor(
@@ -536,7 +533,7 @@ inline void ConfigWalking::SharedCtor(
 }
 
 ConfigWalking::~ConfigWalking() {
-  // @@protoc_insertion_point(destructor:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(destructor:aruku_interfaces.proto.ConfigWalking)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -555,7 +552,7 @@ void ConfigWalking::SetCachedSize(int size) const {
 }
 
 void ConfigWalking::Clear() {
-// @@protoc_insertion_point(message_clear_start:ros2_ws.aruku.proto.ConfigWalking)
+// @@protoc_insertion_point(message_clear_start:aruku_interfaces.proto.ConfigWalking)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -577,7 +574,7 @@ const char* ConfigWalking::_InternalParse(const char* ptr, ::_pbi::ParseContext*
           auto str = _internal_mutable_json_kinematic();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ros2_ws.aruku.proto.ConfigWalking.json_kinematic"));
+          CHK_(::_pbi::VerifyUTF8(str, "aruku_interfaces.proto.ConfigWalking.json_kinematic"));
         } else
           goto handle_unusual;
         continue;
@@ -587,7 +584,7 @@ const char* ConfigWalking::_InternalParse(const char* ptr, ::_pbi::ParseContext*
           auto str = _internal_mutable_json_walking();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
-          CHK_(::_pbi::VerifyUTF8(str, "ros2_ws.aruku.proto.ConfigWalking.json_walking"));
+          CHK_(::_pbi::VerifyUTF8(str, "aruku_interfaces.proto.ConfigWalking.json_walking"));
         } else
           goto handle_unusual;
         continue;
@@ -616,7 +613,7 @@ failure:
 
 uint8_t* ConfigWalking::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(serialize_to_array_start:aruku_interfaces.proto.ConfigWalking)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -625,7 +622,7 @@ uint8_t* ConfigWalking::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_json_kinematic().data(), static_cast<int>(this->_internal_json_kinematic().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ros2_ws.aruku.proto.ConfigWalking.json_kinematic");
+      "aruku_interfaces.proto.ConfigWalking.json_kinematic");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_json_kinematic(), target);
   }
@@ -635,7 +632,7 @@ uint8_t* ConfigWalking::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_json_walking().data(), static_cast<int>(this->_internal_json_walking().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "ros2_ws.aruku.proto.ConfigWalking.json_walking");
+      "aruku_interfaces.proto.ConfigWalking.json_walking");
     target = stream->WriteStringMaybeAliased(
         2, this->_internal_json_walking(), target);
   }
@@ -644,12 +641,12 @@ uint8_t* ConfigWalking::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(serialize_to_array_end:aruku_interfaces.proto.ConfigWalking)
   return target;
 }
 
 size_t ConfigWalking::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ros2_ws.aruku.proto.ConfigWalking)
+// @@protoc_insertion_point(message_byte_size_start:aruku_interfaces.proto.ConfigWalking)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -683,7 +680,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*ConfigWalking::GetClassData() 
 void ConfigWalking::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<ConfigWalking*>(&to_msg);
   auto& from = static_cast<const ConfigWalking&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ros2_ws.aruku.proto.ConfigWalking)
+  // @@protoc_insertion_point(class_specific_merge_from_start:aruku_interfaces.proto.ConfigWalking)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -698,7 +695,7 @@ void ConfigWalking::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::
 }
 
 void ConfigWalking::CopyFrom(const ConfigWalking& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ros2_ws.aruku.proto.ConfigWalking)
+// @@protoc_insertion_point(class_specific_copy_from_start:aruku_interfaces.proto.ConfigWalking)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -739,7 +736,7 @@ SetWalking::SetWalking(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(arena_constructor:aruku_interfaces.proto.SetWalking)
 }
 SetWalking::SetWalking(const SetWalking& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -756,7 +753,7 @@ SetWalking::SetWalking(const SetWalking& from)
   ::memcpy(&_impl_.x_move_, &from._impl_.x_move_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.aim_on_) -
     reinterpret_cast<char*>(&_impl_.x_move_)) + sizeof(_impl_.aim_on_));
-  // @@protoc_insertion_point(copy_constructor:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(copy_constructor:aruku_interfaces.proto.SetWalking)
 }
 
 inline void SetWalking::SharedCtor(
@@ -774,7 +771,7 @@ inline void SetWalking::SharedCtor(
 }
 
 SetWalking::~SetWalking() {
-  // @@protoc_insertion_point(destructor:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(destructor:aruku_interfaces.proto.SetWalking)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -791,7 +788,7 @@ void SetWalking::SetCachedSize(int size) const {
 }
 
 void SetWalking::Clear() {
-// @@protoc_insertion_point(message_clear_start:ros2_ws.aruku.proto.SetWalking)
+// @@protoc_insertion_point(message_clear_start:aruku_interfaces.proto.SetWalking)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -873,7 +870,7 @@ failure:
 
 uint8_t* SetWalking::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(serialize_to_array_start:aruku_interfaces.proto.SetWalking)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -923,12 +920,12 @@ uint8_t* SetWalking::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(serialize_to_array_end:aruku_interfaces.proto.SetWalking)
   return target;
 }
 
 size_t SetWalking::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ros2_ws.aruku.proto.SetWalking)
+// @@protoc_insertion_point(message_byte_size_start:aruku_interfaces.proto.SetWalking)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
@@ -985,7 +982,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*SetWalking::GetClassData() con
 void SetWalking::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<SetWalking*>(&to_msg);
   auto& from = static_cast<const SetWalking&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ros2_ws.aruku.proto.SetWalking)
+  // @@protoc_insertion_point(class_specific_merge_from_start:aruku_interfaces.proto.SetWalking)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -1021,7 +1018,7 @@ void SetWalking::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
 }
 
 void SetWalking::CopyFrom(const SetWalking& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ros2_ws.aruku.proto.SetWalking)
+// @@protoc_insertion_point(class_specific_copy_from_start:aruku_interfaces.proto.SetWalking)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1052,10 +1049,10 @@ void SetWalking::InternalSwap(SetWalking* other) {
 
 class Status::_Internal {
  public:
-  static const ::ros2_ws::aruku::proto::Point2& odometry(const Status* msg);
+  static const ::aruku_interfaces::proto::Point2& odometry(const Status* msg);
 };
 
-const ::ros2_ws::aruku::proto::Point2&
+const ::aruku_interfaces::proto::Point2&
 Status::_Internal::odometry(const Status* msg) {
   return *msg->_impl_.odometry_;
 }
@@ -1063,7 +1060,7 @@ Status::Status(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor(arena, is_message_owned);
-  // @@protoc_insertion_point(arena_constructor:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(arena_constructor:aruku_interfaces.proto.Status)
 }
 Status::Status(const Status& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
@@ -1078,12 +1075,12 @@ Status::Status(const Status& from)
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_odometry()) {
-    _this->_impl_.odometry_ = new ::ros2_ws::aruku::proto::Point2(*from._impl_.odometry_);
+    _this->_impl_.odometry_ = new ::aruku_interfaces::proto::Point2(*from._impl_.odometry_);
   }
   ::memcpy(&_impl_.x_amplitude_, &from._impl_.x_amplitude_,
     static_cast<size_t>(reinterpret_cast<char*>(&_impl_.is_running_) -
     reinterpret_cast<char*>(&_impl_.x_amplitude_)) + sizeof(_impl_.is_running_));
-  // @@protoc_insertion_point(copy_constructor:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(copy_constructor:aruku_interfaces.proto.Status)
 }
 
 inline void Status::SharedCtor(
@@ -1101,7 +1098,7 @@ inline void Status::SharedCtor(
 }
 
 Status::~Status() {
-  // @@protoc_insertion_point(destructor:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(destructor:aruku_interfaces.proto.Status)
   if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
   (void)arena;
     return;
@@ -1119,7 +1116,7 @@ void Status::SetCachedSize(int size) const {
 }
 
 void Status::Clear() {
-// @@protoc_insertion_point(message_clear_start:ros2_ws.aruku.proto.Status)
+// @@protoc_insertion_point(message_clear_start:aruku_interfaces.proto.Status)
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1172,7 +1169,7 @@ const char* Status::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
         } else
           goto handle_unusual;
         continue;
-      // .ros2_ws.aruku.proto.Point2 odometry = 5;
+      // .aruku_interfaces.proto.Point2 odometry = 5;
       case 5:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_odometry(), ptr);
@@ -1205,7 +1202,7 @@ failure:
 
 uint8_t* Status::_InternalSerialize(
     uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(serialize_to_array_start:aruku_interfaces.proto.Status)
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1245,7 +1242,7 @@ uint8_t* Status::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteDoubleToArray(4, this->_internal_a_amplitude(), target);
   }
 
-  // .ros2_ws.aruku.proto.Point2 odometry = 5;
+  // .aruku_interfaces.proto.Point2 odometry = 5;
   if (this->_internal_has_odometry()) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
       InternalWriteMessage(5, _Internal::odometry(this),
@@ -1256,19 +1253,19 @@ uint8_t* Status::_InternalSerialize(
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(serialize_to_array_end:aruku_interfaces.proto.Status)
   return target;
 }
 
 size_t Status::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:ros2_ws.aruku.proto.Status)
+// @@protoc_insertion_point(message_byte_size_start:aruku_interfaces.proto.Status)
   size_t total_size = 0;
 
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .ros2_ws.aruku.proto.Point2 odometry = 5;
+  // .aruku_interfaces.proto.Point2 odometry = 5;
   if (this->_internal_has_odometry()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
@@ -1320,13 +1317,13 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Status::GetClassData() const {
 void Status::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
   auto* const _this = static_cast<Status*>(&to_msg);
   auto& from = static_cast<const Status&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:ros2_ws.aruku.proto.Status)
+  // @@protoc_insertion_point(class_specific_merge_from_start:aruku_interfaces.proto.Status)
   GOOGLE_DCHECK_NE(&from, _this);
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_odometry()) {
-    _this->_internal_mutable_odometry()->::ros2_ws::aruku::proto::Point2::MergeFrom(
+    _this->_internal_mutable_odometry()->::aruku_interfaces::proto::Point2::MergeFrom(
         from._internal_odometry());
   }
   static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
@@ -1357,7 +1354,7 @@ void Status::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBU
 }
 
 void Status::CopyFrom(const Status& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:ros2_ws.aruku.proto.Status)
+// @@protoc_insertion_point(class_specific_copy_from_start:aruku_interfaces.proto.Status)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -1386,28 +1383,27 @@ void Status::InternalSwap(Status* other) {
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto
-}  // namespace aruku
-}  // namespace ros2_ws
+}  // namespace aruku_interfaces
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::ros2_ws::aruku::proto::Empty*
-Arena::CreateMaybeMessage< ::ros2_ws::aruku::proto::Empty >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ros2_ws::aruku::proto::Empty >(arena);
+template<> PROTOBUF_NOINLINE ::aruku_interfaces::proto::Empty*
+Arena::CreateMaybeMessage< ::aruku_interfaces::proto::Empty >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::aruku_interfaces::proto::Empty >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ros2_ws::aruku::proto::Point2*
-Arena::CreateMaybeMessage< ::ros2_ws::aruku::proto::Point2 >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ros2_ws::aruku::proto::Point2 >(arena);
+template<> PROTOBUF_NOINLINE ::aruku_interfaces::proto::Point2*
+Arena::CreateMaybeMessage< ::aruku_interfaces::proto::Point2 >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::aruku_interfaces::proto::Point2 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ros2_ws::aruku::proto::ConfigWalking*
-Arena::CreateMaybeMessage< ::ros2_ws::aruku::proto::ConfigWalking >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ros2_ws::aruku::proto::ConfigWalking >(arena);
+template<> PROTOBUF_NOINLINE ::aruku_interfaces::proto::ConfigWalking*
+Arena::CreateMaybeMessage< ::aruku_interfaces::proto::ConfigWalking >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::aruku_interfaces::proto::ConfigWalking >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ros2_ws::aruku::proto::SetWalking*
-Arena::CreateMaybeMessage< ::ros2_ws::aruku::proto::SetWalking >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ros2_ws::aruku::proto::SetWalking >(arena);
+template<> PROTOBUF_NOINLINE ::aruku_interfaces::proto::SetWalking*
+Arena::CreateMaybeMessage< ::aruku_interfaces::proto::SetWalking >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::aruku_interfaces::proto::SetWalking >(arena);
 }
-template<> PROTOBUF_NOINLINE ::ros2_ws::aruku::proto::Status*
-Arena::CreateMaybeMessage< ::ros2_ws::aruku::proto::Status >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::ros2_ws::aruku::proto::Status >(arena);
+template<> PROTOBUF_NOINLINE ::aruku_interfaces::proto::Status*
+Arena::CreateMaybeMessage< ::aruku_interfaces::proto::Status >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::aruku_interfaces::proto::Status >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

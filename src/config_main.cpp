@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
 
   aruku_node->set_walking_manager(walking_manager);
   aruku_node->run_config_service(path);
-  aruku_node->run_grpc_service(path);
+  // aruku_node->run_grpc_service(path);
 
   rclcpp::spin(node);
   rclcpp::shutdown();

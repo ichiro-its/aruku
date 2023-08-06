@@ -25,6 +25,7 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/config/grpc/config.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
@@ -54,6 +55,7 @@ private:
   std::shared_ptr<WalkingNode> walking_node;
 
   Config config;
+  ConfigGrpc config_grpc;
   rclcpp::Node::SharedPtr node;
 
   rclcpp::Service<GetConfig>::SharedPtr get_config_server;

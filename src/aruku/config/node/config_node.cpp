@@ -29,6 +29,7 @@
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "aruku/config/grpc/config.hpp"
 
 namespace aruku
 {
@@ -60,6 +61,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         response->status = false;
       }
     });
+    config_grpc.Run(5050, path);
 }
 
 void ConfigNode::set_config_callback(

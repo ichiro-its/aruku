@@ -18,22 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/config/utils/config.hpp"
+
 #include <fstream>
 #include <iomanip>
 #include <string>
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku/walking/process/kinematic.hpp"
-
 #include "nlohmann/json.hpp"
 
 namespace aruku
 {
-
-Config::Config(const std::string & path)
-: path(path)
-{
-}
+Config::Config(const std::string & path) : path(path) {}
 
 std::string Config::get_config(const std::string & key) const
 {
@@ -58,8 +54,7 @@ std::string Config::get_config(const std::string & key) const
   return "";
 }
 
-void Config::save_config(
-  const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+void Config::save_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;
@@ -70,4 +65,10 @@ void Config::save_config(
   walking_file.close();
 }
 
+void Config::save_control_config(const nlohmann::json & control_data)
+{
+  std::ofstream control_file(path + "control.json", std::ios::out | std::ios::trunc);
+  control_file << std::setw(2) << control_data << std::endl;
+  control_file.close();
+}
 }  // namespace aruku

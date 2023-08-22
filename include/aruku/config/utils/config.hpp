@@ -40,7 +40,8 @@ public:
   std::string get_config(const std::string & key) const;
   void save_config(
     const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-
+  void save_control_config(const nlohmann::json & control_data);
+  
 private:
   std::string path;
 };

@@ -61,7 +61,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         response->status = false;
       }
     });
-    config_grpc.Run(5050, path);
+    config_grpc.Run(5050, path, node);
 }
 
 void ConfigNode::set_config_callback(

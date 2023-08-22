@@ -40,25 +40,28 @@
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/model/joint.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
 
 using aruku_interfaces::proto::Config;
 
-namespace aruku {
-
-class ConfigGrpc {
+namespace aruku
+{
+class ConfigGrpc
+{
 public:
   explicit ConfigGrpc();
-  explicit ConfigGrpc(const std::string &path);
+  explicit ConfigGrpc(const std::string & path);
 
   ~ConfigGrpc();
 
-  void Run(uint16_t port, const std::string path);
+  void Run(uint16_t port, const std::string path, rclcpp::Node::SharedPtr node);
 
 private:
-  std::string path;
+  std::string path;  
   static void SignIntHandler(int signum);
 
-  class CallDataBase {
+  class CallDataBase
+  {
   public:
     CallDataBase();
 
@@ -70,10 +73,12 @@ private:
   };
 
   template <class ConfigRequest, class ConfigReply>
-  class CallData : CallDataBase {
+  class CallData : CallDataBase
+  {
   public:
-    CallData(aruku_interfaces::proto::Config::AsyncService *service,
-             grpc::ServerCompletionQueue *cq, const std::string path);
+    CallData(
+      aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+      const std::string path);
 
     virtual void Proceed() override;
 
@@ -82,24 +87,26 @@ private:
 
     enum CallStatus { CREATE, PROCESS, FINISH };
 
-    CallStatus status_; // The current serving state.
+    CallStatus status_;  // The current serving state.
 
-    aruku_interfaces::proto::Config::AsyncService *service_;
+    aruku_interfaces::proto::Config::AsyncService * service_;
 
     const std::string path_;
 
-    grpc::ServerCompletionQueue *cq_;
+    grpc::ServerCompletionQueue * cq_;
     grpc::ServerContext ctx_;
     ConfigRequest request_;
     ConfigReply reply_;
     grpc::ServerAsyncResponseWriter<ConfigReply> responder_;
   };
 
-  class CallDataGetConfig : CallData<aruku_interfaces::proto::Empty,
-                                     aruku_interfaces::proto::ConfigWalking> {
+  class CallDataGetConfig
+  : CallData<aruku_interfaces::proto::Empty, aruku_interfaces::proto::ConfigWalking>
+  {
   public:
-    CallDataGetConfig(aruku_interfaces::proto::Config::AsyncService *service,
-                      grpc::ServerCompletionQueue *cq, const std::string path);
+    CallDataGetConfig(
+      aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+      const std::string path);
 
   protected:
     virtual void AddNextToCompletionQueue() override;
@@ -107,16 +114,48 @@ private:
     virtual void HandleRequest() override;
   };
 
-  class CallDataSaveConfig : CallData<aruku_interfaces::proto::ConfigWalking,
-                                     aruku_interfaces::proto::Empty> {
+  class CallDataSaveConfig
+  : CallData<aruku_interfaces::proto::ConfigWalking, aruku_interfaces::proto::Empty>
+  {
   public:
-    CallDataSaveConfig(aruku_interfaces::proto::Config::AsyncService *service,
-                      grpc::ServerCompletionQueue *cq, const std::string path);
+    CallDataSaveConfig(
+      aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+      const std::string path);
 
   protected:
     virtual void AddNextToCompletionQueue() override;
     virtual void WaitForRequest() override;
     virtual void HandleRequest() override;
+  };
+
+  class CallDataPublishConfig
+  : CallData<aruku_interfaces::proto::ConfigWalking, aruku_interfaces::proto::Empty>
+  {
+  public:
+    CallDataPublishConfig(
+      aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+      const std::string path, rclcpp::Node::SharedPtr node);
+
+  protected:
+    rclcpp::Node::SharedPtr node_;
+    rclcpp::Publisher<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_publisher_;
+    virtual void AddNextToCompletionQueue() override;
+    virtual void WaitForRequest() override;
+    virtual void HandleRequest() override;    
+  };
+
+  class CallDataSetConfig
+  : CallData<aruku_interfaces::proto::SetWalking, aruku_interfaces::proto::Empty>
+  {
+  public:
+    CallDataSetConfig(
+      aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+      const std::string path);
+
+  protected:    
+    virtual void AddNextToCompletionQueue() override;
+    virtual void WaitForRequest() override;
+    virtual void HandleRequest() override;    
   };
 
   static inline std::unique_ptr<grpc::ServerCompletionQueue> cq_;
@@ -127,6 +166,6 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
-} // namespace aruku
+}  // namespace aruku
 
-#endif // ARUKU__CONFIG__GRPC__CONFIG_HPP_
+#endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_

@@ -174,7 +174,7 @@ ConfigGrpc::CallDataPublishConfig::CallDataPublishConfig(
 : CallData(service, cq, path), node_(node)
 {
   set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetConfig>("aruku/config/set_config", 10);
+    node_->create_publisher<aruku_interfaces::msg::SetConfig>("/walking/set_walking", 10);
   // set_config_publisher_ = node_->create_publisher<aruku_interfaces::msg::SetConfig>("set_config", 10);
   Proceed();
 }

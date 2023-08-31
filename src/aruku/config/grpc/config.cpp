@@ -64,7 +64,7 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
   std::cout << "Server listening on " << server_address << std::endl;
 
   signal(SIGINT, SignIntHandler);
-  async_server = std::async([&path, &node, this]() {
+  std::future<void> async_server = std::async(std::launch::async, [&path, &node, this]() {
     new ConfigGrpc::CallDataGetConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataSaveConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataPublishConfig(&service_, cq_.get(), path, node);
@@ -199,8 +199,8 @@ void ConfigGrpc::CallDataPublishConfig::HandleRequest()
     nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
 
     aruku_interfaces::msg::SetConfig msg;
-    msg.json_kinematic = kinematic_data;
-    msg.json_walking = walking_data;
+    msg.json_kinematic = kinematic_data.dump();
+    msg.json_walking = walking_data.dump();
     set_config_publisher_->publish(msg);
     RCLCPP_INFO(rclcpp::get_logger("SaveConfig"), "config has been published!  ");
 

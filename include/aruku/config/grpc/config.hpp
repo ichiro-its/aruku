@@ -60,8 +60,6 @@ public:
 private:
   std::string path;  
   static void SignIntHandler(int signum);
-  static inline std::future<void> async_server; 
-   
 
   class CallDataBase
   {

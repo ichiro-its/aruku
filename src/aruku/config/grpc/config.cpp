@@ -23,6 +23,7 @@
 #include <chrono>
 #include <csignal>
 #include <string>
+#include <future>
 
 #include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
@@ -46,6 +47,7 @@ void ConfigGrpc::SignIntHandler(int signum)
 {
   server_->Shutdown();
   cq_->Shutdown();
+  // async_server.
   exit(signum);
 }
 
@@ -62,7 +64,7 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
   std::cout << "Server listening on " << server_address << std::endl;
 
   signal(SIGINT, SignIntHandler);
-  thread_ = std::make_shared<std::thread>([&path, &node, this]() {
+  async_server = std::async([&path, &node, this]() {
     new ConfigGrpc::CallDataGetConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataSaveConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataPublishConfig(&service_, cq_.get(), path, node);
@@ -75,7 +77,7 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
       }
     }
   });
-  thread_->join();
+  
 }
 
 ConfigGrpc::CallDataBase::CallDataBase() {}

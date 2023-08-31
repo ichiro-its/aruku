@@ -28,6 +28,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <future>
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
@@ -59,6 +60,8 @@ public:
 private:
   std::string path;  
   static void SignIntHandler(int signum);
+  static inline std::future<void> async_server; 
+   
 
   class CallDataBase
   {

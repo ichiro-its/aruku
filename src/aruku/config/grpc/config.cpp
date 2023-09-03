@@ -64,19 +64,21 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
   std::cout << "Server listening on " << server_address << std::endl;
 
   signal(SIGINT, SignIntHandler);
-  std::future<void> async_server = std::async(std::launch::async, [&path, &node, this]() {
+  thread_ = std::thread([&path, &node, this]() {
     new ConfigGrpc::CallDataGetConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataSaveConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataPublishConfig(&service_, cq_.get(), path, node);
     void * tag;  // uniquely identifies a request.
     bool ok = true;
-    while (true) {
+    while (true) {      
       this->cq_->Next(&tag, &ok);
       if (ok) {
         static_cast<ConfigGrpc::CallDataBase *>(tag)->Proceed();
       }
     }
   });
+  std::this_thread::sleep_for(200ms);  
+  
   
 }
 

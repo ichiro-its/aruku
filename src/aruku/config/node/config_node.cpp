@@ -62,6 +62,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
       }
     });
     config_grpc.Run(5050, path, node);
+    RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");
 }
 
 void ConfigNode::set_config_callback(

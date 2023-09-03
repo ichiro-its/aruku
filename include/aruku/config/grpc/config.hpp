@@ -164,12 +164,11 @@ private:
   
   static inline std::unique_ptr<grpc::ServerCompletionQueue> cq_;
   static inline std::unique_ptr<grpc::Server> server_;
-  std::shared_ptr<std::thread> thread_;
-  aruku_interfaces::proto::Config::AsyncService service_;
-
-  rclcpp::TimerBase::SharedPtr timer_;
+  std::thread thread_;
+  aruku_interfaces::proto::Config::AsyncService service_;  
 };
 
 }  // namespace aruku
 
 #endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_
+

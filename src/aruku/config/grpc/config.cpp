@@ -176,7 +176,7 @@ ConfigGrpc::CallDataPublishConfig::CallDataPublishConfig(
 : CallData(service, cq, path), node_(node)
 {
   set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetConfig>("/walking/set_walking", 10);
+    node_->create_publisher<aruku_interfaces::msg::SetConfig>("aruku/config/set_config", 10);
   // set_config_publisher_ = node_->create_publisher<aruku_interfaces::msg::SetConfig>("set_config", 10);
   Proceed();
 }
@@ -202,10 +202,10 @@ void ConfigGrpc::CallDataPublishConfig::HandleRequest()
     msg.json_kinematic = kinematic_data.dump();
     msg.json_walking = walking_data.dump();
     set_config_publisher_->publish(msg);
-    RCLCPP_INFO(rclcpp::get_logger("SaveConfig"), "config has been published!  ");
+    RCLCPP_INFO(rclcpp::get_logger("Publish Config"), "config has been published!  ");
 
   } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("SaveConfig"), e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Publish Config"), e.what());
   }
 }
 
@@ -214,6 +214,8 @@ ConfigGrpc::CallDataSetConfig::CallDataSetConfig(
   const std::string path)
 : CallData(service, cq, path)
 {
+  set_config_publisher_ =
+    node_->create_publisher<aruku_interfaces::msg::SetWalking>("/walking/set_walking/", 10);
   Proceed();
 }
 
@@ -245,6 +247,15 @@ void ConfigGrpc::CallDataSetConfig::HandleRequest()
       {"aim_on", aim_on}
     };
     config.save_control_config(set_config_data);
+  
+    aruku_interfaces::msg::SetWalking msg;
+    msg.a_move = a_move;
+    msg.x_move = x_move;
+    msg.y_move = y_move;
+    msg.aim_on = aim_on;
+    msg.run = run;
+    set_config_publisher_->publish(msg);
+
     RCLCPP_INFO(rclcpp::get_logger("SaveConfig"), "control config has been saved!  ");
 
   } catch (std::ofstream::failure f) {

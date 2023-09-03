@@ -42,6 +42,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/model/joint.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/msg/set_walking.hpp"
 
 using aruku_interfaces::proto::Config;
 
@@ -157,8 +158,10 @@ private:
     virtual void AddNextToCompletionQueue() override;
     virtual void WaitForRequest() override;
     virtual void HandleRequest() override;    
+    rclcpp::Node::SharedPtr node_;
+    rclcpp::Publisher<aruku_interfaces::msg::SetWalking>::SharedPtr set_config_publisher_;
   };
-
+  
   static inline std::unique_ptr<grpc::ServerCompletionQueue> cq_;
   static inline std::unique_ptr<grpc::Server> server_;
   std::shared_ptr<std::thread> thread_;

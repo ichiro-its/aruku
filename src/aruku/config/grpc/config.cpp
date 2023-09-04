@@ -22,8 +22,8 @@
 
 #include <chrono>
 #include <csignal>
-#include <string>
 #include <future>
+#include <string>
 
 #include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
@@ -71,16 +71,14 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
     new ConfigGrpc::CallDataSetConfig(&service_, cq_.get(), path, node);
     void * tag;  // uniquely identifies a request.
     bool ok = true;
-    while (true) {      
+    while (true) {
       this->cq_->Next(&tag, &ok);
       if (ok) {
         static_cast<ConfigGrpc::CallDataBase *>(tag)->Proceed();
       }
     }
   });
-  std::this_thread::sleep_for(200ms);  
-  
-  
+  std::this_thread::sleep_for(200ms);
 }
 
 ConfigGrpc::CallDataBase::CallDataBase() {}
@@ -134,7 +132,7 @@ void ConfigGrpc::CallDataGetConfig::HandleRequest()
 
   reply_.set_json_kinematic(config.get_config("kinematic"));
   reply_.set_json_walking(config.get_config("walking"));
-  RCLCPP_INFO(rclcpp::get_logger("GetConfig"), "config has been sent!");
+  RCLCPP_INFO(rclcpp::get_logger("Get config"), "config has been sent!");
 }
 
 ConfigGrpc::CallDataSaveConfig::CallDataSaveConfig(
@@ -163,13 +161,13 @@ void ConfigGrpc::CallDataSaveConfig::HandleRequest()
     nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
 
     config.save_config(kinematic_data, walking_data);
-    RCLCPP_INFO(rclcpp::get_logger("SaveConfig"), "config has been saved!  ");
+    RCLCPP_INFO(rclcpp::get_logger("Save config"), " config has been saved!  ");
 
   } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("SaveConfig"), f.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Save config"), f.what());
 
   } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("SaveConfig"), e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
   }
 }
 
@@ -198,17 +196,14 @@ void ConfigGrpc::CallDataPublishConfig::HandleRequest()
 {
   // Config config(path_);
   try {
-    nlohmann::json kinematic_data = nlohmann::json::parse(request_.json_kinematic());
-    nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
-
     aruku_interfaces::msg::SetConfig msg;
-    msg.json_kinematic = kinematic_data.dump();
-    msg.json_walking = walking_data.dump();
+    msg.json_kinematic = request_.json_kinematic();
+    msg.json_walking = request_.json_walking();
     set_config_publisher_->publish(msg);
-    RCLCPP_INFO(rclcpp::get_logger("Publish Config"), "config has been published!  ");
+    RCLCPP_INFO(rclcpp::get_logger("Publish config"), "config has been published!  ");
 
   } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("Publish Config"), e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Publish config"), e.what());
   }
 }
 
@@ -242,15 +237,11 @@ void ConfigGrpc::CallDataSetConfig::HandleRequest()
     double y_move = request_.y_move();
     double a_move = request_.a_move();
     bool aim_on = request_.aim_on();
-    nlohmann::json set_config_data = {
-      {"enable", run},
-      {"x_move", x_move},
-      {"y_move", y_move},
-      {"a_move", a_move},
-      {"aim_on", aim_on}
-    };
-    config.save_control_config(set_config_data);
-  
+    std::cout << "run: " << run << std::endl;
+    std::cout << "x_move: " << x_move << std::endl;
+    std::cout << "y_move: " << y_move << std::endl;
+    std::cout << "a_move: " << a_move << std::endl;
+    std::cout << "aim_on: " << aim_on << std::endl;
     aruku_interfaces::msg::SetWalking msg;
     msg.a_move = a_move;
     msg.x_move = x_move;
@@ -259,13 +250,13 @@ void ConfigGrpc::CallDataSetConfig::HandleRequest()
     msg.run = run;
     set_config_publisher_->publish(msg);
 
-    RCLCPP_INFO(rclcpp::get_logger("SaveConfig"), "control config has been saved!  ");
+    RCLCPP_INFO(rclcpp::get_logger("Publish control config"), "control config has been saved!  ");
 
   } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("SaveConfig"), f.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), f.what());
 
   } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("SaveConfig"), e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), e.what());
   }
 }
 

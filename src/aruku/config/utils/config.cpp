@@ -65,10 +65,4 @@ void Config::save_config(const nlohmann::json & kinematic_data, const nlohmann::
   walking_file.close();
 }
 
-void Config::save_control_config(const nlohmann::json & control_data)
-{
-  std::ofstream control_file(path + "control.json", std::ios::out | std::ios::trunc);
-  control_file << std::setw(2) << control_data << std::endl;
-  control_file.close();
-}
 }  // namespace aruku

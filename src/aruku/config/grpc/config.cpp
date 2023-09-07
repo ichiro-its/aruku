@@ -68,6 +68,7 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
     new ConfigGrpc::CallDataGetConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataSaveConfig(&service_, cq_.get(), path);
     new ConfigGrpc::CallDataPublishConfig(&service_, cq_.get(), path, node);
+    new ConfigGrpc::CallDataSetConfig(&service_, cq_.get(), path, node);
     void * tag;  // uniquely identifies a request.
     bool ok = true;
     while (true) {      
@@ -213,17 +214,17 @@ void ConfigGrpc::CallDataPublishConfig::HandleRequest()
 
 ConfigGrpc::CallDataSetConfig::CallDataSetConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
+  const std::string path, rclcpp::Node::SharedPtr node)
 : CallData(service, cq, path)
 {
   set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetWalking>("/walking/set_walking/", 10);
+    node_->create_publisher<aruku_interfaces::msg::SetWalking>("/walking/set_walking", 10);
   Proceed();
 }
 
 void ConfigGrpc::CallDataSetConfig::AddNextToCompletionQueue()
 {
-  new ConfigGrpc::CallDataSetConfig(service_, cq_, path_);
+  new ConfigGrpc::CallDataSetConfig(service_, cq_, path_, node_);
 }
 
 void ConfigGrpc::CallDataSetConfig::WaitForRequest()

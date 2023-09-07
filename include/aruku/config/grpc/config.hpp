@@ -152,7 +152,7 @@ private:
   public:
     CallDataSetConfig(
       aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-      const std::string path);
+      const std::string path, rclcpp::Node::SharedPtr node);
 
   protected:    
     virtual void AddNextToCompletionQueue() override;

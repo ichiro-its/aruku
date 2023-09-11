@@ -210,10 +210,10 @@ void ConfigGrpc::CallDataPublishConfig::HandleRequest()
 ConfigGrpc::CallDataSetConfig::CallDataSetConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
   const std::string path, rclcpp::Node::SharedPtr node)
-: CallData(service, cq, path)
+: CallData(service, cq, path), node_(node)
 {
   set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetWalking>("/walking/set_walking", 10);
+    node_->create_publisher<aruku_interfaces::msg::SetWalking>("walking/set_walking", 10);
   Proceed();
 }
 

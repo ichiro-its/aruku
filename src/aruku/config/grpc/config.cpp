@@ -26,7 +26,11 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku/config/grpc/call_data_base.hpp"
+#include "aruku/config/grpc/call_data_get_config.hpp"
+#include "aruku/config/grpc/call_data_set_config.hpp"
+#include "aruku/config/grpc/call_data_save_config.hpp"
+#include "aruku/config/grpc/call_data_publish_config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using grpc::ServerBuilder;
@@ -65,199 +69,21 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
 
   signal(SIGINT, SignIntHandler);
   thread_ = std::thread([&path, &node, this]() {
-    new ConfigGrpc::CallDataGetConfig(&service_, cq_.get(), path);
-    new ConfigGrpc::CallDataSaveConfig(&service_, cq_.get(), path);
-    new ConfigGrpc::CallDataPublishConfig(&service_, cq_.get(), path, node);
-    new ConfigGrpc::CallDataSetConfig(&service_, cq_.get(), path, node);
+    new CallDataGetConfig(&service_, cq_.get(), path);
+    new CallDataSaveConfig(&service_, cq_.get(), path);
+    new CallDataPublishConfig(&service_, cq_.get(), path, node);
+    new CallDataSetConfig(&service_, cq_.get(), path, node);
     void * tag;  // uniquely identifies a request.
     bool ok = true;
     while (true) {
       this->cq_->Next(&tag, &ok);
       if (ok) {
-        static_cast<ConfigGrpc::CallDataBase *>(tag)->Proceed();
+        static_cast<CallDataBase *>(tag)->Proceed();
       }
     }
   });
   std::this_thread::sleep_for(200ms);
 }
 
-ConfigGrpc::CallDataBase::CallDataBase() {}
-
-template <class ConfigRequest, class ConfigReply>
-ConfigGrpc::CallData<ConfigRequest, ConfigReply>::CallData(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
-: status_(CREATE), service_(service), cq_(cq), responder_(&ctx_), path_(path)
-{
-}
-
-template <class ConfigRequest, class ConfigReply>
-void ConfigGrpc::CallData<ConfigRequest, ConfigReply>::Proceed()
-{
-  if (status_ == CREATE) {
-    status_ = PROCESS;
-    WaitForRequest();
-  } else if (status_ == PROCESS) {
-    AddNextToCompletionQueue();
-    HandleRequest();
-    status_ = FINISH;
-    responder_.Finish(reply_, grpc::Status::OK, this);
-  } else {
-    GPR_ASSERT(status_ == FINISH);
-    delete this;
-  }
-}
-
-ConfigGrpc::CallDataGetConfig::CallDataGetConfig(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
-: CallData(service, cq, path)
-{
-  Proceed();
-}
-
-void ConfigGrpc::CallDataGetConfig::AddNextToCompletionQueue()
-{
-  new ConfigGrpc::CallDataGetConfig(service_, cq_, path_);
-}
-
-void ConfigGrpc::CallDataGetConfig::WaitForRequest()
-{
-  service_->RequestGetConfig(&ctx_, &request_, &responder_, cq_, cq_, this);
-}
-
-void ConfigGrpc::CallDataGetConfig::HandleRequest()
-{
-  Config config(path_);
-
-  reply_.set_json_kinematic(config.get_config("kinematic"));
-  reply_.set_json_walking(config.get_config("walking"));
-  RCLCPP_INFO(rclcpp::get_logger("Get config"), "config has been sent!");
-}
-
-ConfigGrpc::CallDataSaveConfig::CallDataSaveConfig(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
-: CallData(service, cq, path)
-{
-  Proceed();
-}
-
-void ConfigGrpc::CallDataSaveConfig::AddNextToCompletionQueue()
-{
-  new ConfigGrpc::CallDataSaveConfig(service_, cq_, path_);
-}
-
-void ConfigGrpc::CallDataSaveConfig::WaitForRequest()
-{
-  service_->RequestSaveConfig(&ctx_, &request_, &responder_, cq_, cq_, this);
-}
-
-void ConfigGrpc::CallDataSaveConfig::HandleRequest()
-{
-  Config config(path_);
-  try {
-    nlohmann::json kinematic_data = nlohmann::json::parse(request_.json_kinematic());
-    nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
-
-    config.save_config(kinematic_data, walking_data);
-    RCLCPP_INFO(rclcpp::get_logger("Save config"), " config has been saved!  ");
-
-  } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("Save config"), f.what());
-
-  } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
-  }
-}
-
-ConfigGrpc::CallDataPublishConfig::CallDataPublishConfig(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path, rclcpp::Node::SharedPtr node)
-: CallData(service, cq, path), node_(node)
-{
-  set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetConfig>("aruku/config/set_config", 10);
-  // set_config_publisher_ = node_->create_publisher<aruku_interfaces::msg::SetConfig>("set_config", 10);
-  Proceed();
-}
-
-void ConfigGrpc::CallDataPublishConfig::AddNextToCompletionQueue()
-{
-  new ConfigGrpc::CallDataPublishConfig(service_, cq_, path_, node_);
-}
-
-void ConfigGrpc::CallDataPublishConfig::WaitForRequest()
-{
-  service_->RequestPublishConfig(&ctx_, &request_, &responder_, cq_, cq_, this);
-}
-
-void ConfigGrpc::CallDataPublishConfig::HandleRequest()
-{
-  // Config config(path_);
-  try {
-    aruku_interfaces::msg::SetConfig msg;
-    msg.json_kinematic = request_.json_kinematic();
-    msg.json_walking = request_.json_walking();
-    set_config_publisher_->publish(msg);
-    RCLCPP_INFO(rclcpp::get_logger("Publish config"), "config has been published!  ");
-
-  } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("Publish config"), e.what());
-  }
-}
-
-ConfigGrpc::CallDataSetConfig::CallDataSetConfig(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path, rclcpp::Node::SharedPtr node)
-: CallData(service, cq, path), node_(node)
-{
-  set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetWalking>("walking/set_walking", 10);
-  Proceed();
-}
-
-void ConfigGrpc::CallDataSetConfig::AddNextToCompletionQueue()
-{
-  new ConfigGrpc::CallDataSetConfig(service_, cq_, path_, node_);
-}
-
-void ConfigGrpc::CallDataSetConfig::WaitForRequest()
-{
-  service_->RequestSetMainConfig(&ctx_, &request_, &responder_, cq_, cq_, this);
-}
-
-void ConfigGrpc::CallDataSetConfig::HandleRequest()
-{
-  Config config(path_);
-  // config.save_config
-  try {
-    bool run = request_.run();
-    double x_move = request_.x_move();
-    double y_move = request_.y_move();
-    double a_move = request_.a_move();
-    bool aim_on = request_.aim_on();
-    std::cout << "run: " << run << std::endl;
-    std::cout << "x_move: " << x_move << std::endl;
-    std::cout << "y_move: " << y_move << std::endl;
-    std::cout << "a_move: " << a_move << std::endl;
-    std::cout << "aim_on: " << aim_on << std::endl;
-    aruku_interfaces::msg::SetWalking msg;
-    msg.a_move = a_move;
-    msg.x_move = x_move;
-    msg.y_move = y_move;
-    msg.aim_on = aim_on;
-    msg.run = run;
-    set_config_publisher_->publish(msg);
-
-    RCLCPP_INFO(rclcpp::get_logger("Publish control config"), "control config has been saved!  ");
-
-  } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), f.what());
-
-  } catch (nlohmann::json::exception e) {
-    RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), e.what());
-  }
-}
 
 }  // namespace aruku

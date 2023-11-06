@@ -50,8 +50,7 @@ ConfigGrpc::~ConfigGrpc()
 void ConfigGrpc::SignIntHandler(int signum)
 {
   server_->Shutdown();
-  cq_->Shutdown();
-  // async_server.
+  cq_->Shutdown();  
   exit(signum);
 }
 

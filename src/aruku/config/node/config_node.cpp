@@ -53,11 +53,9 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
 
         this->config.save_config(kinematic_data, walking_data);
         response->status = true;
-      } catch (std::ofstream::failure) {
-        // TODO(maroqijalil): log it
+      } catch (std::ofstream::failure) {        
         response->status = false;
-      } catch (nlohmann::json::exception) {
-        // TODO(maroqijalil): log it
+      } catch (nlohmann::json::exception) {        
         response->status = false;
       }
     });

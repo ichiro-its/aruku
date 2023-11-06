@@ -27,43 +27,13 @@ find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_REFLECTION gRPC::grpc++_reflection)
-if(CMAKE_CROSSCOMPILING)
-  find_program(_PROTOBUF_PROTOC protoc)
-else()
-  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-endif()
+set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
 # Find gRPC installation
 # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
 find_package(gRPC CONFIG REQUIRED)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
-
-set(_GRPC_GRPCPP gRPC::grpc++)
-if(CMAKE_CROSSCOMPILING)
-  find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
-else()
-  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-endif()
-
-# Proto file
-get_filename_component(aruku_proto "../aruku_interfaces/proto/aruku.proto" ABSOLUTE)
-get_filename_component(aruku_proto_path "${aruku_proto}" PATH)
-
-# Generated sources
-set(aruku_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/aruku.pb.cc")
-set(aruku_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/aruku.pb.h")
-set(aruku_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/aruku.grpc.pb.cc")
-set(aruku_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/aruku.grpc.pb.h")
-add_custom_command(
-      OUTPUT "${aruku_proto_srcs}" "${aruku_proto_hdrs}" "${aruku_grpc_srcs}" "${aruku_grpc_hdrs}"
-      COMMAND ${_PROTOBUF_PROTOC}
-      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${aruku_proto_path}"
-        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${aruku_proto}"
-      DEPENDS "${aruku_proto}")
+set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -79,10 +49,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_publish_config.cpp"
-  "${aruku_proto_srcs}"
-  "${aruku_proto_hdrs}"
-  "${aruku_grpc_srcs}"
-  "${aruku_grpc_hdrs}")
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
@@ -101,8 +68,8 @@ ament_target_dependencies(${PROJECT_NAME}
   gRPC)
 
 target_link_libraries(${PROJECT_NAME}
-  ${_REFLECTION}
-  ${_GRPC_GRPCPP}
+  gRPC::grpc++_reflection
+  gRPC::grpc++
   ${_PROTOBUF_LIBPROTOBUF}
 )
 

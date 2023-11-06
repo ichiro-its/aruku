@@ -1,8 +1,8 @@
 #ifndef __ARUKU__CONFIG__GRPC__CALL_DATA_HPP__
 #define __ARUKU__CONFIG__GRPC__CALL_DATA_HPP__
 
-#include "aruku.grpc.pb.h"
-#include "aruku.pb.h"
+#include "aruku_interfaces/aruku.grpc.pb.h"
+#include "aruku_interfaces/aruku.pb.h"
 #include "aruku/config/grpc/call_data_base.hpp"
 #include "grpc/support/log.h"
 #include "grpcpp/grpcpp.h"

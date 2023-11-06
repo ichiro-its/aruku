@@ -45,9 +45,6 @@ std::string Config::get_config(const std::string & key) const
   } else if (key == "kinematic") {
     std::ifstream kinematic_file(path + "kinematic.json");
     nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
-
-    // kinematic_data.erase("length");
-
     return kinematic_data.dump();
   }
 

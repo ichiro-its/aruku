@@ -51,6 +51,14 @@ std::string Config::get_config(const std::string & key) const
   return "";
 }
 
+nlohmann::json Config::get_grpc_config() const
+{  
+    std::ifstream grpc_file(path + "grpc.json");
+    nlohmann::json grpc_data = nlohmann::json::parse(grpc_file);
+    grpc_file.close();
+    return grpc_data;
+}
+
 void Config::save_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);

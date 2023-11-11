@@ -19,8 +19,8 @@
 // THE SOFTWARE.
 
 #include "aruku/config/grpc/call_data_publish_config.hpp"
-#include "aruku.grpc.pb.h"
-#include "aruku.pb.h"
+#include "aruku_interfaces/aruku.grpc.pb.h"
+#include "aruku_interfaces/aruku.pb.h"
 #include "aruku/config/utils/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 

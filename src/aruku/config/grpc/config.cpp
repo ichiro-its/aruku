@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "aruku/config/grpc/config.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -26,6 +25,7 @@
 #include <string>
 
 #include "aruku/config/utils/config.hpp"
+#include "aruku/config/grpc/config.hpp"
 #include "aruku/config/grpc/call_data_base.hpp"
 #include "aruku/config/grpc/call_data_get_config.hpp"
 #include "aruku/config/grpc/call_data_set_config.hpp"
@@ -56,7 +56,8 @@ void ConfigGrpc::SignIntHandler(int signum)
 
 void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::SharedPtr node)
 {
-  std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
+  Config config(path);
+  std::string server_address = absl::StrFormat("0.0.0.0:%d", config.get_grpc_config()["port"].get<uint16_t>());
 
   ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());

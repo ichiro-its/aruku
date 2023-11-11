@@ -26,14 +26,14 @@ set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+# set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+# set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
 # Find gRPC installation
 # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+# find_package(gRPC CONFIG REQUIRED)
+# message(STATUS "Using gRPC ${gRPC_VERSION}")
+# set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -65,12 +65,13 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   tachimawari
   tachimawari_interfaces  
-  gRPC)
+  )
 
 target_link_libraries(${PROJECT_NAME}
-  gRPC::grpc++_reflection
-  gRPC::grpc++
-  ${_PROTOBUF_LIBPROTOBUF}
+  aruku_interfaces::aruku_proto
+#   r::grpc++_reflection
+#   gRPC::grpc++
+#   ${_PROTOBUF_LIBPROTOBUF}
 )
 
 install(DIRECTORY "include" DESTINATION ".")

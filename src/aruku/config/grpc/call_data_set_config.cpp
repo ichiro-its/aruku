@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
 namespace aruku {
 CallDataSetConfig::CallDataSetConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path, rclcpp::Node::SharedPtr node)
+  const std::string & path, rclcpp::Node::SharedPtr node)
 : CallData(service, cq, path), node_(node)
 {
   set_config_publisher_ =
@@ -67,8 +67,6 @@ void CallDataSetConfig::HandleRequest()
     msg.run = run;
     set_config_publisher_->publish(msg);
     RCLCPP_INFO(rclcpp::get_logger("Publish control config"), "control config has been saved!");
-  } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), f.what());
   } catch (nlohmann::json::exception e) {
     RCLCPP_ERROR(rclcpp::get_logger("Publish control config"), e.what());
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -33,10 +33,10 @@ class CallDataSetConfig
 public:
   CallDataSetConfig(
     aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-    const std::string path, rclcpp::Node::SharedPtr node);
+    const std::string & path, rclcpp::Node::SharedPtr node);
 
 protected:
-  virtual void AddNextToCompletionQueue() override;
+  void AddNextToCompletionQueue() override;
   void WaitForRequest();
   void HandleRequest();
   rclcpp::Node::SharedPtr node_;

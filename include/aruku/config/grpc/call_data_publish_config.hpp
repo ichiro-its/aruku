@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,8 @@
 #define ARUKU__CONFIG__GRPC__CALL_DATA_PUBLISH_CONFIG_HPP__
 
 #include "aruku/config/grpc/call_data.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace aruku
 {
@@ -33,12 +33,12 @@ class CallDataPublishConfig
 public:
   CallDataPublishConfig(
     aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-    const std::string path, rclcpp::Node::SharedPtr node);
+    const std::string & path, rclcpp::Node::SharedPtr node);
 
 protected:
   rclcpp::Node::SharedPtr node_;
   rclcpp::Publisher<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_publisher_;
-  virtual void AddNextToCompletionQueue() override;
+  void AddNextToCompletionQueue() override;
   void WaitForRequest();
   void HandleRequest();
 };

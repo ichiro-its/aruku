@@ -22,18 +22,8 @@ find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
-set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
-
-# set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-# set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-
-# Find gRPC installation
-# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-# find_package(gRPC CONFIG REQUIRED)
-# message(STATUS "Using gRPC ${gRPC_VERSION}")
-# set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -43,8 +33,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
   "src/${PROJECT_NAME}/config/grpc/config.cpp"
-  "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"
-  "src/${PROJECT_NAME}/config/grpc/call_data.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"  
   "src/${PROJECT_NAME}/config/grpc/call_data_get_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
@@ -67,11 +56,9 @@ ament_target_dependencies(${PROJECT_NAME}
   tachimawari_interfaces  
   )
 
-target_link_libraries(${PROJECT_NAME}
-  aruku_interfaces::aruku_proto
-#   r::grpc++_reflection
-#   gRPC::grpc++
-#   ${_PROTOBUF_LIBPROTOBUF}
+target_link_libraries(${PROJECT_NAME}  
+  gRPC::grpc++_reflection
+  gRPC::grpc++  
 )
 
 install(DIRECTORY "include" DESTINATION ".")
@@ -81,6 +68,8 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
+
+target_compile_options(${PROJECT_NAME} PRIVATE -fPIC)
 
 add_executable(config "src/config_main.cpp")
 target_include_directories(config PUBLIC

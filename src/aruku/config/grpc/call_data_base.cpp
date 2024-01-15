@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2023 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,34 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__UTILS__CONFIG_HPP_
-#define ARUKU__CONFIG__UTILS__CONFIG_HPP_
-
-#include <fstream>
-#include <map>
-#include <string>
-
-#include "nlohmann/json.hpp"
-#include "tachimawari/joint/model/joint.hpp"
-#include "aruku/walking/process/kinematic.hpp"
+#include "aruku/config/grpc/call_data_base.hpp"
 
 namespace aruku
 {
-
-class Config
-{
-public:
-  explicit Config(const std::string & path);
-
-  std::string get_config(const std::string & key) const;
-  void save_config(
-    const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-  nlohmann::json get_grpc_config() const;
-  
-private:
-  std::string path;
-};
-
-}  // namespace aruku
-
-#endif  // ARUKU__CONFIG__UTILS__CONFIG_HPP_
+    CallDataBase::CallDataBase() {}
+} // namespace aruku

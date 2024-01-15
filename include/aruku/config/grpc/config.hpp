@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2023 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,34 +18,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__UTILS__CONFIG_HPP_
-#define ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#ifndef ARUKU__CONFIG__GRPC__CONFIG_HPP_
+#define ARUKU__CONFIG__GRPC__CONFIG_HPP_
 
+#include <chrono>
 #include <fstream>
+#include <future>
+#include <iostream>
 #include <map>
+#include <memory>
 #include <string>
+#include <thread>
 
-#include "nlohmann/json.hpp"
-#include "tachimawari/joint/model/joint.hpp"
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+#include "absl/strings/str_format.h"
+#include "aruku/config/grpc/call_data.hpp"
+#include "aruku/config/grpc/call_data_base.hpp"
 #include "aruku/walking/process/kinematic.hpp"
+#include "aruku_interfaces/aruku.grpc.pb.h"
+#include "aruku_interfaces/aruku.pb.h"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/msg/set_walking.hpp"
+#include "grpc/support/log.h"
+#include "grpcpp/grpcpp.h"
+#include "nlohmann/json.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tachimawari/joint/model/joint.hpp"
+
+using aruku_interfaces::proto::Config;
 
 namespace aruku
 {
-
-class Config
+class ConfigGrpc
 {
 public:
-  explicit Config(const std::string & path);
+  explicit ConfigGrpc();
+  explicit ConfigGrpc(const std::string & path);
 
-  std::string get_config(const std::string & key) const;
-  void save_config(
-    const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-  nlohmann::json get_grpc_config() const;
-  
+  ~ConfigGrpc();
+
+  void Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node);
+
 private:
   std::string path;
+  static void SignIntHandler(int signum);
+
+  static inline std::unique_ptr<grpc::ServerCompletionQueue> cq_;
+  static inline std::unique_ptr<grpc::Server> server_;
+  std::thread thread_;
+  aruku_interfaces::proto::Config::AsyncService service_;
 };
 
 }  // namespace aruku
 
-#endif  // ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_

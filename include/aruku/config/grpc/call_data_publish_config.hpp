@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,34 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__UTILS__CONFIG_HPP_
-#define ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#ifndef ARUKU__CONFIG__GRPC__CALL_DATA_PUBLISH_CONFIG_HPP__
+#define ARUKU__CONFIG__GRPC__CALL_DATA_PUBLISH_CONFIG_HPP__
 
-#include <fstream>
-#include <map>
-#include <string>
-
-#include "nlohmann/json.hpp"
-#include "tachimawari/joint/model/joint.hpp"
-#include "aruku/walking/process/kinematic.hpp"
+#include "aruku/config/grpc/call_data.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace aruku
 {
-
-class Config
+class CallDataPublishConfig
+: CallData<aruku_interfaces::proto::ConfigWalking, aruku_interfaces::proto::Empty>
 {
 public:
-  explicit Config(const std::string & path);
+  CallDataPublishConfig(
+    aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+    const std::string & path, rclcpp::Node::SharedPtr node);
 
-  std::string get_config(const std::string & key) const;
-  void save_config(
-    const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-  nlohmann::json get_grpc_config() const;
-  
-private:
-  std::string path;
+protected:
+  rclcpp::Node::SharedPtr node_;
+  rclcpp::Publisher<aruku_interfaces::msg::SetConfig>::SharedPtr set_config_publisher_;
+  void AddNextToCompletionQueue() override;
+  void WaitForRequest();
+  void HandleRequest();
 };
-
 }  // namespace aruku
 
-#endif  // ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#endif  // ARUKU__CONFIG__GRPC__CALL_DATA_PUBLISH_CONFIG_HPP__

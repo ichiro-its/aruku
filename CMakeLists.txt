@@ -22,6 +22,8 @@ find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
@@ -29,9 +31,17 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/node/aruku_node.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
-  "src/${PROJECT_NAME}/walking/process/kinematic.cpp")
+  "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
+  "src/${PROJECT_NAME}/config/grpc/config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"  
+  "src/${PROJECT_NAME}/config/grpc/call_data_get_config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_publish_config.cpp"
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
@@ -43,7 +53,13 @@ ament_target_dependencies(${PROJECT_NAME}
   keisan
   rclcpp
   tachimawari
-  tachimawari_interfaces)
+  tachimawari_interfaces  
+  )
+
+target_link_libraries(${PROJECT_NAME}  
+  gRPC::grpc++_reflection
+  gRPC::grpc++  
+)
 
 install(DIRECTORY "include" DESTINATION ".")
 
@@ -52,6 +68,8 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
+
+target_compile_options(${PROJECT_NAME} PRIVATE -fPIC)
 
 add_executable(config "src/config_main.cpp")
 target_include_directories(config PUBLIC

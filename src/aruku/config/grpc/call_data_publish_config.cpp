@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,21 @@
 // THE SOFTWARE.
 
 #include "aruku/config/grpc/call_data_publish_config.hpp"
+
+#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
-#include "aruku/config/utils/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace aruku {
+namespace aruku
+{
 CallDataPublishConfig::CallDataPublishConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path, rclcpp::Node::SharedPtr node)
+  const std::string & path, rclcpp::Node::SharedPtr node)
 : CallData(service, cq, path), node_(node)
 {
   set_config_publisher_ =
-    node_->create_publisher<aruku_interfaces::msg::SetConfig>("aruku/config/set_config", 10);  
+    node_->create_publisher<aruku_interfaces::msg::SetConfig>("aruku/config/set_config", 10);
   Proceed();
 }
 
@@ -46,7 +48,7 @@ void CallDataPublishConfig::WaitForRequest()
 }
 
 void CallDataPublishConfig::HandleRequest()
-{  
+{
   try {
     aruku_interfaces::msg::SetConfig msg;
     msg.json_kinematic = request_.json_kinematic();
@@ -57,4 +59,4 @@ void CallDataPublishConfig::HandleRequest()
     RCLCPP_ERROR(rclcpp::get_logger("Publish config"), e.what());
   }
 }
-} // namespace aruku
+}  // namespace aruku

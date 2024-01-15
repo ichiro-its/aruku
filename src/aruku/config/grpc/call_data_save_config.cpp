@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,15 +20,16 @@
 
 #include "aruku/config/grpc/call_data_save_config.hpp"
 
+#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
-#include "aruku/config/utils/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace aruku {
+namespace aruku
+{
 CallDataSaveConfig::CallDataSaveConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
+  const std::string & path)
 : CallData(service, cq, path)
 {
   Proceed();
@@ -52,10 +53,8 @@ void CallDataSaveConfig::HandleRequest()
     nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
     config.save_config(kinematic_data, walking_data);
     RCLCPP_INFO(rclcpp::get_logger("Save config"), " config has been saved!  ");
-  } catch (std::ofstream::failure f) {
-    RCLCPP_ERROR(rclcpp::get_logger("Save config"), f.what());
   } catch (nlohmann::json::exception e) {
     RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
   }
 }
-} // namespace aruku
+}  // namespace aruku

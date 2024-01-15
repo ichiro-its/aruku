@@ -23,28 +23,28 @@
 
 #include <chrono>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <thread>
-#include <future>
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_format.h"
+#include "aruku/config/grpc/call_data.hpp"
+#include "aruku/config/grpc/call_data_base.hpp"
+#include "aruku/walking/process/kinematic.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
-#include "aruku/walking/process/kinematic.hpp"
+#include "aruku_interfaces/msg/set_config.hpp"
+#include "aruku_interfaces/msg/set_walking.hpp"
 #include "grpc/support/log.h"
 #include "grpcpp/grpcpp.h"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tachimawari/joint/model/joint.hpp"
-#include "aruku_interfaces/msg/set_config.hpp"
-#include "aruku_interfaces/msg/set_walking.hpp"
-#include "aruku/config/grpc/call_data_base.hpp"
-#include "aruku/config/grpc/call_data.hpp"
 
 using aruku_interfaces::proto::Config;
 
@@ -58,19 +58,18 @@ public:
 
   ~ConfigGrpc();
 
-  void Run(uint16_t port, const std::string path, rclcpp::Node::SharedPtr node);
+  void Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node);
 
 private:
-  std::string path;  
+  std::string path;
   static void SignIntHandler(int signum);
-  
+
   static inline std::unique_ptr<grpc::ServerCompletionQueue> cq_;
   static inline std::unique_ptr<grpc::Server> server_;
   std::thread thread_;
-  aruku_interfaces::proto::Config::AsyncService service_;  
+  aruku_interfaces::proto::Config::AsyncService service_;
 };
 
 }  // namespace aruku
 
 #endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_
-

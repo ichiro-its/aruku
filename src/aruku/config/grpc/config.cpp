@@ -18,19 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/config/utils/config.hpp"
 
 #include <chrono>
 #include <csignal>
 #include <future>
 #include <string>
 
-#include "aruku/config/utils/config.hpp"
-#include "aruku/config/grpc/config.hpp"
 #include "aruku/config/grpc/call_data_base.hpp"
 #include "aruku/config/grpc/call_data_get_config.hpp"
-#include "aruku/config/grpc/call_data_set_config.hpp"
-#include "aruku/config/grpc/call_data_save_config.hpp"
 #include "aruku/config/grpc/call_data_publish_config.hpp"
+#include "aruku/config/grpc/call_data_save_config.hpp"
+#include "aruku/config/grpc/call_data_set_config.hpp"
+#include "aruku/config/grpc/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using grpc::ServerBuilder;
@@ -50,14 +50,15 @@ ConfigGrpc::~ConfigGrpc()
 void ConfigGrpc::SignIntHandler(int signum)
 {
   server_->Shutdown();
-  cq_->Shutdown();  
+  cq_->Shutdown();
   exit(signum);
 }
 
-void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::SharedPtr node)
+void ConfigGrpc::Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node)
 {
   Config config(path);
-  std::string server_address = absl::StrFormat("0.0.0.0:%d", config.get_grpc_config()["port"].get<uint16_t>());
+  std::string server_address =
+    absl::StrFormat("0.0.0.0:%d", config.get_grpc_config()["port"].get<uint16_t>());
 
   ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
@@ -84,6 +85,5 @@ void ConfigGrpc::Run(uint16_t port, const std::string path, rclcpp::Node::Shared
   });
   std::this_thread::sleep_for(200ms);
 }
-
 
 }  // namespace aruku

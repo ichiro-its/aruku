@@ -16,7 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
-          path: aruku          
+          path: aruku
+          ref: feature/fix-using-grpc
 
       - name: Checkout Kansei
         uses: actions/checkout@v2.3.4

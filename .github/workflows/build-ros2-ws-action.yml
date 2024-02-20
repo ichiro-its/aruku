@@ -1,0 +1,84 @@
+name: CI
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master, feature/fix-github-workflows]
+  workflow_run:
+    workflows: [Build and Test Nightly]
+    types:  [requested, completed, in_progress]
+    branches: [feature/fix-github-workflows]
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          path: aruku          
+
+      - name: Checkout Kansei
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/kansei
+          ref: feature/create-grpc-service      
+          path: kansei
+
+      - name: Checkout Kansei Interfaces
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/kansei_interfaces
+          path: kansei_interfaces
+
+      - name: Checkout Keisan
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/keisan
+          path: keisan
+
+      - name: Checkout tachimawari
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/tachimawari
+          path: tachimawari
+
+      - name: Checkout tachimawari interfaces
+        uses: actions/checkout@v2.3.4
+        with:
+          repository: ichiro-its/tachimawari_interfaces
+          path: tachimawari_interfaces
+
+      - name: Setup cmake        
+        run: |
+          sudo apt install -y build-essential autoconf libtool pkg-config cmake
+
+      - name: Setup abseil for grpc              
+        run: |
+          git clone https://github.com/abseil/abseil-cpp.git
+          mkdir -p abseil-cpp/build && cd  abseil-cpp/build
+          cmake ..
+          make -j 4
+          sudo make install
+      
+      - name: Setup grpc        
+        run: |
+          git clone --recurse-submodules -b v1.61.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+          mkdir -p grpc/build && cd grpc/build
+          cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF ..
+          make -j 4
+          sudo make install 
+
+      - name: remove grpc and abseil clone folders
+        run: |
+          rm -rf grpc
+          rm -rf abseil-cpp 
+        
+      - name: Setup workspace
+        uses: ichiro-its/ros2-ws-action/setup@v1.0.1
+
+      - name: Build workspace
+        uses: ichiro-its/ros2-ws-action/build@v1.0.1
+
+      - name: Test workspace
+        uses: ichiro-its/ros2-ws-action/test@v1.0.1

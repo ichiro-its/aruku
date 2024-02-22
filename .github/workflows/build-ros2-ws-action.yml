@@ -22,8 +22,7 @@ jobs:
       - name: Checkout Kansei
         uses: actions/checkout@v2.3.4
         with:
-          repository: ichiro-its/kansei
-          ref: feature/create-grpc-service      
+          repository: ichiro-its/kansei          
           path: kansei
 
       - name: Checkout Kansei Interfaces

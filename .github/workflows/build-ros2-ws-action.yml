@@ -57,6 +57,7 @@ jobs:
 
       - name: Setup cmake        
         run: |
+          sudo apt update -y
           sudo apt install -y build-essential autoconf libtool pkg-config cmake
 
       - name: Setup abseil for grpc              

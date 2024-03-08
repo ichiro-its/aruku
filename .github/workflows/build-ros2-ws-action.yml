@@ -3,54 +3,50 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [master, feature/fix-github-workflows]
-  workflow_run:
-    workflows: [Build and Test Nightly]
-    types:  [requested, completed, in_progress]
-    branches: [feature/fix-github-workflows]
+    branches: [master]  
 jobs:
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           path: aruku
           ref: feature/fix-using-grpc
 
       - name: Checkout Kansei
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/kansei          
           path: kansei
 
       - name: Checkout Kansei Interfaces
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/kansei_interfaces
           path: kansei_interfaces
       
       - name: Checkout Aruku Interfaces
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/aruku_interfaces
           path: aruku_interfaces
 
       - name: Checkout Keisan
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/keisan
           path: keisan
 
       - name: Checkout tachimawari
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/tachimawari
           path: tachimawari
 
       - name: Checkout tachimawari interfaces
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v4.1.1
         with:
           repository: ichiro-its/tachimawari_interfaces
           path: tachimawari_interfaces

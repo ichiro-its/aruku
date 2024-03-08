@@ -52,9 +52,7 @@ jobs:
           path: tachimawari_interfaces
 
       - name: Setup cmake        
-        run: |
-          sudo apt update -y
-          sudo apt install -y build-essential autoconf libtool pkg-config cmake
+        run: sudo apt install -y build-essential autoconf libtool pkg-config cmake
 
       - name: Setup abseil for grpc              
         run: |
@@ -67,15 +65,9 @@ jobs:
       - name: Setup grpc        
         run: |
           git clone --recurse-submodules -b v1.61.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
-          mkdir -p grpc/build && cd grpc/build
-          cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF ..
-          make -j 4
-          sudo make install 
-
-      - name: remove grpc and abseil clone folders
-        run: |
-          rm -rf grpc
-          rm -rf abseil-cpp 
+          cmake -B abseil-cpp/build
+          cmake --build abseil-cpp/build
+          cmake --install abseil-cpp/build
         
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.1

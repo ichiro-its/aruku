@@ -11,45 +11,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-        with:
-          path: aruku
+        with:          
           ref: feature/fix-using-grpc
 
       - name: Checkout Kansei
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/kansei          
-          path: kansei
+          repository: ichiro-its/kansei                    
 
       - name: Checkout Kansei Interfaces
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/kansei_interfaces
-          path: kansei_interfaces
+          repository: ichiro-its/kansei_interfaces          
       
       - name: Checkout Aruku Interfaces
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/aruku_interfaces
-          path: aruku_interfaces
+          repository: ichiro-its/aruku_interfaces          
 
       - name: Checkout Keisan
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/keisan
-          path: keisan
+          repository: ichiro-its/keisan          
 
       - name: Checkout tachimawari
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/tachimawari
-          path: tachimawari
+          repository: ichiro-its/tachimawari          
 
       - name: Checkout tachimawari interfaces
         uses: actions/checkout@v4.1.1
         with:
-          repository: ichiro-its/tachimawari_interfaces
-          path: tachimawari_interfaces
+          repository: ichiro-its/tachimawari_interfaces          
 
       - name: Setup cmake        
         run: sudo apt install -y build-essential autoconf libtool pkg-config cmake
@@ -57,17 +50,16 @@ jobs:
       - name: Setup abseil for grpc              
         run: |
           git clone https://github.com/abseil/abseil-cpp.git
-          mkdir -p abseil-cpp/build && cd  abseil-cpp/build
-          cmake ..
-          make -j 4
-          sudo make install
+          cmake -S abseil-cpp -B abseil-cpp/build 
+          cmake --build abseil-cpp/build
+          cmake --install abseil-cpp/build
       
       - name: Setup grpc        
         run: |
           git clone --recurse-submodules -b v1.61.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
-          cmake -B abseil-cpp/build
-          cmake --build abseil-cpp/build
-          cmake --install abseil-cpp/build
+          cmake -S grpc -B grpc/build
+          cmake --build grpc/build
+          cmake --install grpc/build
         
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.1

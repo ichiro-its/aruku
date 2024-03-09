@@ -10,39 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
-        with:          
-          ref: feature/fix-using-grpc
+        run: git clone -b feature/fix-using-grpc https://github.com/ichiro-its/aruku.git
 
       - name: Checkout Kansei
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/kansei                    
+        run: git clone https://github.com/ichiro-its/kansei.git                 
 
       - name: Checkout Kansei Interfaces
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/kansei_interfaces          
+        run: git clone https://github.com/ichiro-its/kansei_interfaces.git         
       
       - name: Checkout Aruku Interfaces
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/aruku_interfaces          
+        run: git clone https://github.com/ichiro-its/aruku_interfaces.git     
 
       - name: Checkout Keisan
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/keisan          
+        run: git clone https://github.com/ichiro-its/keisan.git        
 
       - name: Checkout tachimawari
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/tachimawari          
+        run: git clone https://github.com/ichiro-its/tachimawari.git  
 
       - name: Checkout tachimawari interfaces
-        uses: actions/checkout@v4.1.1
-        with:
-          repository: ichiro-its/tachimawari_interfaces          
+        run: git clone https://github.com/ichiro-its/tachimawari_interfaces.git    
 
       - name: Setup cmake        
         run: sudo apt install -y build-essential autoconf libtool pkg-config cmake

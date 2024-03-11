@@ -12,7 +12,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:          
-          ref: feature/fix-using-grpc        
+          ref: feature/fix-using-grpc
+          path: aruku
 
       - name: Checkout Dependencies
         run: |

@@ -83,7 +83,7 @@ void Kinematic::set_running_state(bool running_state)
 
 bool Kinematic::get_running_state() const
 {
-  return m_ctrl_running;
+  return m_real_running;
 }
 
 void Kinematic::set_move_amplitude(

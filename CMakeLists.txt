@@ -71,12 +71,6 @@ install(TARGETS ${PROJECT_NAME}
 
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC)
 
-add_executable(config "src/config_main.cpp")
-target_include_directories(config PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_link_libraries(config ${PROJECT_NAME})
-
 add_executable(control "src/control_main.cpp")
 target_include_directories(control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -96,7 +90,6 @@ target_include_directories(walking PUBLIC
 target_link_libraries(walking ${PROJECT_NAME})
 
 install(TARGETS
-  config
   control
   main
   walking

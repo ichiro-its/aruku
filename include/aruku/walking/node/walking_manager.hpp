@@ -54,6 +54,7 @@ public:
 
   bool is_running() const;
 
+  void set_joints(std::vector<tachimawari::joint::Joint> & joints);
   std::vector<tachimawari::joint::Joint> get_joints() const;
   const Kinematic & get_kinematic() const;
 

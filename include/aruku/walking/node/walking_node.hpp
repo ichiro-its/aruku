@@ -32,6 +32,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
+#include "tachimawari_interfaces/msg/current_joints.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 
 namespace aruku
@@ -42,6 +43,7 @@ class WalkingNode
 public:
   using Point2 = aruku_interfaces::msg::Point2;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
+  using CurrentJoints = tachimawari_interfaces::msg::CurrentJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
   using MeasurementStatus = kansei_interfaces::msg::Status;
   using WalkingStatus = aruku_interfaces::msg::Status;
@@ -65,6 +67,7 @@ private:
 
   std::shared_ptr<WalkingManager> walking_manager;
 
+  rclcpp::Subscription<CurrentJoints>::SharedPtr current_joints_subscriber;
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 

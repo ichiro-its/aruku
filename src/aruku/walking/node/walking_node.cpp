@@ -70,6 +70,30 @@ WalkingNode::WalkingNode(
       }
     });
 
+  current_joints_subscriber = node->create_subscription<CurrentJoints>(
+    tachimawari::joint::JointNode::current_joints_topic(), 10, [this](const CurrentJoints::SharedPtr message) {
+      {
+        if (this->walking_manager->is_running()) {
+          return;
+        }
+
+        using tachimawari::joint::Joint;
+        using tachimawari::joint::JointId;
+
+        std::vector<Joint> current_joints;
+
+        for (const auto & joint : message->joints) {
+          if (joint.id == JointId::NECK_YAW || joint.id == JointId::NECK_PITCH) {
+            continue;
+          }
+
+          current_joints.push_back(Joint(joint.id, joint.position));
+        }
+
+        this->walking_manager->set_joints(current_joints);
+      }
+    });
+
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
     kansei::measurement::MeasurementNode::status_topic(), 10,
     [this](const MeasurementStatus::SharedPtr message) {
@@ -100,7 +124,10 @@ WalkingNode::WalkingNode(
 
 void WalkingNode::update()
 {
-  publish_joints();
+  if (walking_manager->is_running()) {
+    publish_joints();
+  }
+
   publish_status();
 }
 

@@ -108,7 +108,6 @@ void WalkingNode::update()
 void WalkingNode::publish_joints()
 {
   auto joints_msg = SetJoints();
-  joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
   const auto & joints = walking_manager->get_joints();
   auto & joint_msgs = joints_msg.joints;

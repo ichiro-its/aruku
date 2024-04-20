@@ -67,7 +67,6 @@ private:
 
   std::shared_ptr<WalkingManager> walking_manager;
 
-  rclcpp::Subscription<CurrentJoints>::SharedPtr current_joints_subscriber;
   rclcpp::Subscription<SetWalking>::SharedPtr set_walking_subscriber;
   rclcpp::Publisher<SetJoints>::SharedPtr set_joints_publisher;
 

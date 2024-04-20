@@ -268,11 +268,6 @@ bool WalkingManager::is_running() const
   return kinematic.get_running_state();
 }
 
-void WalkingManager::set_joints(std::vector<tachimawari::joint::Joint> & joints)
-{
-  this->joints = joints;
-}
-
 std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const
 {
   return joints;

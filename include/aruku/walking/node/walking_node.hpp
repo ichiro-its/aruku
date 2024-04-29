@@ -42,7 +42,6 @@ class WalkingNode
 public:
   using Point2 = aruku_interfaces::msg::Point2;
   using SetJoints = tachimawari_interfaces::msg::SetJoints;
-  using CurrentJoints = tachimawari_interfaces::msg::CurrentJoints;
   using SetWalking = aruku_interfaces::msg::SetWalking;
   using MeasurementStatus = kansei_interfaces::msg::Status;
   using WalkingStatus = aruku_interfaces::msg::Status;

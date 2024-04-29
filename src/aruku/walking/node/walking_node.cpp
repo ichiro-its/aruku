@@ -70,6 +70,7 @@ WalkingNode::WalkingNode(
       }
     });
 
+
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
     kansei::measurement::MeasurementNode::status_topic(), 10,
     [this](const MeasurementStatus::SharedPtr message) {
@@ -107,7 +108,6 @@ void WalkingNode::update()
 void WalkingNode::publish_joints()
 {
   auto joints_msg = SetJoints();
-  joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
   const auto & joints = walking_manager->get_joints();
   auto & joint_msgs = joints_msg.joints;
@@ -117,6 +117,8 @@ void WalkingNode::publish_joints()
     joint_msgs[i].id = joints[i].get_id();
     joint_msgs[i].position = joints[i].get_position();
   }
+
+  joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
   set_joints_publisher->publish(joints_msg);
 }

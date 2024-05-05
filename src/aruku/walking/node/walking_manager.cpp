@@ -65,6 +65,7 @@ void WalkingManager::set_config(
         val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "pid") {
       try {
@@ -73,6 +74,7 @@ void WalkingManager::set_config(
         val.at("d_gain").get_to(d_gain);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "odometry") {
       try {
@@ -81,6 +83,7 @@ void WalkingManager::set_config(
         val.at("ry_coefficient").get_to(odometry_ry_coefficient);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "init_angles") {
       try {
@@ -108,6 +111,7 @@ void WalkingManager::set_config(
         }
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "angles_direction") {
       try {
@@ -135,6 +139,7 @@ void WalkingManager::set_config(
         }
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     }
   }

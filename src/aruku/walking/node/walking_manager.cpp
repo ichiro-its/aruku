@@ -159,6 +159,8 @@ void WalkingManager::load_config(const std::string & path)
 
   walking_file.close();
   kinematic_file.close();
+
+  reinit_joints();
 }
 
 void WalkingManager::update_orientation(const keisan::Angle<double> & orientation)

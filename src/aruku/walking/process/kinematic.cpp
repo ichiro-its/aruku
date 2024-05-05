@@ -366,6 +366,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
         val.at("foot_accel_ratio").get_to(foot_accel_ratio);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "length") {
       try {
@@ -375,6 +376,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
         val.at("leg_length").get_to(leg_length);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     } else if (key == "offset") {
       try {
@@ -388,6 +390,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
         hip_pitch_offset = keisan::make_degree(val.at("hip_pitch_offset").get<double>());
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
       }
     }
   }

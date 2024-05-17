@@ -33,12 +33,23 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
   "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
   "src/${PROJECT_NAME}/config/grpc/config.cpp"
-  "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"  
+  "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_get_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_publish_config.cpp"
 )
+
+add_library(${PROJECT_NAME}_exported SHARED
+  "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
+  "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
+  "src/${PROJECT_NAME}/walking/process/kinematic.cpp"
+)
+
+target_include_directories(${PROJECT_NAME}_exported PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
@@ -53,18 +64,35 @@ ament_target_dependencies(${PROJECT_NAME}
   keisan
   rclcpp
   tachimawari
-  tachimawari_interfaces  
+  tachimawari_interfaces
   )
 
-target_link_libraries(${PROJECT_NAME}  
+ament_target_dependencies(${PROJECT_NAME}_exported
+  ament_index_cpp
+  aruku_interfaces
+  kansei
+  kansei_interfaces
+  keisan
+  rclcpp
+  tachimawari
+  tachimawari_interfaces
+  )
+
+target_link_libraries(${PROJECT_NAME}
   gRPC::grpc++_reflection
-  gRPC::grpc++  
+  gRPC::grpc++
 )
 
 install(DIRECTORY "include" DESTINATION ".")
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION "lib"
+  LIBRARY DESTINATION "lib"
+  RUNTIME DESTINATION "bin")
+
+install(TARGETS ${PROJECT_NAME}_exported
+  EXPORT export_${PROJECT_NAME}_exported
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
   RUNTIME DESTINATION "bin")
@@ -110,5 +138,5 @@ ament_export_dependencies(
   tachimawari
   tachimawari_interfaces)
 ament_export_include_directories("include")
-ament_export_libraries(${PROJECT_NAME})
+ament_export_libraries(${PROJECT_NAME}_exported)
 ament_package()

@@ -47,7 +47,6 @@ void CallDataSetAppStatus::HandleRequest()
 {
   try {
     walking_node_->set_action_manager_is_open(request_.action_manager_status());
-    walking_node_->set_walk_setting_is_open(request_.walk_setting_status());
 
     RCLCPP_INFO(
       rclcpp::get_logger("Set App Status"), "Received app status!"

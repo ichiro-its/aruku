@@ -36,6 +36,7 @@
 #include "aruku/config/grpc/call_data.hpp"
 #include "aruku/config/grpc/call_data_base.hpp"
 #include "aruku/walking/process/kinematic.hpp"
+#include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
 #include "aruku_interfaces/msg/set_config.hpp"
@@ -58,7 +59,8 @@ public:
 
   ~ConfigGrpc();
 
-  void Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node);
+  void Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node,
+           const std::shared_ptr<aruku::WalkingNode> & walking_node);
 
 private:
   std::string path;
@@ -68,6 +70,7 @@ private:
   static inline std::unique_ptr<grpc::Server> server_;
   std::thread thread_;
   aruku_interfaces::proto::Config::AsyncService service_;
+  std::shared_ptr<aruku::WalkingNode> walking_node_;
 };
 
 }  // namespace aruku

@@ -38,6 +38,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_publish_config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_set_app_status.cpp"
 )
 
 add_library(${PROJECT_NAME}_exported SHARED

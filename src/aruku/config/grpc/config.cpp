@@ -30,6 +30,7 @@
 #include "aruku/config/grpc/call_data_publish_config.hpp"
 #include "aruku/config/grpc/call_data_save_config.hpp"
 #include "aruku/config/grpc/call_data_set_config.hpp"
+#include "aruku/config/grpc/call_data_set_app_status.hpp"
 #include "aruku/config/grpc/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -54,7 +55,8 @@ void ConfigGrpc::SignIntHandler(int signum)
   exit(signum);
 }
 
-void ConfigGrpc::Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node)
+void ConfigGrpc::Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node,
+                     const std::shared_ptr<WalkingNode>& walking_node)
 {
   Config config(path);
   std::string server_address =
@@ -69,11 +71,12 @@ void ConfigGrpc::Run(uint16_t port, const std::string & path, rclcpp::Node::Shar
   std::cout << "Server listening on " << server_address << std::endl;
 
   signal(SIGINT, SignIntHandler);
-  thread_ = std::thread([&path, &node, this]() {
+  thread_ = std::thread([&path, &node, &walking_node, this]() {
     new CallDataGetConfig(&service_, cq_.get(), path);
     new CallDataSaveConfig(&service_, cq_.get(), path);
     new CallDataPublishConfig(&service_, cq_.get(), path, node);
     new CallDataSetConfig(&service_, cq_.get(), path, node);
+    new CallDataSetAppStatus(&service_, cq_.get(), path, walking_node);
     void * tag;  // uniquely identifies a request.
     bool ok = true;
     while (true) {

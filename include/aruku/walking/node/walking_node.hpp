@@ -57,6 +57,9 @@ public:
 
   void update();
 
+  void set_action_manager_is_open(bool is_open) { action_manager_is_open = is_open;}
+  void set_walk_setting_is_open(bool is_open) { walk_setting_is_open = is_open;}
+
 private:
   void publish_joints();
   void publish_status();
@@ -75,6 +78,9 @@ private:
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   int status;
+
+  bool action_manager_is_open = false;
+  bool walk_setting_is_open = false;
 };
 
 }  // namespace aruku

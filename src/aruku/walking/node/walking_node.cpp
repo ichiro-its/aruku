@@ -101,6 +101,12 @@ WalkingNode::WalkingNode(
 
 void WalkingNode::update()
 {
+  // don't update if action manager or walk setting is open
+  if (action_manager_is_open || walk_setting_is_open) {
+    std::cout << "[DEBUG] action manager or walk setting is open" << std::endl;
+    return;
+  }
+
   publish_joints();
   publish_status();
 }

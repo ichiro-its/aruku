@@ -78,7 +78,7 @@ private:
   double x_move;
   double y_move;
   keisan::Angle<double> a_move;
-  double a_move_aim_on;
+  bool a_move_aim_on;
 
   // config member
   double period_time;

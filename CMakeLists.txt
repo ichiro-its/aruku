@@ -90,13 +90,15 @@ install(TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
-  RUNTIME DESTINATION "bin")
+  RUNTIME DESTINATION "bin"
+  )
 
 install(TARGETS ${PROJECT_NAME}_exported
   EXPORT export_${PROJECT_NAME}_exported
   ARCHIVE DESTINATION "lib"
   LIBRARY DESTINATION "lib"
-  RUNTIME DESTINATION "bin")
+  RUNTIME DESTINATION "bin"
+  )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -fPIC)
 
@@ -122,7 +124,8 @@ install(TARGETS
   control
   main
   walking
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib/${PROJECT_NAME}
+  )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -137,7 +140,8 @@ ament_export_dependencies(
   keisan
   rclcpp
   tachimawari
-  tachimawari_interfaces)
+  tachimawari_interfaces
+  )
 ament_export_include_directories("include")
 ament_export_libraries(${PROJECT_NAME}_exported)
 ament_package()

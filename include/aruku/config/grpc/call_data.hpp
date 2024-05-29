@@ -27,15 +27,12 @@
 #include "grpc/support/log.h"
 #include "grpcpp/grpcpp.h"
 
-namespace aruku
-{
+namespace aruku {
 template <class ConfigRequest, class ConfigReply>
-class CallData : public CallDataBase
-{
+class CallData : public CallDataBase {
 public:
-  CallData(
-    aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-    const std::string path);
+  CallData(aruku_interfaces::proto::Config::AsyncService *service,
+           grpc::ServerCompletionQueue *cq, const std::string path);
 
   void Proceed();
 
@@ -44,13 +41,13 @@ protected:
 
   enum CallStatus { CREATE, PROCESS, FINISH };
 
-  CallStatus status_;  // The current serving state.
+  CallStatus status_; // The current serving state.
 
-  aruku_interfaces::proto::Config::AsyncService * service_;
+  aruku_interfaces::proto::Config::AsyncService *service_;
 
   const std::string path_;
 
-  grpc::ServerCompletionQueue * cq_;
+  grpc::ServerCompletionQueue *cq_;
   grpc::ServerContext ctx_;
   ConfigRequest request_;
   ConfigReply reply_;
@@ -59,29 +56,31 @@ protected:
 
 template <class ConfigRequest, class ConfigReply>
 CallData<ConfigRequest, ConfigReply>::CallData(
-  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string path)
-: status_(CREATE), service_(service), cq_(cq), responder_(&ctx_), path_(path)
-{
-}
+    aruku_interfaces::proto::Config::AsyncService *service,
+    grpc::ServerCompletionQueue *cq, const std::string path)
+    : status_(CREATE), service_(service), cq_(cq), responder_(&ctx_),
+      path_(path) {}
 
 template <class ConfigRequest, class ConfigReply>
-void CallData<ConfigRequest, ConfigReply>::Proceed()
-{
-  if (status_ == CREATE) {
+void CallData<ConfigRequest, ConfigReply>::Proceed() {
+  switch (status_) {
+  case CREATE:
     status_ = PROCESS;
     WaitForRequest();
-  } else if (status_ == PROCESS) {
+    break;
+  case PROCESS:
     AddNextToCompletionQueue();
     HandleRequest();
     status_ = FINISH;
     responder_.Finish(reply_, grpc::Status::OK, this);
-  } else {
+    break;
+  default:
     GPR_ASSERT(status_ == FINISH);
     delete this;
+    break;
   }
 }
 
-}  // namespace aruku
+} // namespace aruku
 
-#endif  // __ARUKU__CONFIG__GRPC__CALL_DATA_HPP__
+#endif // __ARUKU__CONFIG__GRPC__CALL_DATA_HPP__

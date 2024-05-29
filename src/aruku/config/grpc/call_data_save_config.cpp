@@ -53,7 +53,7 @@ void CallDataSaveConfig::HandleRequest()
     nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
     config.save_config(kinematic_data, walking_data);
     RCLCPP_INFO(rclcpp::get_logger("Save config"), " config has been saved!  ");
-  } catch (nlohmann::json::exception e) {
+  } catch (const nlohmann::json::exception & e) {
     RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
   }
 }

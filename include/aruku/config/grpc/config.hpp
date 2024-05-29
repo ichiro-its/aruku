@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,46 +21,25 @@
 #ifndef ARUKU__CONFIG__GRPC__CONFIG_HPP_
 #define ARUKU__CONFIG__GRPC__CONFIG_HPP_
 
-#include <chrono>
-#include <fstream>
-#include <future>
-#include <iostream>
-#include <map>
 #include <memory>
-#include <string>
 #include <thread>
 
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-#include "absl/strings/str_format.h"
-#include "aruku/config/grpc/call_data.hpp"
-#include "aruku/config/grpc/call_data_base.hpp"
-#include "aruku/walking/process/kinematic.hpp"
-#include "aruku/walking/node/walking_node.hpp"
-#include "aruku_interfaces/aruku.grpc.pb.h"
-#include "aruku_interfaces/aruku.pb.h"
-#include "aruku_interfaces/msg/set_config.hpp"
-#include "aruku_interfaces/msg/set_walking.hpp"
 #include "grpc/support/log.h"
 #include "grpcpp/grpcpp.h"
-#include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "tachimawari/joint/model/joint.hpp"
 
 using aruku_interfaces::proto::Config;
 
-namespace aruku
-{
-class ConfigGrpc
-{
+namespace aruku {
+class ConfigGrpc {
 public:
   explicit ConfigGrpc();
-  explicit ConfigGrpc(const std::string & path);
+  explicit ConfigGrpc(const std::string &path);
 
   ~ConfigGrpc();
 
-  void Run(uint16_t port, const std::string & path, rclcpp::Node::SharedPtr node,
-           const std::shared_ptr<aruku::WalkingNode> & walking_node);
+  void Run(uint16_t port, const std::string &path, const rclcpp::Node::SharedPtr & node,
+           const std::shared_ptr<aruku::WalkingNode> &walking_node);
 
 private:
   std::string path;
@@ -73,6 +52,6 @@ private:
   std::shared_ptr<aruku::WalkingNode> walking_node_;
 };
 
-}  // namespace aruku
+} // namespace aruku
 
-#endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_
+#endif // ARUKU__CONFIG__GRPC__CONFIG_HPP_

@@ -24,22 +24,28 @@
 #include <memory>
 #include <thread>
 
+#include "aruku/walking/node/walking_node.hpp"
+#include "aruku_interfaces/aruku.grpc.pb.h"
+#include "aruku_interfaces/aruku.pb.h"
 #include "grpc/support/log.h"
 #include "grpcpp/grpcpp.h"
 #include "rclcpp/rclcpp.hpp"
 
 using aruku_interfaces::proto::Config;
 
-namespace aruku {
-class ConfigGrpc {
+namespace aruku
+{
+class ConfigGrpc
+{
 public:
   explicit ConfigGrpc();
-  explicit ConfigGrpc(const std::string &path);
+  explicit ConfigGrpc(const std::string & path);
 
   ~ConfigGrpc();
 
-  void Run(uint16_t port, const std::string &path, const rclcpp::Node::SharedPtr & node,
-           const std::shared_ptr<aruku::WalkingNode> &walking_node);
+  void Run(
+    uint16_t port, const std::string & path, const rclcpp::Node::SharedPtr & node,
+    const std::shared_ptr<aruku::WalkingNode> & walking_node);
 
 private:
   std::string path;
@@ -52,6 +58,6 @@ private:
   std::shared_ptr<aruku::WalkingNode> walking_node_;
 };
 
-} // namespace aruku
+}  // namespace aruku
 
-#endif // ARUKU__CONFIG__GRPC__CONFIG_HPP_
+#endif  // ARUKU__CONFIG__GRPC__CONFIG_HPP_

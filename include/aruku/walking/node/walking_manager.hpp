@@ -73,6 +73,8 @@ private:
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
 
+  bool using_antibacklash;
+
   // output member
   Kinematic kinematic;
 

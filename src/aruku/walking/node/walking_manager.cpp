@@ -141,6 +141,13 @@ void WalkingManager::set_config(
         std::cerr << "parse error at byte " << ex.byte << std::endl;
         throw ex;
       }
+    } else if (key == "antibacklash") {
+      try {
+        val.at("using_antibacklash").get_to(using_antibacklash);
+      } catch (nlohmann::json::parse_error & ex) {
+        std::cerr << "parse error at byte " << ex.byte << std::endl;
+        throw ex;
+      }
     }
   }
 
@@ -257,6 +264,12 @@ bool WalkingManager::process()
 
           if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
             offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * gyro[1] * 4;
+          }
+        }
+
+        if (using_antibacklash) {
+          if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL || joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
+            offset = 2 * (offset - joint.get_position_value()) + joint.get_position_value();
           }
         }
 

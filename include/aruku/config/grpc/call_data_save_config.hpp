@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,33 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include <string>
-#include <memory>
+#ifndef ARUKU__CONFIG__GRPC__CALL_DATA_SAVE_CONFIG_HPP__
+#define ARUKU__CONFIG__GRPC__CALL_DATA_SAVE_CONFIG_HPP__
 
-#include "aruku/node/aruku_node.hpp"
+#include "aruku/config/grpc/call_data.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-int main(int argc, char * argv[])
+namespace aruku
 {
-  rclcpp::init(argc, argv);
+class CallDataSaveConfig
+: CallData<aruku_interfaces::proto::ConfigWalking, aruku_interfaces::proto::Empty>
+{
+public:
+  CallDataSaveConfig(
+    aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+    const std::string & path);
 
-  if (argc < 2) {
-    std::cerr << "Please specify the path!" << std::endl;
-    return 0;
-  }
+protected:
+  void AddNextToCompletionQueue() override;
+  void WaitForRequest();
+  void HandleRequest();
+};
 
-  std::string path = argv[1];
-  auto node = std::make_shared<rclcpp::Node>("aruku_node");
-  auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
+}  // namespace aruku
 
-  auto walking_manager = std::make_shared<aruku::WalkingManager>();
-  walking_manager->load_config(path);
-
-  aruku_node->set_walking_manager(walking_manager);
-  aruku_node->run_config_service(path);
-
-  rclcpp::spin(node);
-  rclcpp::shutdown();
-
-  return 0;
-}
+#endif  // ARUKU__CONFIG__GRPC__CALL_DATA_SAVE_CONFIG_HPP__

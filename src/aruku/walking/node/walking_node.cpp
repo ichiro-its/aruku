@@ -101,6 +101,10 @@ WalkingNode::WalkingNode(
 
 void WalkingNode::update()
 {
+  if (action_manager_is_open) {
+    return;
+  }
+
   publish_joints();
   publish_status();
 }

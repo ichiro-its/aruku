@@ -18,22 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/config/utils/config.hpp"
+
 #include <fstream>
 #include <iomanip>
 #include <string>
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku/walking/process/kinematic.hpp"
-
 #include "nlohmann/json.hpp"
 
 namespace aruku
 {
-
-Config::Config(const std::string & path)
-: path(path)
-{
-}
+Config::Config(const std::string & path) : path(path) {}
 
 std::string Config::get_config(const std::string & key) const
 {
@@ -49,17 +45,21 @@ std::string Config::get_config(const std::string & key) const
   } else if (key == "kinematic") {
     std::ifstream kinematic_file(path + "kinematic.json");
     nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
-
-    kinematic_data.erase("length");
-
     return kinematic_data.dump();
   }
 
   return "";
 }
 
-void Config::save_config(
-  const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+nlohmann::json Config::get_grpc_config() const
+{  
+    std::ifstream grpc_file(path + "grpc.json");
+    nlohmann::json grpc_data = nlohmann::json::parse(grpc_file);
+    grpc_file.close();
+    return grpc_data;
+}
+
+void Config::save_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;

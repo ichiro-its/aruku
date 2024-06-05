@@ -29,12 +29,13 @@
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "aruku/config/grpc/config.hpp"
 
 namespace aruku
 {
 
-ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
-: node(node), config(path), set_config_subscriber(nullptr)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, const std::shared_ptr<WalkingNode> & walking_node)
+: node(node), config(path), set_config_subscriber(nullptr), walking_node(walking_node)
 {
   get_config_server = node->create_service<GetConfig>(
     get_node_prefix() + "/get_config",
@@ -53,13 +54,13 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path)
         this->config.save_config(kinematic_data, walking_data);
         response->status = true;
       } catch (std::ofstream::failure) {
-        // TODO(maroqijalil): log it
         response->status = false;
       } catch (nlohmann::json::exception) {
-        // TODO(maroqijalil): log it
         response->status = false;
       }
     });
+    config_grpc.Run(path, node, walking_node);
+    RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");
 }
 
 void ConfigNode::set_config_callback(

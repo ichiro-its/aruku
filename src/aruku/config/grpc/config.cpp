@@ -55,7 +55,7 @@ void ConfigGrpc::SignIntHandler(int signum) {
   exit(signum);
 }
 
-void ConfigGrpc::Run(uint16_t port, const std::string &path,
+void ConfigGrpc::Run(const std::string &path,
                      const rclcpp::Node::SharedPtr & node,
                      const std::shared_ptr<WalkingNode> &walking_node) {
   Config config(path);

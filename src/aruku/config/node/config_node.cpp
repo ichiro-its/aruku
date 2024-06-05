@@ -59,7 +59,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, c
         response->status = false;
       }
     });
-    config_grpc.Run(5050, path, node, walking_node);
+    config_grpc.Run(path, node, walking_node);
     RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");
 }
 

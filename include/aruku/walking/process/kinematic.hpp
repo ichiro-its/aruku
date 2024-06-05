@@ -54,7 +54,8 @@ public:
   bool run_kinematic();
 
   void set_move_amplitude(
-    double x, double y, const keisan::Angle<double> & a, bool aim_on = false);
+    double x, double y, const keisan::Angle<double> & a, bool aim_on = false, bool inverse_a_move = false);
+  bool is_inverse_a_move() const;
 
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
@@ -78,7 +79,8 @@ private:
   double x_move;
   double y_move;
   keisan::Angle<double> a_move;
-  double a_move_aim_on;
+  bool a_move_aim_on;
+  bool inverse_a_move;
 
   // config member
   double period_time;

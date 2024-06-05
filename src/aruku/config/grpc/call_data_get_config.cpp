@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Ichiro ITS
+// Copyright (c) 2024 Ichiro ITS
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,34 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ARUKU__CONFIG__UTILS__CONFIG_HPP_
-#define ARUKU__CONFIG__UTILS__CONFIG_HPP_
+#include "aruku/config/grpc/call_data_get_config.hpp"
 
-#include <fstream>
-#include <map>
-#include <string>
-
-#include "nlohmann/json.hpp"
-#include "tachimawari/joint/model/joint.hpp"
-#include "aruku/walking/process/kinematic.hpp"
+#include "aruku/config/utils/config.hpp"
+#include "aruku_interfaces/aruku.grpc.pb.h"
+#include "aruku_interfaces/aruku.pb.h"
+#include "rclcpp/rclcpp.hpp"
 
 namespace aruku
 {
-
-class Config
+CallDataGetConfig::CallDataGetConfig(
+  aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
+  const std::string & path)
+: CallData(service, cq, path)
 {
-public:
-  explicit Config(const std::string & path);
+  Proceed();
+}
 
-  std::string get_config(const std::string & key) const;
-  void save_config(
-    const nlohmann::json & kinematic_data, const nlohmann::json & walking_data);
-  nlohmann::json get_grpc_config() const;
-  
-private:
-  std::string path;
-};
+void CallDataGetConfig::AddNextToCompletionQueue() { new CallDataGetConfig(service_, cq_, path_); }
 
+void CallDataGetConfig::WaitForRequest()
+{
+  service_->RequestGetConfig(&ctx_, &request_, &responder_, cq_, cq_, this);
+}
+
+void CallDataGetConfig::HandleRequest()
+{
+  Config config(path_);
+  reply_.set_json_kinematic(config.get_config("kinematic"));
+  reply_.set_json_walking(config.get_config("walking"));
+  RCLCPP_INFO(rclcpp::get_logger("Get config"), "config has been sent!");
+}
 }  // namespace aruku
-
-#endif  // ARUKU__CONFIG__UTILS__CONFIG_HPP_

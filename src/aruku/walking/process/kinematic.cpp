@@ -87,12 +87,18 @@ bool Kinematic::get_running_state() const
 }
 
 void Kinematic::set_move_amplitude(
-  double x, double y, const keisan::Angle<double> & a, bool aim_on)
+  double x, double y, const keisan::Angle<double> & a, bool aim_on, bool inverse_a)
 {
   x_move = x;
   y_move = y;
   a_move = a;
   a_move_aim_on = aim_on;
+  inverse_a_move = inverse_a;
+}
+
+bool Kinematic::is_inverse_a_move() const
+{
+  return inverse_a_move;
 }
 
 double Kinematic::get_x_move_amplitude() const

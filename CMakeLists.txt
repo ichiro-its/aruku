@@ -66,6 +66,7 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   tachimawari
   tachimawari_interfaces
+  gRPC
   )
 
 ament_target_dependencies(${PROJECT_NAME}_exported

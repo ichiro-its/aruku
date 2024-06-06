@@ -38,9 +38,6 @@ std::string Config::get_config(const std::string & key) const
     nlohmann::json walking_data = nlohmann::json::parse(walking_file);
     walking_file.close();
 
-    walking_data.erase("angles_direction");
-    walking_data.erase("pid");
-
     return walking_data.dump();
   } else if (key == "kinematic") {
     std::ifstream kinematic_file(path + "kinematic.json");

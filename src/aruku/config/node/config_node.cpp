@@ -34,8 +34,9 @@
 namespace aruku
 {
 
-ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, const std::shared_ptr<WalkingNode> & walking_node)
-: node(node), config(path), set_config_subscriber(nullptr), walking_node(walking_node)
+ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
+  const std::shared_ptr<WalkingNode> & walking_node, const std::shared_ptr<WalkingManager> & walking_manager)
+: node(node), config(path), set_config_subscriber(nullptr), walking_node(walking_node), walking_manager(walking_manager)
 {
   get_config_server = node->create_service<GetConfig>(
     get_node_prefix() + "/get_config",
@@ -59,7 +60,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, c
         response->status = false;
       }
     });
-    config_grpc.Run(path, node, walking_node);
+    config_grpc.Run(path, node, walking_node, walking_manager);
     RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");
 }
 

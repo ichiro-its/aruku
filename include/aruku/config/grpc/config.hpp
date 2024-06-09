@@ -45,7 +45,8 @@ public:
 
   void Run(
     const std::string & path, const rclcpp::Node::SharedPtr & node,
-    const std::shared_ptr<aruku::WalkingNode> & walking_node);
+    const std::shared_ptr<aruku::WalkingNode> & walking_node,
+    const std::shared_ptr<aruku::WalkingManager> & walking_manager);
 
 private:
   std::string path;

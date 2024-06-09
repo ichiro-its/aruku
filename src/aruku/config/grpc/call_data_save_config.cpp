@@ -29,15 +29,15 @@ namespace aruku
 {
 CallDataSaveConfig::CallDataSaveConfig(
   aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-  const std::string & path)
-: CallData(service, cq, path)
+  const std::string & path, const std::shared_ptr<aruku::WalkingManager> & walking_manager)
+: CallData(service, cq, path), walking_manager_(walking_manager)
 {
   Proceed();
 }
 
 void CallDataSaveConfig::AddNextToCompletionQueue()
 {
-  new CallDataSaveConfig(service_, cq_, path_);
+  new CallDataSaveConfig(service_, cq_, path_, walking_manager_);
 }
 
 void CallDataSaveConfig::WaitForRequest()
@@ -52,7 +52,8 @@ void CallDataSaveConfig::HandleRequest()
     nlohmann::json kinematic_data = nlohmann::json::parse(request_.json_kinematic());
     nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
     config.save_config(kinematic_data, walking_data);
-    RCLCPP_INFO(rclcpp::get_logger("Save config"), " config has been saved!  ");
+    walking_manager_->load_config(path_);
+    RCLCPP_INFO(rclcpp::get_logger("Save config"), "config has been saved!");
   } catch (const nlohmann::json::exception & e) {
     RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
   }

@@ -57,7 +57,8 @@ void ConfigGrpc::SignIntHandler(int signum) {
 
 void ConfigGrpc::Run(const std::string &path,
                      const rclcpp::Node::SharedPtr & node,
-                     const std::shared_ptr<WalkingNode> &walking_node) {
+                     const std::shared_ptr<WalkingNode> &walking_node,
+                     const std::shared_ptr<WalkingManager> &walking_manager) {
   Config config(path);
   std::string server_address = absl::StrFormat(
       "0.0.0.0:%d", config.get_grpc_config()["port"].get<uint16_t>());
@@ -71,9 +72,9 @@ void ConfigGrpc::Run(const std::string &path,
   std::cout << "Server listening on " << server_address << std::endl;
 
   signal(SIGINT, SignIntHandler);
-  thread_ = std::thread([&path, &node, &walking_node, this]() {
+  thread_ = std::thread([&path, &node, &walking_node, &walking_manager, this]() {
     new CallDataGetConfig(&service_, cq_.get(), path);
-    new CallDataSaveConfig(&service_, cq_.get(), path);
+    new CallDataSaveConfig(&service_, cq_.get(), path, walking_manager);
     new CallDataPublishConfig(&service_, cq_.get(), path, node);
     new CallDataSetConfig(&service_, cq_.get(), path, node);
     new CallDataSetAppStatus(&service_, cq_.get(), path, walking_node);

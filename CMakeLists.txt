@@ -40,6 +40,7 @@ add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/grpc/config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_base.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_get_config.cpp"
+  "src/${PROJECT_NAME}/config/grpc/call_data_load_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_set_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_save_config.cpp"
   "src/${PROJECT_NAME}/config/grpc/call_data_publish_config.cpp"

@@ -30,6 +30,7 @@
 #include "absl/strings/str_format.h"
 #include "aruku/config/grpc/call_data_base.hpp"
 #include "aruku/config/grpc/call_data_get_config.hpp"
+#include "aruku/config/grpc/call_data_load_config.hpp"
 #include "aruku/config/grpc/call_data_publish_config.hpp"
 #include "aruku/config/grpc/call_data_save_config.hpp"
 #include "aruku/config/grpc/call_data_set_app_status.hpp"
@@ -78,6 +79,7 @@ void ConfigGrpc::Run(const std::string &path,
     new CallDataPublishConfig(&service_, cq_.get(), path, node);
     new CallDataSetConfig(&service_, cq_.get(), path, node);
     new CallDataSetAppStatus(&service_, cq_.get(), path, walking_node);
+    new CallDataLoadConfig(&service_, cq_.get(), path, walking_manager);
     void *tag; // uniquely identifies a request.
     bool ok = true;
     while (true) {

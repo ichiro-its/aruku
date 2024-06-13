@@ -73,7 +73,6 @@ WalkingNode::WalkingNode(
 
   disable_publish_joint_subscriber = node->create_subscription<Bool>(
     "/walking/disable_walking", 10, [this](const Bool::SharedPtr message) {
-      printf("walking disable : %d\n", message.get()->data);
       this->disable_publish_join = message.get()->data;
     });
 

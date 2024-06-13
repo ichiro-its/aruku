@@ -24,6 +24,7 @@
 #include "aruku/walking/node/walking_node.hpp"
 
 #include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/node/walking_node.hpp"
 #include "aruku/walking/process/kinematic.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
@@ -56,7 +57,7 @@ std::string WalkingNode::set_odometry_topic()
 
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
-: walking_manager(walking_manager)
+: walking_manager(walking_manager), disable_publish_join(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
     set_walking_topic(), 10,
@@ -70,6 +71,11 @@ WalkingNode::WalkingNode(
       }
     });
 
+  disable_publish_joint_subscriber = node->create_subscription<Bool>(
+    "/walking/disable_walking", 10, [this](const Bool::SharedPtr message) {
+      printf("walking disable : %d\n", message.get()->data);
+      this->disable_publish_join = message.get()->data;
+    });
 
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
     kansei::measurement::MeasurementNode::status_topic(), 10,
@@ -124,7 +130,7 @@ void WalkingNode::publish_joints()
 
   joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
-  set_joints_publisher->publish(joints_msg);
+  if (!disable_publish_join) set_joints_publisher->publish(joints_msg);
 }
 
 void WalkingNode::publish_status()

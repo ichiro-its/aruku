@@ -33,6 +33,7 @@
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 namespace aruku
 {
@@ -46,6 +47,7 @@ public:
   using MeasurementStatus = kansei_interfaces::msg::Status;
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
+  using Bool = std_msgs::msg::Bool;
 
   static std::string get_node_prefix();
   static std::string set_walking_topic();
@@ -76,9 +78,12 @@ private:
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
+  rclcpp::Subscription<Bool>::SharedPtr disable_publish_joint_subscriber;
   int status;
 
   bool action_manager_is_open = false;
+  bool disable_publish_join = false;
+
 };
 
 }  // namespace aruku

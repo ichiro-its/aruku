@@ -43,7 +43,8 @@ public:
   using SaveConfig = aruku_interfaces::srv::SaveConfig;
   using SetConfig = aruku_interfaces::msg::SetConfig;
 
-  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path, const std::shared_ptr<WalkingNode> & walking_node);
+  explicit ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
+    const std::shared_ptr<WalkingNode> & walking_node, const std::shared_ptr<WalkingManager> & walking_manager);
 
   void set_config_callback(
     const std::function<void(const SetConfig::SharedPtr)> & callback);

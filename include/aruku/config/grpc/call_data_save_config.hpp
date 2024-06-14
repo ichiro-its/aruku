@@ -22,6 +22,7 @@
 #define ARUKU__CONFIG__GRPC__CALL_DATA_SAVE_CONFIG_HPP__
 
 #include "aruku/config/grpc/call_data.hpp"
+#include "aruku/walking/node/walking_manager.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku
@@ -32,12 +33,13 @@ class CallDataSaveConfig
 public:
   CallDataSaveConfig(
     aruku_interfaces::proto::Config::AsyncService * service, grpc::ServerCompletionQueue * cq,
-    const std::string & path);
+    const std::string & path, const std::shared_ptr<aruku::WalkingManager> & walking_manager);
 
 protected:
   void AddNextToCompletionQueue() override;
   void WaitForRequest();
   void HandleRequest();
+  std::shared_ptr<aruku::WalkingManager> walking_manager_;
 };
 
 }  // namespace aruku

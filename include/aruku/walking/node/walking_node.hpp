@@ -82,7 +82,7 @@ private:
   int status;
 
   bool action_manager_is_open = false;
-  bool disable_publish_join = false;
+  bool disable_publish_joint = false;
 
 };
 

@@ -57,7 +57,7 @@ std::string WalkingNode::set_odometry_topic()
 
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
-: walking_manager(walking_manager), disable_publish_join(false)
+: walking_manager(walking_manager), disable_publish_joint(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
     set_walking_topic(), 10,
@@ -73,7 +73,7 @@ WalkingNode::WalkingNode(
 
   disable_publish_joint_subscriber = node->create_subscription<Bool>(
     "/walking/disable_walking", 10, [this](const Bool::SharedPtr message) {
-      this->disable_publish_join = message.get()->data;
+      this->disable_publish_joint = message.get()->data;
     });
 
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
@@ -129,7 +129,7 @@ void WalkingNode::publish_joints()
 
   joints_msg.control_type = tachimawari::joint::Middleware::FOR_WALKING;
 
-  if (!disable_publish_join) set_joints_publisher->publish(joints_msg);
+  if (!disable_publish_joint) set_joints_publisher->publish(joints_msg);
 }
 
 void WalkingNode::publish_status()

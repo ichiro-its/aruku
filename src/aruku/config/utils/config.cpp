@@ -35,13 +35,14 @@ std::string Config::get_config(const std::string & key) const
 {
   if (key == "walking") {
     std::ifstream walking_file(path + "walking.json");
-    nlohmann::json walking_data = nlohmann::json::parse(walking_file);
+    nlohmann::ordered_json walking_data = nlohmann::ordered_json::parse(walking_file);
     walking_file.close();
 
     return walking_data.dump();
   } else if (key == "kinematic") {
     std::ifstream kinematic_file(path + "kinematic.json");
-    nlohmann::json kinematic_data = nlohmann::json::parse(kinematic_file);
+    nlohmann::ordered_json kinematic_data = nlohmann::ordered_json::parse(kinematic_file);
+
     return kinematic_data.dump();
   }
 
@@ -49,14 +50,14 @@ std::string Config::get_config(const std::string & key) const
 }
 
 nlohmann::json Config::get_grpc_config() const
-{  
+{
     std::ifstream grpc_file(path + "grpc.json");
     nlohmann::json grpc_data = nlohmann::json::parse(grpc_file);
     grpc_file.close();
     return grpc_data;
 }
 
-void Config::save_config(const nlohmann::json & kinematic_data, const nlohmann::json & walking_data)
+void Config::save_config(const nlohmann::ordered_json & kinematic_data, const nlohmann::ordered_json & walking_data)
 {
   std::ofstream kinematic_file(path + "kinematic.json", std::ios::out | std::ios::trunc);
   kinematic_file << std::setw(2) << kinematic_data << std::endl;

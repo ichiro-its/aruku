@@ -49,8 +49,8 @@ void CallDataSaveConfig::HandleRequest()
 {
   Config config(path_);
   try {
-    nlohmann::json kinematic_data = nlohmann::json::parse(request_.json_kinematic());
-    nlohmann::json walking_data = nlohmann::json::parse(request_.json_walking());
+    nlohmann::ordered_json kinematic_data = nlohmann::ordered_json::parse(request_.json_kinematic());
+    nlohmann::ordered_json walking_data = nlohmann::ordered_json::parse(request_.json_walking());
     config.save_config(kinematic_data, walking_data);
     walking_manager_->load_config(path_);
     RCLCPP_INFO(rclcpp::get_logger("Save config"), "config has been saved!");

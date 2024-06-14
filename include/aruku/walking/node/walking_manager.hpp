@@ -72,6 +72,7 @@ private:
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
+  double odometry_bx_coefficient;
 
   // output member
   Kinematic kinematic;

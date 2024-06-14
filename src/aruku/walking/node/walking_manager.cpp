@@ -81,6 +81,7 @@ void WalkingManager::set_config(
         val.at("fx_coefficient").get_to(odometry_fx_coefficient);
         val.at("ly_coefficient").get_to(odometry_ly_coefficient);
         val.at("ry_coefficient").get_to(odometry_ry_coefficient);
+        val.at("bx_coefficient").get_to(odometry_bx_coefficient);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
         throw ex;
@@ -210,7 +211,12 @@ bool WalkingManager::process()
       double y_amplitude = kinematic.get_y_move_amplitude();
 
       if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
-        double dx = x_amplitude * odometry_fx_coefficient / 30.0;
+        float dx = 0.0;
+        if (x_amplitude > 0.0) {
+          dx = x_amplitude * odometry_fx_coefficient / 30.0;
+        } else {
+          dx = x_amplitude * odometry_bx_coefficient / 30.0;
+        }
 
         double dy = 0.0;
         if (y_amplitude > 0.0) {

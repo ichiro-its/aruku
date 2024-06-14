@@ -253,12 +253,6 @@ bool WalkingManager::process()
             Joint::angle_to_value(kinematic.get_hip_offest());
         }
 
-        if (using_antibacklash) {
-          if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL || joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
-            offset *= -2;
-          }
-        }
-
         offset += joint.get_position_value();
 
         if (balance_enable) {

@@ -59,9 +59,9 @@ public:
 
   void set_action_manager_is_open(bool is_open) { action_manager_is_open = is_open;}
 
-private:
   void publish_joints();
   void publish_status();
+private:
 
   rclcpp::Node::SharedPtr node;
 

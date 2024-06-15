@@ -192,9 +192,9 @@ const keisan::Point2 & WalkingManager::get_position() const
   return position;
 }
 
-void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on, bool inverse_a_move)
+void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
-  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on, inverse_a_move);
+  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
 }
 
@@ -237,12 +237,6 @@ bool WalkingManager::process()
       auto angles = kinematic.get_angles();
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
-
-        if (kinematic.is_inverse_a_move()) {
-          if (joint_id == JointId::LEFT_HIP_YAW || joint_id == JointId::RIGHT_HIP_YAW) {
-            angles[joint_id] = -angles[joint_id];
-          }
-        }
 
         double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
 

@@ -64,7 +64,7 @@ WalkingNode::WalkingNode(
       if (message->run) {
         this->walking_manager->run(
           message->x_move, message->y_move, message->a_move,
-          message->aim_on, message->inverse_a_move);
+          message->aim_on);
       } else {
         this->walking_manager->stop();
       }

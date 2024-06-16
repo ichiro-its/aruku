@@ -37,18 +37,14 @@ namespace aruku
 
 std::string WalkingNode::get_node_prefix() { return "walking"; }
 
-std::string WalkingNode::set_walking_topic() { return get_node_prefix() + "/set_walking"; }
-
 std::string WalkingNode::status_topic() { return get_node_prefix() + "/status"; }
-
-std::string WalkingNode::set_odometry_topic() { return get_node_prefix() + "/set_odometry"; }
 
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager), disable_publish_joint(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    set_walking_topic(), 10, [this](const SetWalking::SharedPtr message) {
+    "./walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
           message->x_move, message->y_move, message->a_move, message->aim_on);
@@ -76,7 +72,7 @@ WalkingNode::WalkingNode(
     });
 
   set_odometry_subscriber = node->create_subscription<Point2>(
-    set_odometry_topic(), 10, [this](const Point2::SharedPtr message) {
+    "/walking/set_odometry", 10, [this](const Point2::SharedPtr message) {
       this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 

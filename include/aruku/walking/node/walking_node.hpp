@@ -50,9 +50,7 @@ public:
   using Bool = std_msgs::msg::Bool;
 
   static std::string get_node_prefix();
-  static std::string set_walking_topic();
   static std::string status_topic();
-  static std::string set_odometry_topic();
 
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);

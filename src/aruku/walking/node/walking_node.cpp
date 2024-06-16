@@ -44,7 +44,7 @@ WalkingNode::WalkingNode(
 : walking_manager(walking_manager), disable_publish_joint(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    "./walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
+    "/walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
           message->x_move, message->y_move, message->a_move, message->aim_on);

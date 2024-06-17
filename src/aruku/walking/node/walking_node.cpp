@@ -35,16 +35,12 @@
 namespace aruku
 {
 
-std::string WalkingNode::get_node_prefix() { return "walking"; }
-
-std::string WalkingNode::status_topic() { return get_node_prefix() + "/status"; }
-
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager), disable_publish_joint(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    "/walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
+    "walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
           message->x_move, message->y_move, message->a_move, message->aim_on);
@@ -54,7 +50,7 @@ WalkingNode::WalkingNode(
     });
 
   disable_publish_joint_subscriber = node->create_subscription<Bool>(
-    "/walking/disable_walking", 10,
+    "walking/disable_walking", 10,
     [this](const Bool::SharedPtr message) { this->disable_publish_joint = message.get()->data; });
 
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
@@ -63,7 +59,7 @@ WalkingNode::WalkingNode(
       this->walking_manager->update_orientation(keisan::make_degree(message->orientation.yaw));
     });
 
-  status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
+  status_publisher = node->create_publisher<WalkingStatus>("walking/status", 10);
 
   unit_subscriber =
     node->create_subscription<Unit>("/imu/unit", 10, [this](const Unit::SharedPtr message) {
@@ -72,7 +68,7 @@ WalkingNode::WalkingNode(
     });
 
   set_odometry_subscriber = node->create_subscription<Point2>(
-    "/walking/set_odometry", 10, [this](const Point2::SharedPtr message) {
+    "walking/set_odometry", 10, [this](const Point2::SharedPtr message) {
       this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 

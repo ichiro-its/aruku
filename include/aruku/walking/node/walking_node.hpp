@@ -48,10 +48,7 @@ public:
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
   using Bool = std_msgs::msg::Bool;
-
-  static std::string get_node_prefix();
-  static std::string status_topic();
-
+  
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 

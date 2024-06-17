@@ -48,7 +48,7 @@ public:
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
   using Bool = std_msgs::msg::Bool;
-  
+
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
 
@@ -77,7 +77,7 @@ private:
   int status;
 
   bool action_manager_is_open = false;
-  bool disable_publish_joint = false;
+  bool disable_publish_joint;
 
 };
 

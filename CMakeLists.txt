@@ -16,6 +16,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_index_cpp REQUIRED)
 find_package(aruku_interfaces REQUIRED)
+find_package(jitsuyo REQUIRED)
 find_package(kansei REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
@@ -32,7 +33,6 @@ message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 add_library(${PROJECT_NAME} SHARED
   "src/${PROJECT_NAME}/config/node/config_node.cpp"
-  "src/${PROJECT_NAME}/config/utils/config.cpp"
   "src/${PROJECT_NAME}/node/aruku_node.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_manager.cpp"
   "src/${PROJECT_NAME}/walking/node/walking_node.cpp"
@@ -66,6 +66,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 ament_target_dependencies(${PROJECT_NAME}
   ament_index_cpp
   aruku_interfaces
+  jitsuyo
   kansei
   kansei_interfaces
   keisan
@@ -78,6 +79,7 @@ ament_target_dependencies(${PROJECT_NAME}
 ament_target_dependencies(${PROJECT_NAME}_exported
   ament_index_cpp
   aruku_interfaces
+  jitsuyo
   kansei
   kansei_interfaces
   keisan
@@ -142,6 +144,7 @@ endif()
 ament_export_dependencies(
   ament_index_cpp
   aruku_interfaces
+  jitsuyo
   kansei
   kansei_interfaces
   keisan

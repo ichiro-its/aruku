@@ -22,7 +22,7 @@
 
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
-#include "aruku/config/utils/config.hpp"
+#include "nlohmann/json.hpp"
 
 namespace aruku {
 CallDataSetConfig::CallDataSetConfig(
@@ -47,7 +47,6 @@ void CallDataSetConfig::WaitForRequest()
 
 void CallDataSetConfig::HandleRequest()
 {
-  Config config(path_);  
   try {
     bool run = request_.run();
     double x_move = request_.x_move();

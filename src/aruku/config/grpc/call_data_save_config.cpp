@@ -20,9 +20,9 @@
 
 #include "aruku/config/grpc/call_data_save_config.hpp"
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
+#include "jitsuyo/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku
@@ -47,15 +47,20 @@ void CallDataSaveConfig::WaitForRequest()
 
 void CallDataSaveConfig::HandleRequest()
 {
-  Config config(path_);
-  try {
-    nlohmann::ordered_json kinematic_data = nlohmann::ordered_json::parse(request_.json_kinematic());
-    nlohmann::ordered_json walking_data = nlohmann::ordered_json::parse(request_.json_walking());
-    config.save_config(kinematic_data, walking_data);
-    walking_manager_->load_config(path_);
-    RCLCPP_INFO(rclcpp::get_logger("Save config"), "config has been saved!");
-  } catch (const nlohmann::json::exception & e) {
-    RCLCPP_ERROR(rclcpp::get_logger("Save config"), e.what());
+  nlohmann::ordered_json kinematic_data = nlohmann::ordered_json::parse(request_.json_kinematic());
+  nlohmann::ordered_json walking_data = nlohmann::ordered_json::parse(request_.json_walking());
+  
+  if (!jitsuyo::save_config(path_, "kinematic.json", kinematic_data)) {
+    RCLCPP_ERROR(rclcpp::get_logger("Save config"), "Failed to save kinematic config!");
+    return;
   }
+
+  if (!jitsuyo::save_config(path_, "walking.json", walking_data)) {
+    RCLCPP_ERROR(rclcpp::get_logger("Save config"), "Failed to save walking config!");
+    return;
+  }
+
+  walking_manager_->load_config(path_);
+  RCLCPP_INFO(rclcpp::get_logger("Save config"), "config has been saved!");
 }
 }  // namespace aruku

@@ -20,9 +20,9 @@
 
 #include "aruku/config/grpc/call_data_get_config.hpp"
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
+#include "jitsuyo/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku
@@ -44,9 +44,8 @@ void CallDataGetConfig::WaitForRequest()
 
 void CallDataGetConfig::HandleRequest()
 {
-  Config config(path_);
-  reply_.set_json_kinematic(config.get_config("kinematic"));
-  reply_.set_json_walking(config.get_config("walking"));
+  reply_.set_json_kinematic(jitsuyo::load_ordered_config(path_, "kinematic.json").dump());
+  reply_.set_json_walking(jitsuyo::load_ordered_config(path_, "walking.json").dump());
   RCLCPP_INFO(rclcpp::get_logger("Get config"), "config has been sent!");
 }
 }  // namespace aruku

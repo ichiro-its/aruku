@@ -24,9 +24,9 @@
 
 #include "aruku/config/node/config_node.hpp"
 #include "aruku/node/aruku_node.hpp"
-#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
+#include "jitsuyo/config.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "aruku/config/grpc/config.hpp"
@@ -36,29 +36,33 @@ namespace aruku
 
 ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
   const std::shared_ptr<WalkingNode> & walking_node, const std::shared_ptr<WalkingManager> & walking_manager)
-: node(node), config(path), set_config_subscriber(nullptr), walking_node(walking_node), walking_manager(walking_manager)
+: node(node), set_config_subscriber(nullptr), walking_node(walking_node), walking_manager(walking_manager)
 {
   get_config_server = node->create_service<GetConfig>(
     get_node_prefix() + "/get_config",
-    [this](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-      response->json_walking = this->config.get_config("walking");
-      response->json_kinematic = this->config.get_config("kinematic");
+    [this, path](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
+      response->json_walking = jitsuyo::load_ordered_config(path, "walking.json");
+      response->json_kinematic = jitsuyo::load_ordered_config(path, "kinematic.json");
     });
 
   save_config_server = node->create_service<SaveConfig>(
     get_node_prefix() + "/save_config",
-    [this](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
-      try {
-        nlohmann::json kinematic_data = nlohmann::json::parse(request->json_kinematic);
-        nlohmann::json walking_data = nlohmann::json::parse(request->json_walking);
+    [this, path](SaveConfig::Request::SharedPtr request, SaveConfig::Response::SharedPtr response) {
+      nlohmann::ordered_json kinematic_data = nlohmann::ordered_json::parse(request->json_kinematic);
+      nlohmann::ordered_json walking_data = nlohmann::ordered_json::parse(request->json_walking);
+      response->status = false;
 
-        this->config.save_config(kinematic_data, walking_data);
-        response->status = true;
-      } catch (std::ofstream::failure) {
-        response->status = false;
-      } catch (nlohmann::json::exception) {
-        response->status = false;
+      if (!jitsuyo::save_config(path, "kinematic.json", kinematic_data)) {
+        RCLCPP_ERROR(rclcpp::get_logger("Save config server"), "Failed to save kinematic config");
+        return;
       }
+
+      if (!jitsuyo::save_config(path, "walking.json", walking_data)) {
+        RCLCPP_ERROR(rclcpp::get_logger("Save config server"), "Failed to save walking config");
+        return;
+      }
+
+      response->status = true;
     });
     config_grpc.Run(path, node, walking_node, walking_manager);
     RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");

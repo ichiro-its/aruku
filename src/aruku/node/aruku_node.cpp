@@ -43,6 +43,7 @@ ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
       if (this->walking_manager->process()) {
         this->walking_node->update();
       }
+      this->walking_node->publish_status();
     }
   );
 }

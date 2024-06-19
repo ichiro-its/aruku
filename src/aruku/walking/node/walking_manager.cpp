@@ -81,6 +81,7 @@ void WalkingManager::set_config(
         val.at("fx_coefficient").get_to(odometry_fx_coefficient);
         val.at("ly_coefficient").get_to(odometry_ly_coefficient);
         val.at("ry_coefficient").get_to(odometry_ry_coefficient);
+        val.at("bx_coefficient").get_to(odometry_bx_coefficient);
       } catch (nlohmann::json::parse_error & ex) {
         std::cerr << "parse error at byte " << ex.byte << std::endl;
         throw ex;
@@ -191,9 +192,9 @@ const keisan::Point2 & WalkingManager::get_position() const
   return position;
 }
 
-void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on, bool inverse_a_move)
+void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
-  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on, inverse_a_move);
+  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
 }
 
@@ -210,7 +211,12 @@ bool WalkingManager::process()
       double y_amplitude = kinematic.get_y_move_amplitude();
 
       if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
-        double dx = x_amplitude * odometry_fx_coefficient / 30.0;
+        float dx = 0.0;
+        if (x_amplitude > 0.0) {
+          dx = x_amplitude * odometry_fx_coefficient / 30.0;
+        } else {
+          dx = x_amplitude * odometry_bx_coefficient / 30.0;
+        }
 
         double dy = 0.0;
         if (y_amplitude > 0.0) {
@@ -231,12 +237,6 @@ bool WalkingManager::process()
       auto angles = kinematic.get_angles();
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
-
-        if (kinematic.is_inverse_a_move()) {
-          if (joint_id == JointId::LEFT_HIP_YAW || joint_id == JointId::RIGHT_HIP_YAW) {
-            angles[joint_id] = -angles[joint_id];
-          }
-        }
 
         double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
 

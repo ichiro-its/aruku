@@ -48,7 +48,7 @@ public:
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
 
-  void run(double x_move, double y_move, double a_move, bool aim_on = false, bool inverse_a_move = false);
+  void run(double x_move, double y_move, double a_move, bool aim_on = false);
   void stop();
   bool process();
 
@@ -72,6 +72,7 @@ private:
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
+  double odometry_bx_coefficient;
 
   // output member
   Kinematic kinematic;

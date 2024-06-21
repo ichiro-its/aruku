@@ -44,8 +44,20 @@ void CallDataGetConfig::WaitForRequest()
 
 void CallDataGetConfig::HandleRequest()
 {
-  reply_.set_json_kinematic(jitsuyo::load_ordered_config(path_, "kinematic.json").dump());
-  reply_.set_json_walking(jitsuyo::load_ordered_config(path_, "walking.json").dump());
+  nlohmann::ordered_json kinematic_data;
+  nlohmann::ordered_json walking_data;
+  if (!jitsuyo::load_config(path_, "kinematic.json", kinematic_data)) {
+    RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load kinematic config");
+    return;
+  }
+
+  if (!jitsuyo::load_config(path_, "walking.json", walking_data)) {
+    RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load walking config");
+    return;
+  }
+
+  reply_.set_json_kinematic(kinematic_data.dump());
+  reply_.set_json_walking(walking_data.dump());
   RCLCPP_INFO(rclcpp::get_logger("Get config"), "config has been sent!");
 }
 }  // namespace aruku

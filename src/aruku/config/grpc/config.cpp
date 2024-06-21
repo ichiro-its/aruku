@@ -59,7 +59,11 @@ void ConfigGrpc::Run(const std::string &path,
                      const rclcpp::Node::SharedPtr & node,
                      const std::shared_ptr<WalkingNode> &walking_node,
                      const std::shared_ptr<WalkingManager> &walking_manager) {
-  nlohmann::json grpc_config = jitsuyo::load_ordered_config(path, "grpc.json");
+  nlohmann::json grpc_config;
+  if (!jitsuyo::load_config(path, "grpc.json", grpc_config)) {
+    RCLCPP_ERROR(rclcpp::get_logger("ConfigGrpc"), "Failed to load grpc config!");
+    return;
+  }
   std::string server_address = absl::StrFormat(
       "0.0.0.0:%d", grpc_config["port"].get<uint16_t>());
 

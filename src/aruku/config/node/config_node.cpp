@@ -41,8 +41,20 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
   get_config_server = node->create_service<GetConfig>(
     get_node_prefix() + "/get_config",
     [this, path](GetConfig::Request::SharedPtr request, GetConfig::Response::SharedPtr response) {
-      response->json_walking = jitsuyo::load_ordered_config(path, "walking.json");
-      response->json_kinematic = jitsuyo::load_ordered_config(path, "kinematic.json");
+      nlohmann::ordered_json walking_data;
+      nlohmann::ordered_json kinematic_data;
+      if (!jitsuyo::load_config(path, "walking.json", walking_data)) {
+        RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load walking config");
+        return;
+      }
+      
+      if (!jitsuyo::load_config(path, "kinematic.json", kinematic_data)) {
+        RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load kinematic config");
+        return;
+      }
+
+      response->json_walking = walking_data.dump();
+      response->json_kinematic = kinematic_data.dump();
     });
 
   save_config_server = node->create_service<SaveConfig>(

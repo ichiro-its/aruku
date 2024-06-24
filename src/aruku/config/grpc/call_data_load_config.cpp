@@ -20,9 +20,9 @@
 
 #include "aruku/config/grpc/call_data_load_config.hpp"
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku_interfaces/aruku.grpc.pb.h"
 #include "aruku_interfaces/aruku.pb.h"
+#include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace aruku

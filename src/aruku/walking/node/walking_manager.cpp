@@ -25,6 +25,7 @@
 #include "aruku/walking/node/walking_manager.hpp"
 
 #include "aruku/walking/process/kinematic.hpp"
+#include "jitsuyo/config.hpp"
 #include "keisan/angle/angle.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint_id.hpp"
@@ -55,94 +56,121 @@ void WalkingManager::set_config(
   const nlohmann::json & walking_data,
   const nlohmann::json & kinematic_data)
 {
-  for (auto &[key, val] : walking_data.items()) {
-    if (key == "balance") {
-      try {
-        val.at("enable").get_to(balance_enable);
-        val.at("balance_knee_gain").get_to(balance_knee_gain);
-        val.at("balance_ankle_pitch_gain").get_to(balance_ankle_pitch_gain);
-        val.at("balance_hip_roll_gain").get_to(balance_hip_roll_gain);
-        val.at("balance_ankle_roll_gain").get_to(balance_ankle_roll_gain);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "pid") {
-      try {
-        val.at("p_gain").get_to(p_gain);
-        val.at("i_gain").get_to(i_gain);
-        val.at("d_gain").get_to(d_gain);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "odometry") {
-      try {
-        val.at("fx_coefficient").get_to(odometry_fx_coefficient);
-        val.at("ly_coefficient").get_to(odometry_ly_coefficient);
-        val.at("ry_coefficient").get_to(odometry_ry_coefficient);
-        val.at("bx_coefficient").get_to(odometry_bx_coefficient);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "init_angles") {
-      try {
-        {
-          using tachimawari::joint::JointId;
+  bool valid_config = true;
 
-          val.at("right_hip_yaw").get_to(inital_joints[JointId::RIGHT_HIP_YAW]);
-          val.at("right_hip_pitch").get_to(inital_joints[JointId::RIGHT_HIP_PITCH]);
-          val.at("right_hip_roll").get_to(inital_joints[JointId::RIGHT_HIP_ROLL]);
-          val.at("right_knee").get_to(inital_joints[JointId::RIGHT_KNEE]);
-          val.at("right_ankle_pitch").get_to(inital_joints[JointId::RIGHT_ANKLE_PITCH]);
-          val.at("right_ankle_roll").get_to(inital_joints[JointId::RIGHT_ANKLE_ROLL]);
-          val.at("left_hip_yaw").get_to(inital_joints[JointId::LEFT_HIP_YAW]);
-          val.at("left_hip_pitch").get_to(inital_joints[JointId::LEFT_HIP_PITCH]);
-          val.at("left_hip_roll").get_to(inital_joints[JointId::LEFT_HIP_ROLL]);
-          val.at("left_knee").get_to(inital_joints[JointId::LEFT_KNEE]);
-          val.at("left_ankle_pitch").get_to(inital_joints[JointId::LEFT_ANKLE_PITCH]);
-          val.at("left_ankle_roll").get_to(inital_joints[JointId::LEFT_ANKLE_ROLL]);
-          val.at("right_shoulder_pitch").get_to(inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
-          val.at("right_shoulder_roll").get_to(inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
-          val.at("right_elbow").get_to(inital_joints[JointId::RIGHT_ELBOW]);
-          val.at("left_shoulder_pitch").get_to(inital_joints[JointId::LEFT_SHOULDER_PITCH]);
-          val.at("left_shoulder_roll").get_to(inital_joints[JointId::LEFT_SHOULDER_ROLL]);
-          val.at("left_elbow").get_to(inital_joints[JointId::LEFT_ELBOW]);
-        }
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "angles_direction") {
-      try {
-        {
-          using tachimawari::joint::JointId;
-
-          val.at("right_hip_yaw").get_to(joints_direction[JointId::RIGHT_HIP_YAW]);
-          val.at("right_hip_pitch").get_to(joints_direction[JointId::RIGHT_HIP_PITCH]);
-          val.at("right_hip_roll").get_to(joints_direction[JointId::RIGHT_HIP_ROLL]);
-          val.at("right_knee").get_to(joints_direction[JointId::RIGHT_KNEE]);
-          val.at("right_ankle_pitch").get_to(joints_direction[JointId::RIGHT_ANKLE_PITCH]);
-          val.at("right_ankle_roll").get_to(joints_direction[JointId::RIGHT_ANKLE_ROLL]);
-          val.at("left_hip_yaw").get_to(joints_direction[JointId::LEFT_HIP_YAW]);
-          val.at("left_hip_pitch").get_to(joints_direction[JointId::LEFT_HIP_PITCH]);
-          val.at("left_hip_roll").get_to(joints_direction[JointId::LEFT_HIP_ROLL]);
-          val.at("left_knee").get_to(joints_direction[JointId::LEFT_KNEE]);
-          val.at("left_ankle_pitch").get_to(joints_direction[JointId::LEFT_ANKLE_PITCH]);
-          val.at("left_ankle_roll").get_to(joints_direction[JointId::LEFT_ANKLE_ROLL]);
-          val.at("right_shoulder_pitch").get_to(joints_direction[JointId::RIGHT_SHOULDER_PITCH]);
-          val.at("right_shoulder_roll").get_to(joints_direction[JointId::RIGHT_SHOULDER_ROLL]);
-          val.at("right_elbow").get_to(joints_direction[JointId::RIGHT_ELBOW]);
-          val.at("left_shoulder_pitch").get_to(joints_direction[JointId::LEFT_SHOULDER_PITCH]);
-          val.at("left_shoulder_roll").get_to(joints_direction[JointId::LEFT_SHOULDER_ROLL]);
-          val.at("left_elbow").get_to(joints_direction[JointId::LEFT_ELBOW]);
-        }
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
+  nlohmann::json balance_section;
+  if (jitsuyo::assign_val(walking_data, "balance", balance_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(balance_section, "enable", balance_enable);
+    valid_section &= jitsuyo::assign_val(balance_section, "balance_knee_gain", balance_knee_gain);
+    valid_section &= jitsuyo::assign_val(balance_section, "balance_ankle_pitch_gain", balance_ankle_pitch_gain);
+    valid_section &= jitsuyo::assign_val(balance_section, "balance_hip_roll_gain", balance_hip_roll_gain);
+    valid_section &= jitsuyo::assign_val(balance_section, "balance_ankle_roll_gain", balance_ankle_roll_gain);
+    if (!valid_section) {
+      std::cout << "Error found at section `balance`" << std::endl;
+      valid_config = false;
     }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json pid_section;
+  if (jitsuyo::assign_val(walking_data, "pid", pid_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(pid_section, "p_gain", p_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "i_gain", i_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "d_gain", d_gain);
+    if (!valid_section) {
+      std::cout << "Error found at section `pid`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json odometry_section;
+  if (jitsuyo::assign_val(walking_data, "odometry", odometry_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(odometry_section, "fx_coefficient", odometry_fx_coefficient);
+    valid_section &= jitsuyo::assign_val(odometry_section, "ly_coefficient", odometry_ly_coefficient);
+    valid_section &= jitsuyo::assign_val(odometry_section, "ry_coefficient", odometry_ry_coefficient);
+    valid_section &= jitsuyo::assign_val(odometry_section, "bx_coefficient", odometry_bx_coefficient);
+    if (!valid_section) {
+      std::cout << "Error found at section `odometry`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json init_angles_section;
+  if (jitsuyo::assign_val(walking_data, "init_angles", init_angles_section)) {
+    bool valid_section = true;
+
+    using tachimawari::joint::JointId;
+
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_hip_yaw", inital_joints[JointId::RIGHT_HIP_YAW]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_hip_pitch", inital_joints[JointId::RIGHT_HIP_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_hip_roll", inital_joints[JointId::RIGHT_HIP_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_knee", inital_joints[JointId::RIGHT_KNEE]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_ankle_pitch", inital_joints[JointId::RIGHT_ANKLE_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_ankle_roll", inital_joints[JointId::RIGHT_ANKLE_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_hip_yaw", inital_joints[JointId::LEFT_HIP_YAW]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_hip_pitch", inital_joints[JointId::LEFT_HIP_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_hip_roll", inital_joints[JointId::LEFT_HIP_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_knee", inital_joints[JointId::LEFT_KNEE]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_ankle_pitch", inital_joints[JointId::LEFT_ANKLE_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_ankle_roll", inital_joints[JointId::LEFT_ANKLE_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_shoulder_pitch", inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_shoulder_roll", inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_elbow", inital_joints[JointId::RIGHT_ELBOW]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_shoulder_pitch", inital_joints[JointId::LEFT_SHOULDER_PITCH]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_shoulder_roll", inital_joints[JointId::LEFT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_elbow", inital_joints[JointId::LEFT_ELBOW]);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `init_angles`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json angles_direction_section;
+  if (jitsuyo::assign_val(walking_data, "angles_direction", angles_direction_section)) {
+    bool valid_section = true;
+
+    using tachimawari::joint::JointId;
+
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_hip_yaw", joints_direction[JointId::RIGHT_HIP_YAW]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_hip_pitch", joints_direction[JointId::RIGHT_HIP_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_hip_roll", joints_direction[JointId::RIGHT_HIP_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_knee", joints_direction[JointId::RIGHT_KNEE]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_ankle_pitch", joints_direction[JointId::RIGHT_ANKLE_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_ankle_roll", joints_direction[JointId::RIGHT_ANKLE_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_hip_yaw", joints_direction[JointId::LEFT_HIP_YAW]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_hip_pitch", joints_direction[JointId::LEFT_HIP_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_hip_roll", joints_direction[JointId::LEFT_HIP_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_knee", joints_direction[JointId::LEFT_KNEE]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_ankle_pitch", joints_direction[JointId::LEFT_ANKLE_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_ankle_roll", joints_direction[JointId::LEFT_ANKLE_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_shoulder_pitch", joints_direction[JointId::RIGHT_SHOULDER_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_shoulder_roll", joints_direction[JointId::RIGHT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "right_elbow", joints_direction[JointId::RIGHT_ELBOW]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_shoulder_pitch", joints_direction[JointId::LEFT_SHOULDER_PITCH]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_shoulder_roll", joints_direction[JointId::LEFT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(angles_direction_section, "left_elbow", joints_direction[JointId::LEFT_ELBOW]);
+    
+    if (!valid_section) {
+      std::cout << "Error found at section `angles_direction`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  if (!valid_config) {
+    throw std::runtime_error("Failed to load config file `walking.json`");
   }
 
   kinematic.set_config(kinematic_data);

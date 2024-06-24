@@ -24,7 +24,6 @@
 #include <memory>
 #include <string>
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku/config/grpc/config.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"

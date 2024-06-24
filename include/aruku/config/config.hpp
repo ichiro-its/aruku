@@ -21,7 +21,6 @@
 #ifndef ARUKU__CONFIG__CONFIG_HPP_
 #define ARUKU__CONFIG__CONFIG_HPP_
 
-#include "aruku/config/utils/config.hpp"
 #include "aruku/config/node/config_node.hpp"
 
 #endif  // ARUKU__CONFIG__CONFIG_HPP_

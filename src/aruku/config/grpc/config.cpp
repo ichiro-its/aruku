@@ -18,8 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "aruku/config/utils/config.hpp"
-
 #include <chrono>
 #include <csignal>
 #include <future>
@@ -36,6 +34,7 @@
 #include "aruku/config/grpc/call_data_set_app_status.hpp"
 #include "aruku/config/grpc/call_data_set_config.hpp"
 #include "aruku/config/grpc/config.hpp"
+#include "jitsuyo/config.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using grpc::ServerBuilder;
@@ -60,9 +59,13 @@ void ConfigGrpc::Run(const std::string &path,
                      const rclcpp::Node::SharedPtr & node,
                      const std::shared_ptr<WalkingNode> &walking_node,
                      const std::shared_ptr<WalkingManager> &walking_manager) {
-  Config config(path);
+  nlohmann::json grpc_config;
+  if (!jitsuyo::load_config(path, "grpc.json", grpc_config)) {
+    RCLCPP_ERROR(rclcpp::get_logger("ConfigGrpc"), "Failed to load grpc config!");
+    return;
+  }
   std::string server_address = absl::StrFormat(
-      "0.0.0.0:%d", config.get_grpc_config()["port"].get<uint16_t>());
+      "0.0.0.0:%d", grpc_config["port"].get<uint16_t>());
 
   ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());

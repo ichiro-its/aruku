@@ -29,6 +29,7 @@
 
 #include "aruku/walking/process/kinematic.hpp"
 
+#include "jitsuyo/config.hpp"
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
@@ -348,51 +349,77 @@ void Kinematic::update_move_amplitude()
 
 void Kinematic::set_config(const nlohmann::json & kinematic_data)
 {
-  for (auto &[key, val] : kinematic_data.items()) {
-    if (key == "ratio") {
-      try {
-        val.at("period_time").get_to(period_time);
-        val.at("dsp_ratio").get_to(dsp_ratio);
-        val.at("foot_height").get_to(z_move);
-        val.at("swing_right_left").get_to(y_swap_amplitude);
-        val.at("swing_up_down").get_to(z_swap_amplitude);
-        val.at("arm_swing_gain").get_to(arm_swing_gain);
-        val.at("backward_hip_comp_ratio").get_to(backward_hip_comp_ratio);
-        val.at("forward_hip_comp_ratio").get_to(forward_hip_comp_ratio);
-        val.at("foot_comp_ratio").get_to(foot_comp_ratio);
-        val.at("dsp_comp_ratio").get_to(dsp_comp_ratio);
-        val.at("period_comp_ratio").get_to(period_comp_ratio);
-        val.at("move_accel_ratio").get_to(move_accel_ratio);
-        val.at("foot_accel_ratio").get_to(foot_accel_ratio);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "length") {
-      try {
-        val.at("thigh_length").get_to(thigh_length);
-        val.at("calf_length").get_to(calf_length);
-        val.at("ankle_length").get_to(ankle_length);
-        val.at("leg_length").get_to(leg_length);
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
-    } else if (key == "offset") {
-      try {
-        val.at("x_offset").get_to(x_offset);
-        val.at("y_offset").get_to(y_offset);
-        val.at("z_offset").get_to(z_offset);
+  bool valid_config = true;
 
-        yaw_offset = keisan::make_degree(val.at("yaw_offset").get<double>());
-        roll_offset = keisan::make_degree(val.at("roll_offset").get<double>());
-        pitch_offset = keisan::make_degree(val.at("pitch_offset").get<double>());
-        hip_pitch_offset = keisan::make_degree(val.at("hip_pitch_offset").get<double>());
-      } catch (nlohmann::json::parse_error & ex) {
-        std::cerr << "parse error at byte " << ex.byte << std::endl;
-        throw ex;
-      }
+  nlohmann::json ratio_section;
+  if (jitsuyo::assign_val(kinematic_data, "ratio", ratio_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(ratio_section, "period_time", period_time);
+    valid_section &= jitsuyo::assign_val(ratio_section, "dsp_ratio", dsp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "z_move", z_move);
+    valid_section &= jitsuyo::assign_val(ratio_section, "y_swap_amplitude", y_swap_amplitude);
+    valid_section &= jitsuyo::assign_val(ratio_section, "z_swap_amplitude", z_swap_amplitude);
+    valid_section &= jitsuyo::assign_val(ratio_section, "arm_swing_gain", arm_swing_gain);
+    valid_section &= jitsuyo::assign_val(ratio_section, "backward_hip_comp_ratio", backward_hip_comp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "foot_comp_ratio", foot_comp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "dsp_comp_ratio", dsp_comp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "period_comp_ratio", period_comp_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "move_accel_ratio", move_accel_ratio);
+    valid_section &= jitsuyo::assign_val(ratio_section, "foot_accel_ratio", foot_accel_ratio);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `ratio`" << std::endl;
+      valid_config = false;
     }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json length_section;
+  if (jitsuyo::assign_val(kinematic_data, "length", length_section)) {
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(length_section, "thigh_length", thigh_length);
+    valid_section &= jitsuyo::assign_val(length_section, "calf_length", calf_length);
+    valid_section &= jitsuyo::assign_val(length_section, "ankle_length", ankle_length);
+    valid_section &= jitsuyo::assign_val(length_section, "leg_length", leg_length);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `length`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json offset_section;
+  if (jitsuyo::assign_val(kinematic_data, "offset", offset_section)) {
+    bool valid_section = true;
+    
+    double yaw_offset_double;
+    double roll_offset_double;
+    double pitch_offset_double;
+    double hip_pitch_offset_double;
+
+    valid_section &= jitsuyo::assign_val(offset_section, "x_offset", x_offset);
+    valid_section &= jitsuyo::assign_val(offset_section, "y_offset", y_offset);
+    valid_section &= jitsuyo::assign_val(offset_section, "z_offset", z_offset);
+    valid_section &= jitsuyo::assign_val(offset_section, "yaw_offset", yaw_offset_double);
+    valid_section &= jitsuyo::assign_val(offset_section, "roll_offset", roll_offset_double);
+    valid_section &= jitsuyo::assign_val(offset_section, "pitch_offset", pitch_offset_double);
+    valid_section &= jitsuyo::assign_val(offset_section, "hip_pitch_offset", hip_pitch_offset_double);
+
+    yaw_offset = keisan::make_degree(yaw_offset_double);
+    roll_offset = keisan::make_degree(roll_offset_double);
+    pitch_offset = keisan::make_degree(pitch_offset_double);
+    hip_pitch_offset = keisan::make_degree(hip_pitch_offset_double);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `offset`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
   }
 
   update_times();

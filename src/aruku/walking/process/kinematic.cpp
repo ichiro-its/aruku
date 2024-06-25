@@ -356,9 +356,9 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     bool valid_section = true;
     valid_section &= jitsuyo::assign_val(ratio_section, "period_time", period_time);
     valid_section &= jitsuyo::assign_val(ratio_section, "dsp_ratio", dsp_ratio);
-    valid_section &= jitsuyo::assign_val(ratio_section, "z_move", z_move);
-    valid_section &= jitsuyo::assign_val(ratio_section, "y_swap_amplitude", y_swap_amplitude);
-    valid_section &= jitsuyo::assign_val(ratio_section, "z_swap_amplitude", z_swap_amplitude);
+    valid_section &= jitsuyo::assign_val(ratio_section, "foot_height", z_move);
+    valid_section &= jitsuyo::assign_val(ratio_section, "swing_right_left", y_swap_amplitude);
+    valid_section &= jitsuyo::assign_val(ratio_section, "swing_up_down", z_swap_amplitude);
     valid_section &= jitsuyo::assign_val(ratio_section, "arm_swing_gain", arm_swing_gain);
     valid_section &= jitsuyo::assign_val(ratio_section, "backward_hip_comp_ratio", backward_hip_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
@@ -420,6 +420,10 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     }
   } else {
     valid_config = false;
+  }
+
+  if (!valid_config) {
+    throw std::runtime_error("Failed to load config file `kinematic.json`");
   }
 
   update_times();

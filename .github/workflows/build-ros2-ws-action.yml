@@ -36,6 +36,7 @@ jobs:
           cmake -S grpc -B grpc/build
           cmake --build grpc/build
           sudo cmake --install grpc/build
+          rm -rf grpc
         
       - name: Setup workspace
         uses: ichiro-its/ros2-ws-action/setup@v1.0.1

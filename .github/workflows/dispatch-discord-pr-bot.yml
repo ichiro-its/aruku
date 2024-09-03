@@ -1,0 +1,20 @@
+name: Dispatch Discord PR Bot
+
+on:
+  pull_request:
+    types: [opened, closed, reopened]
+  workflow_dispatch:
+
+jobs:
+  dispatch-discord-pr-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/repository-dispatch@v3
+        with:
+          repository: ichiro-its/${{ vars.DISCORD_PR_BOT_REPO }}
+          event-type: pull_request
+          client-payload: |
+            {
+              "repository": "${{ github.event.repository.name }}",
+              "pr_type": "${{ github.event.action || 'opened' }}"
+            }

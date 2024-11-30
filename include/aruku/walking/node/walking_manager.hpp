@@ -47,6 +47,7 @@ public:
 
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
+  const keisan::Point2 & get_delta_position() const;
 
   void run(double x_move, double y_move, double a_move, bool aim_on = false);
   void stop();
@@ -82,6 +83,7 @@ private:
   std::array<double, 19> joints_direction;
 
   keisan::Point2 position;
+  keisan::Point2 delta_position;
 
   keisan::Angle<double> orientation;
   keisan::Vector<3> gyro;

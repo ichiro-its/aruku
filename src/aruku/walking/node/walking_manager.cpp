@@ -220,6 +220,11 @@ const keisan::Point2 & WalkingManager::get_position() const
   return position;
 }
 
+const keisan::Point2 & WalkingManager::get_delta_position() const
+{
+  return delta_position;
+}
+
 void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
   kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
@@ -253,8 +258,11 @@ bool WalkingManager::process()
           dy = -y_amplitude * odometry_ry_coefficient / 30.0;
         }
 
-        position.x += dx * orientation.cos() - dy * orientation.sin();
-        position.y += dx * orientation.sin() + dy * orientation.cos();
+        delta_position.x = dx * orientation.cos() - dy * orientation.sin();
+        delta_position.y = dx * orientation.sin() + dy * orientation.cos();
+
+        position.x += delta_position.x;
+        position.y += delta_position.y;
       }
     }
 

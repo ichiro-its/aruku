@@ -141,6 +141,9 @@ void WalkingNode::publish_status()
   status_msg.odometry.x = walking_manager->get_position().x;
   status_msg.odometry.y = walking_manager->get_position().y;
 
+  status_msg.delta_odometry.x = walking_manager->get_delta_position().x;
+  status_msg.delta_odometry.y = walking_manager->get_delta_position().y;
+
   status_publisher->publish(status_msg);
 }
 

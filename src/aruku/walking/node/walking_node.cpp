@@ -54,6 +54,11 @@ std::string WalkingNode::set_odometry_topic()
   return get_node_prefix() + "/set_odometry";
 }
 
+std::string WalkingNode::delta_position_topic()
+{
+  return get_node_prefix() + "/delta_position";
+}
+
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
@@ -95,6 +100,9 @@ WalkingNode::WalkingNode(
         keisan::Point2(message->x, message->y));
     });
 
+  delta_position_publisher = node->create_publisher<Point2>(
+    delta_position_topic(), 10);
+
   set_joints_publisher = node->create_publisher<SetJoints>(
     "/joint/set_joints", 10);
 }
@@ -107,6 +115,7 @@ void WalkingNode::update()
 
   publish_joints();
   publish_status();
+  publish_delta_position();
 }
 
 void WalkingNode::publish_joints()
@@ -141,10 +150,17 @@ void WalkingNode::publish_status()
   status_msg.odometry.x = walking_manager->get_position().x;
   status_msg.odometry.y = walking_manager->get_position().y;
 
-  status_msg.delta_odometry.x = walking_manager->get_delta_position().x;
-  status_msg.delta_odometry.y = walking_manager->get_delta_position().y;
-
   status_publisher->publish(status_msg);
+}
+
+void WalkingNode::publish_delta_position()
+{
+  auto delta_position_msg = Point2();
+
+  delta_position_msg.x = walking_manager->get_delta_position().x;
+  delta_position_msg.y = walking_manager->get_delta_position().y;
+
+  delta_position_publisher->publish(delta_position_msg);
 }
 
 }  // namespace aruku

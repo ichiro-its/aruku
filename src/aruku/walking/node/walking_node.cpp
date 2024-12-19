@@ -155,10 +155,15 @@ void WalkingNode::publish_status()
 
 void WalkingNode::publish_delta_position()
 {
-  auto delta_position_msg = Point2();
+  auto delta_position = walking_manager->get_delta_position();
 
-  delta_position_msg.x = walking_manager->get_delta_position().x;
-  delta_position_msg.y = walking_manager->get_delta_position().y;
+  if (delta_position.x == 0.0 && delta_position.y == 0.0) {
+    return;
+  }
+
+  auto delta_position_msg = Point2();
+  delta_position_msg.x = delta_position.x;
+  delta_position_msg.y = delta_position.y;
 
   delta_position_publisher->publish(delta_position_msg);
 }

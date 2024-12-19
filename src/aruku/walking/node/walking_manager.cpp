@@ -239,6 +239,9 @@ void WalkingManager::stop()
 bool WalkingManager::process()
 {
   if (kinematic.run_kinematic()) {
+    delta_position.x = 0.0;
+    delta_position.y = 0.0;
+
     if (kinematic.time_to_compute_odometry()) {
       double x_amplitude = kinematic.get_x_move_amplitude();
       double y_amplitude = kinematic.get_y_move_amplitude();

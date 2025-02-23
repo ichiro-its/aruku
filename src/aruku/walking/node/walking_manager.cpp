@@ -123,10 +123,14 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(init_angles_section, "left_ankle_roll", inital_joints[JointId::LEFT_ANKLE_ROLL]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "right_shoulder_pitch", inital_joints[JointId::RIGHT_SHOULDER_PITCH]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "right_shoulder_roll", inital_joints[JointId::RIGHT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_shoulder_yaw", inital_joints[JointId::RIGHT_SHOULDER_YAW]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "right_elbow", inital_joints[JointId::RIGHT_ELBOW]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "right_gripper", inital_joints[JointId::RIGHT_GRIPPER]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "left_shoulder_pitch", inital_joints[JointId::LEFT_SHOULDER_PITCH]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "left_shoulder_roll", inital_joints[JointId::LEFT_SHOULDER_ROLL]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_shoulder_yaw", inital_joints[JointId::LEFT_SHOULDER_YAW]);
     valid_section &= jitsuyo::assign_val(init_angles_section, "left_elbow", inital_joints[JointId::LEFT_ELBOW]);
+    valid_section &= jitsuyo::assign_val(init_angles_section, "left_gripper", inital_joints[JointId::LEFT_GRIPPER]);
 
     if (!valid_section) {
       std::cout << "Error found at section `init_angles`" << std::endl;
@@ -272,7 +276,7 @@ bool WalkingManager::process()
 
         if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
           offset -= joints_direction[joint_id] *
-            Joint::angle_to_value(kinematic.get_hip_offest());
+            Joint::angle_to_value(kinematic.get_hip_offset());
         }
 
         offset += joint.get_position_value();
@@ -313,6 +317,16 @@ bool WalkingManager::is_running() const
 std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const
 {
   return joints;
+}
+
+void WalkingManager::set_initial_joint(uint8_t id, keisan::Angle<double> angle)
+{
+  inital_joints[id] = angle.degree();
+}
+
+void WalkingManager::set_hip_pitch_offset(keisan::Angle<double> offset)
+{
+  kinematic.hip_pitch_offset = offset;
 }
 
 const Kinematic & WalkingManager::get_kinematic() const

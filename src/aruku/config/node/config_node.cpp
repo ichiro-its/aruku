@@ -29,7 +29,6 @@
 #include "jitsuyo/config.hpp"
 #include "nlohmann/json.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "aruku/config/grpc/config.hpp"
 
 namespace aruku
 {
@@ -47,7 +46,7 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
         RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load walking config");
         return;
       }
-      
+
       if (!jitsuyo::load_config(path, "kinematic.json", kinematic_data)) {
         RCLCPP_ERROR(rclcpp::get_logger("Get config server"), "Failed to load kinematic config");
         return;
@@ -76,8 +75,12 @@ ConfigNode::ConfigNode(rclcpp::Node::SharedPtr node, const std::string & path,
 
       response->status = true;
     });
-    config_grpc.Run(path, node, walking_node, walking_manager);
-    RCLCPP_INFO(rclcpp::get_logger("GrpcServers"), "grpc running");
+
+  app_status_subscriber = node->create_subscription<AppStatus>(
+    get_node_prefix() + "/app_status", 10,
+    [this, walking_node](const AppStatus::SharedPtr message) {
+      walking_node->set_action_manager_is_open(message->action_manager_status);
+    });
 }
 
 void ConfigNode::set_config_callback(

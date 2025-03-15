@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/walking/process/kinematic.hpp"
+
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -26,8 +28,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "aruku/walking/process/kinematic.hpp"
 
 #include "jitsuyo/config.hpp"
 #include "keisan/keisan.hpp"
@@ -43,20 +43,59 @@ namespace aruku
 {
 
 Kinematic::Kinematic()
-: m_period_time(0), m_dsp_ratio(0), m_ssp_ratio(0), m_x_swap_period_time(0),
-  m_x_move_period_time(0), m_y_swap_period_time(0), m_y_move_period_time(0), m_z_swap_period_time(
-    0), m_z_move_period_time(0), m_a_move_period_time(0), m_ssp_time(0), m_ssp_time_start_l(0),
-  m_ssp_time_end_l(0), m_ssp_time_start_r(0), m_ssp_time_End_r(0), m_phase_time1(0),
-  m_phase_time2(0), m_phase_time3(0), m_x_swap_phase_shift(0), m_x_swap_amplitude(0),
-  m_x_swap_amplitude_shift(0), m_x_move_amplitude(0), m_y_swap_phase_shift(0), m_y_swap_amplitude(
-    0), m_y_swap_amplitude_shift(0), m_y_move_amplitude(0), m_y_move_amplitude_shift(0),
-  m_z_swap_phase_shift(0), m_z_swap_amplitude(0), m_z_swap_amplitude_shift(0), m_z_move_amplitude(
-    0), m_z_move_amplitude_Goal(0), m_z_move_amplitude_shift(0), m_a_move_amplitude(0),
-  m_a_move_amplitude_shift(0), m_arm_swing_gain(0), m_arm_roll_Gain(0), hip_comp(0_deg), foot_comp(
-    0.0), time_unit(8.0), m_x_move_phase_shift(0.5_pi), m_x_move_amplitude_shift(0),
-  m_y_move_phase_shift(0.5_pi), m_z_move_phase_shift(0.5_pi), m_a_move_phase_shift(0.5_pi),
-  m_ctrl_running(false), m_real_running(false), m_time(0), x_move(0.0), y_move(0.0), a_move(0_deg),
-  a_move_aim_on(false), is_compute_odometry(false)
+: m_period_time(0),
+  m_dsp_ratio(0),
+  m_ssp_ratio(0),
+  m_x_swap_period_time(0),
+  m_x_move_period_time(0),
+  m_y_swap_period_time(0),
+  m_y_move_period_time(0),
+  m_z_swap_period_time(0),
+  m_z_move_period_time(0),
+  m_a_move_period_time(0),
+  m_ssp_time(0),
+  m_ssp_time_start_l(0),
+  m_ssp_time_end_l(0),
+  m_ssp_time_start_r(0),
+  m_ssp_time_End_r(0),
+  m_phase_time1(0),
+  m_phase_time2(0),
+  m_phase_time3(0),
+  m_x_swap_phase_shift(0),
+  m_x_swap_amplitude(0),
+  m_x_swap_amplitude_shift(0),
+  m_x_move_amplitude(0),
+  m_y_swap_phase_shift(0),
+  m_y_swap_amplitude(0),
+  m_y_swap_amplitude_shift(0),
+  m_y_move_amplitude(0),
+  m_y_move_amplitude_shift(0),
+  m_z_swap_phase_shift(0),
+  m_z_swap_amplitude(0),
+  m_z_swap_amplitude_shift(0),
+  m_z_move_amplitude(0),
+  m_z_move_amplitude_Goal(0),
+  m_z_move_amplitude_shift(0),
+  m_a_move_amplitude(0),
+  m_a_move_amplitude_shift(0),
+  m_arm_swing_gain(0),
+  m_arm_roll_Gain(0),
+  hip_comp(0_deg),
+  foot_comp(0.0),
+  time_unit(8.0),
+  m_x_move_phase_shift(0.5_pi),
+  m_x_move_amplitude_shift(0),
+  m_y_move_phase_shift(0.5_pi),
+  m_z_move_phase_shift(0.5_pi),
+  m_a_move_phase_shift(0.5_pi),
+  m_ctrl_running(false),
+  m_real_running(false),
+  m_time(0),
+  x_move(0.0),
+  y_move(0.0),
+  a_move(0_deg),
+  a_move_aim_on(false),
+  is_compute_odometry(false)
 {
   reset_angles();
 }
@@ -68,10 +107,7 @@ void Kinematic::reset_angles()
   }
 }
 
-const std::array<keisan::Angle<double>, 19> & Kinematic::get_angles() const
-{
-  return angles;
-}
+const std::array<keisan::Angle<double>, 19> & Kinematic::get_angles() const { return angles; }
 
 void Kinematic::set_running_state(bool running_state)
 {
@@ -82,13 +118,9 @@ void Kinematic::set_running_state(bool running_state)
   }
 }
 
-bool Kinematic::get_running_state() const
-{
-  return m_real_running;
-}
+bool Kinematic::get_running_state() const { return m_real_running; }
 
-void Kinematic::set_move_amplitude(
-  double x, double y, const keisan::Angle<double> & a, bool aim_on)
+void Kinematic::set_move_amplitude(double x, double y, const keisan::Angle<double> & a, bool aim_on)
 {
   x_move = x;
   y_move = y;
@@ -96,35 +128,17 @@ void Kinematic::set_move_amplitude(
   a_move_aim_on = aim_on;
 }
 
-double Kinematic::get_x_move_amplitude() const
-{
-  return m_x_move_amplitude;
-}
+double Kinematic::get_x_move_amplitude() const { return m_x_move_amplitude; }
 
-double Kinematic::get_y_move_amplitude() const
-{
-  return m_y_move_amplitude;
-}
+double Kinematic::get_y_move_amplitude() const { return m_y_move_amplitude; }
 
-double Kinematic::get_a_move_amplitude() const
-{
-  return m_a_move_amplitude;
-}
+double Kinematic::get_a_move_amplitude() const { return m_a_move_amplitude; }
 
-keisan::Angle<double Kinematic::get_raw_hip_offset() const
-{
-  return hip_pitch_offset;
-}
+keisan::Angle<double> Kinematic::get_raw_hip_offset() const { return hip_pitch_offset; }
 
-keisan::Angle<double> Kinematic::get_hip_offset() const
-{
-  return hip_pitch_offset + hip_comp;
-}
+keisan::Angle<double> Kinematic::get_hip_offset() const { return hip_pitch_offset + hip_comp; }
 
-bool Kinematic::time_to_compute_odometry() const
-{
-  return is_compute_odometry;
-}
+bool Kinematic::time_to_compute_odometry() const { return is_compute_odometry; }
 
 void Kinematic::stop_kinematic()
 {
@@ -141,8 +155,7 @@ void Kinematic::stop_kinematic()
 }
 
 double Kinematic::wsin(
-  double time, double period, double period_shift, double mag,
-  double mag_shift) const
+  double time, double period, double period_shift, double mag, double mag_shift) const
 {
   return mag * sin(2_pi / period * time - period_shift) + mag_shift;
 }
@@ -150,9 +163,9 @@ double Kinematic::wsin(
 bool Kinematic::compute_inverse_kinematic(
   int index_addition, keisan::Point3 translation_target, keisan::Euler<double> rotation_target)
 {
-  using keisan::Point3;
   using keisan::Euler;
   using keisan::Matrix;
+  using keisan::Point3;
   using tachimawari::joint::JointId;
 
   translation_target.z -= leg_length;
@@ -169,8 +182,8 @@ bool Kinematic::compute_inverse_kinematic(
   // get knee
   double vector_magnitude = vector.magnitude();
   double acos_result = acos(
-    (pow(vector_magnitude, 2) - pow(thigh_length, 2) -
-    pow(calf_length, 2)) / (2 * thigh_length * calf_length));
+    (pow(vector_magnitude, 2) - pow(thigh_length, 2) - pow(calf_length, 2)) /
+    (2 * thigh_length * calf_length));
 
   if (std::isnan(acos_result)) {
     return false;
@@ -228,9 +241,9 @@ bool Kinematic::compute_inverse_kinematic(
   // get hip pitch and ankle pitch
   atan_result = atan2(
     matrix[0][2] * angles[JointId::RIGHT_HIP_YAW + index_addition].cos() +
-    matrix[1][2] * angles[JointId::RIGHT_HIP_YAW + index_addition].sin(),
+      matrix[1][2] * angles[JointId::RIGHT_HIP_YAW + index_addition].sin(),
     matrix[0][0] * angles[JointId::RIGHT_HIP_YAW + index_addition].cos() +
-    matrix[1][0] * angles[JointId::RIGHT_HIP_YAW + index_addition].sin());
+      matrix[1][0] * angles[JointId::RIGHT_HIP_YAW + index_addition].sin());
   if (std::isinf(atan_result)) {
     return false;
   }
@@ -244,9 +257,9 @@ bool Kinematic::compute_inverse_kinematic(
 
   o = angles[JointId::RIGHT_HIP_ROLL + index_addition].cos() * vector.z;
   double p = angles[JointId::RIGHT_HIP_YAW + index_addition].sin() *
-    angles[JointId::RIGHT_HIP_ROLL + index_addition].sin() * vector.x;
+             angles[JointId::RIGHT_HIP_ROLL + index_addition].sin() * vector.x;
   double q = angles[JointId::RIGHT_HIP_YAW + index_addition].cos() *
-    angles[JointId::RIGHT_HIP_ROLL + index_addition].sin() * vector.y;
+             angles[JointId::RIGHT_HIP_ROLL + index_addition].sin() * vector.y;
   n = o + p - q;
 
   double s = (k * n + l * m) / (k * k + l * l);
@@ -258,8 +271,8 @@ bool Kinematic::compute_inverse_kinematic(
     return false;
   }
   angles[JointId::RIGHT_HIP_PITCH + index_addition] = keisan::make_radian(atan_result);
-  angles[JointId::RIGHT_ANKLE_PITCH + index_addition] = keisan::make_radian(
-    theta_result) - angles[JointId::RIGHT_KNEE + index_addition] -
+  angles[JointId::RIGHT_ANKLE_PITCH + index_addition] =
+    keisan::make_radian(theta_result) - angles[JointId::RIGHT_KNEE + index_addition] -
     angles[JointId::RIGHT_HIP_PITCH + index_addition];
 
   return true;
@@ -296,8 +309,7 @@ void Kinematic::update_times()
 
   hip_comp = keisan::make_degree(
     m_x_move_amplitude *
-    ((m_x_move_amplitude > 0) ? forward_hip_comp_ratio :
-    backward_hip_comp_ratio));
+    ((m_x_move_amplitude > 0) ? forward_hip_comp_ratio : backward_hip_comp_ratio));
 
   foot_comp = fabs(m_x_move_amplitude) * foot_comp_ratio;
 }
@@ -320,8 +332,8 @@ void Kinematic::update_move_amplitude()
   m_y_swap_amplitude = y_swap_amplitude + m_y_move_amplitude_shift * 0.04;
 
   if (m_ctrl_running) {
-    m_z_move_amplitude = keisan::smooth(
-      m_z_move_amplitude, (z_move + foot_comp) * 0.5, foot_accel_ratio);
+    m_z_move_amplitude =
+      keisan::smooth(m_z_move_amplitude, (z_move + foot_comp) * 0.5, foot_accel_ratio);
   } else {
     m_z_move_amplitude = 0.0;
   }
@@ -331,22 +343,20 @@ void Kinematic::update_move_amplitude()
 
   if (!a_move_aim_on) {
     if (m_a_move_amplitude_shift < -0.005) {
-      m_a_move_amplitude = keisan::smooth(
-        m_a_move_amplitude, 0.0, move_accel_ratio);
+      m_a_move_amplitude = keisan::smooth(m_a_move_amplitude, 0.0, move_accel_ratio);
       m_a_move_amplitude_shift = -fabs(m_a_move_amplitude);
     } else {
-      m_a_move_amplitude = keisan::smooth(
-        m_a_move_amplitude, a_input.radian() / 2, move_accel_ratio);
+      m_a_move_amplitude =
+        keisan::smooth(m_a_move_amplitude, a_input.radian() / 2, move_accel_ratio);
       m_a_move_amplitude_shift = fabs(m_a_move_amplitude);
     }
   } else {
     if (m_a_move_amplitude_shift > 0.005) {
-      m_a_move_amplitude = keisan::smooth(
-        m_a_move_amplitude, 0.0, move_accel_ratio);
+      m_a_move_amplitude = keisan::smooth(m_a_move_amplitude, 0.0, move_accel_ratio);
       m_a_move_amplitude_shift = fabs(m_a_move_amplitude);
     } else {
-      m_a_move_amplitude = keisan::smooth(
-        m_a_move_amplitude, -a_input.radian() / 2, move_accel_ratio);
+      m_a_move_amplitude =
+        keisan::smooth(m_a_move_amplitude, -a_input.radian() / 2, move_accel_ratio);
       m_a_move_amplitude_shift = -fabs(m_a_move_amplitude);
     }
   }
@@ -365,8 +375,10 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(ratio_section, "swing_right_left", y_swap_amplitude);
     valid_section &= jitsuyo::assign_val(ratio_section, "swing_up_down", z_swap_amplitude);
     valid_section &= jitsuyo::assign_val(ratio_section, "arm_swing_gain", arm_swing_gain);
-    valid_section &= jitsuyo::assign_val(ratio_section, "backward_hip_comp_ratio", backward_hip_comp_ratio);
-    valid_section &= jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "backward_hip_comp_ratio", backward_hip_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_comp_ratio", foot_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "dsp_comp_ratio", dsp_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "period_comp_ratio", period_comp_ratio);
@@ -400,7 +412,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   nlohmann::json offset_section;
   if (jitsuyo::assign_val(kinematic_data, "offset", offset_section)) {
     bool valid_section = true;
-    
+
     double yaw_offset_double;
     double roll_offset_double;
     double pitch_offset_double;
@@ -412,7 +424,8 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(offset_section, "yaw_offset", yaw_offset_double);
     valid_section &= jitsuyo::assign_val(offset_section, "roll_offset", roll_offset_double);
     valid_section &= jitsuyo::assign_val(offset_section, "pitch_offset", pitch_offset_double);
-    valid_section &= jitsuyo::assign_val(offset_section, "hip_pitch_offset", hip_pitch_offset_double);
+    valid_section &=
+      jitsuyo::assign_val(offset_section, "hip_pitch_offset", hip_pitch_offset_double);
 
     yaw_offset = keisan::make_degree(yaw_offset_double);
     roll_offset = keisan::make_degree(roll_offset_double);
@@ -461,15 +474,15 @@ bool Kinematic::run_kinematic()
         a_move = 0_deg;
       }
     }
-  } else if (m_time >= (m_phase_time1 - time_unit / 2) &&  // NOLINT
-    m_time < (m_phase_time1 + time_unit / 2))
-  {
+  } else if (
+    m_time >= (m_phase_time1 - time_unit / 2) &&  // NOLINT
+    m_time < (m_phase_time1 + time_unit / 2)) {
     // left leg
     update_move_amplitude();
     is_compute_odometry = true;
-  } else if (m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
-    m_time < (m_phase_time2 + time_unit / 2))
-  {
+  } else if (
+    m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
+    m_time < (m_phase_time2 + time_unit / 2)) {
     update_move_amplitude();
     update_times();
 
@@ -491,9 +504,9 @@ bool Kinematic::run_kinematic()
         a_move = 0_deg;
       }
     }
-  } else if (m_time >= (m_phase_time3 - time_unit / 2) &&  // NOLINT
-    m_time < (m_phase_time3 + time_unit / 2))
-  {
+  } else if (
+    m_time >= (m_phase_time3 - time_unit / 2) &&  // NOLINT
+    m_time < (m_phase_time3 + time_unit / 2)) {
     // right leg
     update_move_amplitude();
     is_compute_odometry = true;
@@ -518,102 +531,102 @@ bool Kinematic::run_kinematic()
   if (m_time <= m_ssp_time_start_l) {
     x_move_l = wsin(
       m_ssp_time_start_l, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      m_x_move_amplitude, m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude,
+      m_x_move_amplitude_shift);
     y_move_l = wsin(
       m_ssp_time_start_l, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      m_y_move_amplitude, m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude,
+      m_y_move_amplitude_shift);
     z_move_l = wsin(
       m_ssp_time_start_l, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_l = wsin(
       m_ssp_time_start_l, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      m_a_move_amplitude, m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude,
+      m_a_move_amplitude_shift);
     x_move_r = wsin(
       m_ssp_time_start_l, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude,
+      -m_x_move_amplitude_shift);
     y_move_r = wsin(
       m_ssp_time_start_l, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude,
+      -m_y_move_amplitude_shift);
     z_move_r = wsin(
       m_ssp_time_start_r, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_r = wsin(
       m_ssp_time_start_l, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      -m_a_move_amplitude, -m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude,
+      -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_end_l) {
     x_move_l = wsin(
       m_time, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      m_x_move_amplitude, m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude,
+      m_x_move_amplitude_shift);
     y_move_l = wsin(
       m_time, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      m_y_move_amplitude, m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude,
+      m_y_move_amplitude_shift);
     z_move_l = wsin(
       m_time, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_l = wsin(
       m_time, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      m_a_move_amplitude, m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude,
+      m_a_move_amplitude_shift);
     x_move_r = wsin(
       m_time, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude,
+      -m_x_move_amplitude_shift);
     y_move_r = wsin(
       m_time, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude,
+      -m_y_move_amplitude_shift);
     z_move_r = wsin(
       m_ssp_time_start_r, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_r = wsin(
       m_time, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      -m_a_move_amplitude, -m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude,
+      -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_start_r) {
     x_move_l = wsin(
       m_ssp_time_end_l, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      m_x_move_amplitude, m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, m_x_move_amplitude,
+      m_x_move_amplitude_shift);
     y_move_l = wsin(
       m_ssp_time_end_l, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      m_y_move_amplitude, m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, m_y_move_amplitude,
+      m_y_move_amplitude_shift);
     z_move_l = wsin(
       m_ssp_time_end_l, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_l = wsin(
       m_ssp_time_end_l, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      m_a_move_amplitude, m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, m_a_move_amplitude,
+      m_a_move_amplitude_shift);
     x_move_r = wsin(
       m_ssp_time_end_l, m_x_move_period_time,
-      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l,
-      -m_x_move_amplitude, -m_x_move_amplitude_shift);
+      m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_l, -m_x_move_amplitude,
+      -m_x_move_amplitude_shift);
     y_move_r = wsin(
       m_ssp_time_end_l, m_y_move_period_time,
-      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l,
-      -m_y_move_amplitude, -m_y_move_amplitude_shift);
+      m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_l, -m_y_move_amplitude,
+      -m_y_move_amplitude_shift);
     z_move_r = wsin(
       m_ssp_time_start_r, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_r = wsin(
       m_ssp_time_end_l, m_a_move_period_time,
-      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l,
-      -m_a_move_amplitude, -m_a_move_amplitude_shift);
+      m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude,
+      -m_a_move_amplitude_shift);
   } else if (m_time <= m_ssp_time_End_r) {
     x_move_l = wsin(
       m_time, m_x_move_period_time,
@@ -625,8 +638,8 @@ bool Kinematic::run_kinematic()
       m_y_move_amplitude, m_y_move_amplitude_shift);
     z_move_l = wsin(
       m_ssp_time_end_l, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_l = wsin(
       m_time, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
@@ -641,8 +654,8 @@ bool Kinematic::run_kinematic()
       -m_y_move_amplitude, -m_y_move_amplitude_shift);
     z_move_r = wsin(
       m_time, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_r = wsin(
       m_time, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
@@ -658,8 +671,8 @@ bool Kinematic::run_kinematic()
       m_y_move_amplitude, m_y_move_amplitude_shift);
     z_move_l = wsin(
       m_ssp_time_end_l, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_l = wsin(
       m_ssp_time_End_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
@@ -674,8 +687,8 @@ bool Kinematic::run_kinematic()
       -m_y_move_amplitude, -m_y_move_amplitude_shift);
     z_move_r = wsin(
       m_ssp_time_End_r, m_z_move_period_time,
-      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r,
-      m_z_move_amplitude, m_z_move_amplitude_shift);
+      m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
+      m_z_move_amplitude_shift);
     c_move_r = wsin(
       m_ssp_time_End_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,

@@ -65,6 +65,11 @@ public:
 
   bool time_to_compute_odometry() const;
 
+  keisan::Angle<double> yaw_offset;
+  keisan::Angle<double> pitch_offset;
+  keisan::Angle<double> roll_offset;
+  keisan::Angle<double> hip_pitch_offset;
+
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
   bool compute_inverse_kinematic(
@@ -100,11 +105,6 @@ private:
   double x_offset;
   double y_offset;
   double z_offset;
-
-  keisan::Angle<double> yaw_offset;
-  keisan::Angle<double> pitch_offset;
-  keisan::Angle<double> roll_offset;
-  keisan::Angle<double> hip_pitch_offset;
 
   double thigh_length;
   double calf_length;

@@ -44,7 +44,8 @@ public:
   void update_orientation(const keisan::Angle<double> & orientation);
   void update_gyro(const keisan::Vector<3> & gyro);
   void reinit_joints();
-  void set_initial_joint(uint8_t id, keisan::Angle<double> angle);
+  void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
+  void set_hip_pitch_offset(const keisan::Angle<double> & offset);
 
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;

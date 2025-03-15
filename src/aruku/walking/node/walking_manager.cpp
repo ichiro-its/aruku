@@ -319,12 +319,12 @@ std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const
   return joints;
 }
 
-void WalkingManager::set_initial_joint(uint8_t id, keisan::Angle<double> angle)
+void WalkingManager::set_initial_joint(uint8_t id, const keisan::Angle<double> & angle)
 {
   inital_joints[id] = angle.degree();
 }
 
-void WalkingManager::set_hip_pitch_offset(keisan::Angle<double> offset)
+void WalkingManager::set_hip_pitch_offset(const keisan::Angle<double> & offset)
 {
   kinematic.hip_pitch_offset = offset;
 }

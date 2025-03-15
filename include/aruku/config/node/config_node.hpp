@@ -24,13 +24,13 @@
 #include <memory>
 #include <string>
 
-#include "aruku/config/grpc/config.hpp"
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/node/walking_node.hpp"
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "soccer_interfaces/msg/app_status.hpp"
 
 namespace aruku
 {
@@ -38,6 +38,7 @@ namespace aruku
 class ConfigNode
 {
 public:
+  using AppStatus = soccer_interfaces::msg::AppStatus;
   using GetConfig = aruku_interfaces::srv::GetConfig;
   using SaveConfig = aruku_interfaces::srv::SaveConfig;
   using SetConfig = aruku_interfaces::msg::SetConfig;
@@ -54,13 +55,12 @@ private:
   std::shared_ptr<WalkingManager> walking_manager;
   std::shared_ptr<WalkingNode> walking_node;
 
-  Config config;
-  ConfigGrpc config_grpc;
   rclcpp::Node::SharedPtr node;
 
   rclcpp::Service<GetConfig>::SharedPtr get_config_server;
   rclcpp::Service<SaveConfig>::SharedPtr save_config_server;
   rclcpp::Subscription<SetConfig>::SharedPtr set_config_subscriber;
+  rclcpp::Subscription<AppStatus>::SharedPtr app_status_subscriber;
 };
 
 }  // namespace aruku

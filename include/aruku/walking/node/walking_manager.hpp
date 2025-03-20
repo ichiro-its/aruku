@@ -44,6 +44,8 @@ public:
   void update_orientation(const keisan::Angle<double> & orientation);
   void update_gyro(const keisan::Vector<3> & gyro);
   void reinit_joints();
+  void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
+  void set_hip_pitch_offset(const keisan::Angle<double> & offset);
 
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
@@ -78,8 +80,8 @@ private:
   Kinematic kinematic;
 
   std::vector<tachimawari::joint::Joint> joints;
-  std::array<double, 19> inital_joints;
-  std::array<double, 19> joints_direction;
+  std::array<double, 23> inital_joints;
+  std::array<double, 23> joints_direction;
 
   keisan::Point2 position;
 

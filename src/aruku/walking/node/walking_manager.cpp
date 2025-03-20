@@ -50,8 +50,6 @@ WalkingManager::WalkingManager()
   for (auto id : JointId::list) {
     if (id != JointId::NECK_YAW && id != JointId::NECK_PITCH) {
       joints.push_back(Joint(id, 0.0));
-    } else {
-      break;
     }
   }
 }

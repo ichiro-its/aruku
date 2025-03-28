@@ -1,0 +1,48 @@
+name: CI
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master]  
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          path: aruku
+
+      - name: Checkout Dependencies
+        run: |
+            git clone https://github.com/ichiro-its/kansei.git                 
+            git clone https://github.com/ichiro-its/kansei_interfaces.git         
+            git clone https://github.com/ichiro-its/aruku_interfaces.git     
+            git clone https://github.com/ichiro-its/keisan.git        
+            git clone https://github.com/ichiro-its/tachimawari.git  
+            git clone https://github.com/ichiro-its/tachimawari_interfaces.git    
+
+      - name: Setup abseil for grpc              
+        run: |
+          git clone https://github.com/abseil/abseil-cpp.git
+          cmake -S abseil-cpp -B abseil-cpp/build 
+          cmake --build abseil-cpp/build
+          sudo cmake --install abseil-cpp/build
+      
+      - name: Setup grpc        
+        run: |
+          git clone --recurse-submodules -b v1.61.0 --depth 1 --shallow-submodules https://github.com/grpc/grpc
+          cmake -S grpc -B grpc/build
+          cmake --build grpc/build
+          sudo cmake --install grpc/build
+          rm -rf grpc
+        
+      - name: Setup workspace
+        uses: ichiro-its/ros2-ws-action/setup@v1.0.1
+
+      - name: Build workspace
+        uses: ichiro-its/ros2-ws-action/build@v1.0.1
+
+      - name: Test workspace
+        uses: ichiro-its/ros2-ws-action/test@v1.0.1

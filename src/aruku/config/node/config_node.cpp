@@ -85,8 +85,7 @@ ConfigNode::ConfigNode(
     });
 
   app_status_subscriber = node->create_subscription<AppStatus>(
-    get_node_prefix() + "/app_status", 10,
-    [this, walking_node](const AppStatus::SharedPtr message) {
+    "competition/app_status", 10, [this, walking_node](const AppStatus::SharedPtr message) {
       walking_node->set_action_manager_is_open(message->action_manager_status);
     });
 }

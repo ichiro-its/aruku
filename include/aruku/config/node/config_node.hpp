@@ -29,8 +29,8 @@
 #include "aruku_interfaces/msg/set_config.hpp"
 #include "aruku_interfaces/srv/get_config.hpp"
 #include "aruku_interfaces/srv/save_config.hpp"
+#include "competition_interfaces/msg/app_status.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "soccer_interfaces/msg/app_status.hpp"
 
 namespace aruku
 {
@@ -38,7 +38,7 @@ namespace aruku
 class ConfigNode
 {
 public:
-  using AppStatus = soccer_interfaces::msg::AppStatus;
+  using AppStatus = competition_interfaces::msg::AppStatus;
   using GetConfig = aruku_interfaces::srv::GetConfig;
   using SaveConfig = aruku_interfaces::srv::SaveConfig;
   using SetConfig = aruku_interfaces::msg::SetConfig;

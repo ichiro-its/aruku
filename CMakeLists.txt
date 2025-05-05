@@ -21,7 +21,7 @@ find_package(kansei REQUIRED)
 find_package(kansei_interfaces REQUIRED)
 find_package(keisan REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(soccer_interfaces REQUIRED)
+find_package(competition_interfaces REQUIRED)
 find_package(tachimawari REQUIRED)
 find_package(tachimawari_interfaces REQUIRED)
 
@@ -45,7 +45,7 @@ ament_target_dependencies(${PROJECT_NAME}
   kansei_interfaces
   keisan
   rclcpp
-  soccer_interfaces
+  competition_interfaces
   tachimawari
   tachimawari_interfaces
   )
@@ -99,7 +99,7 @@ ament_export_dependencies(
   kansei_interfaces
   keisan
   rclcpp
-  soccer_interfaces
+  competition_interfaces
   tachimawari
   tachimawari_interfaces
   )

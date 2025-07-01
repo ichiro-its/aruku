@@ -42,6 +42,7 @@ public:
   void load_config(const std::string & path);
 
   void update_orientation(const keisan::Angle<double> & orientation);
+  void update_imu_pitch(const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
@@ -66,7 +67,7 @@ private:
   double balance_ankle_pitch_gain;
   double balance_hip_roll_gain;
   double balance_ankle_roll_gain;
-
+  
   int p_gain;
   int i_gain;
   int d_gain;
@@ -87,6 +88,13 @@ private:
 
   keisan::Angle<double> orientation;
   keisan::Vector<3> gyro;
+
+
+  // for pid  
+  keisan::Angle<double> imu_pitch;
+  double prev_error;
+  double integral;
+  bool last_aim_on = false;
 };
 
 }  // namespace aruku

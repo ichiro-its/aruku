@@ -42,7 +42,10 @@ WalkingManager::WalkingManager()
   inital_joints({0.0}),
   joints_direction({1}),
   position(0.0, 0.0),
-  gyro(keisan::Vector<3>::zero())
+  gyro(keisan::Vector<3>::zero()),
+  prev_error(0),
+  integral(0),
+  last_aim_on(false)
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;
@@ -263,6 +266,15 @@ void WalkingManager::update_orientation(const keisan::Angle<double> & orientatio
 }
 
 void WalkingManager::update_gyro(const keisan::Vector<3> & gyro) { this->gyro = gyro; }
+void WalkingManager::update_imu_pitch(const keisan::Angle<double> & pitch)
+{
+  this->imu_pitch = pitch;
+}
+
+void WalkingManager::update_gyro(const keisan::Vector<3> & gyro)
+{
+  this->gyro = gyro;
+}
 
 void WalkingManager::reinit_joints()
 {
@@ -280,13 +292,30 @@ void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_o
 {
   kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
+
+  last_aim_on = aim_on;
 }
 
 void WalkingManager::stop() { kinematic.set_running_state(false); }
 
 bool WalkingManager::process()
 {
-  if (kinematic.run_kinematic()) {
+  // PID, for now only control x speed based on imu pitch
+  double dt = 1;
+  double error = this->imu_pitch - 0;
+  integral += error*dt;
+  double derivative = (error - prev_error) / dt;
+  double offset = p_gain*error + i_gain*integral + d_gain * derivative;
+
+  double x_move = kinematic.get_x_move_amplitude() + offset;
+  double y_move = kinematic.get_y_move_amplitude();
+  double a_move = kinematic.get_a_move_amplitude();
+
+  kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), last_aim_on);
+
+  if (kinematic.run_kinematic()) {    
+    prev_error = error;
+
     if (kinematic.time_to_compute_odometry()) {
       double x_amplitude = kinematic.get_x_move_amplitude();
       double y_amplitude = kinematic.get_y_move_amplitude();

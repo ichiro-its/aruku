@@ -76,6 +76,7 @@ WalkingNode::WalkingNode(
     [this](const MeasurementStatus::SharedPtr message) {
       this->walking_manager->update_orientation(
         keisan::make_degree(message->orientation.yaw));
+      this->walking_manager->update_imu_pitch(keisan::make_degree(message->orientation.pitch));
     });
 
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "aruku/walking/process/kinematic.hpp"
+#include "keisan/angle/angle.hpp"
 #include "keisan/geometry/point_2.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
@@ -42,9 +43,16 @@ public:
   void load_config(const std::string & path);
 
   void update_orientation(const keisan::Angle<double> & orientation);
+  void update_imu_pitch(const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
+  void set_x_offset(const double & offset);
+  void set_y_offset(const double & offset);
+  void set_z_offset(const double & offset);
+  void set_roll_offset(const keisan::Angle<double> & offset);
+  void set_pitch_offset(const keisan::Angle<double> & offset);
+  void set_yaw_offset(const keisan::Angle<double> & offset);
   void set_hip_pitch_offset(const keisan::Angle<double> & offset);
 
   void set_position(const keisan::Point2 & position);
@@ -59,6 +67,15 @@ public:
   std::vector<tachimawari::joint::Joint> get_joints() const;
   const Kinematic & get_kinematic() const;
 
+  // for pid balance
+  double prev_balance_error;
+  double integral;
+  double pid_offset;
+  keisan::Angle<double> imu_pitch;
+
+  void set_odometry_coef(
+    const double & fx, const double & bx, const double & ry, const double & ly);
+
 private:
   // config member
   bool balance_enable;
@@ -67,9 +84,10 @@ private:
   double balance_hip_roll_gain;
   double balance_ankle_roll_gain;
 
-  int p_gain;
-  int i_gain;
-  int d_gain;
+  double p_gain;
+  double i_gain;
+  double d_gain;
+  double hip_ankle_ratio;
 
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;

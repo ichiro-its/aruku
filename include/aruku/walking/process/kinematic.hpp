@@ -70,6 +70,10 @@ public:
   keisan::Angle<double> roll_offset;
   keisan::Angle<double> hip_pitch_offset;
 
+  double x_offset;
+  double y_offset;
+  double z_offset;
+
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
   bool compute_inverse_kinematic(
@@ -101,10 +105,6 @@ private:
   double y_swap_amplitude;
   double z_swap_amplitude;
   double arm_swing_gain;
-
-  double x_offset;
-  double y_offset;
-  double z_offset;
 
   double thigh_length;
   double calf_length;

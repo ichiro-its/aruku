@@ -42,7 +42,11 @@ WalkingManager::WalkingManager()
   inital_joints({0.0}),
   joints_direction({1}),
   position(0.0, 0.0),
-  gyro(keisan::Vector<3>::zero())
+  gyro(keisan::Vector<3>::zero()),
+  prev_balance_error(0.0),
+  integral(0.0),
+  pid_offset(0.0),
+  imu_pitch(0_deg)
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;
@@ -84,6 +88,7 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "p_gain", p_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "i_gain", i_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_gain", d_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio", hip_ankle_ratio);
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
       valid_config = false;
@@ -263,6 +268,10 @@ void WalkingManager::update_orientation(const keisan::Angle<double> & orientatio
 }
 
 void WalkingManager::update_gyro(const keisan::Vector<3> & gyro) { this->gyro = gyro; }
+void WalkingManager::update_imu_pitch(const keisan::Angle<double> & pitch)
+{
+  this->imu_pitch = pitch;
+}
 
 void WalkingManager::reinit_joints()
 {
@@ -315,6 +324,24 @@ bool WalkingManager::process()
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
 
+      // PID for pitch balancing using IMU pitch
+      const double dt = 0.008;
+
+      double error = (0_deg - this->imu_pitch).normalize().degree();
+      integral = keisan::clamp(integral + (error * dt), -100.0, 100.0);
+      double derivative = (error - prev_balance_error) / dt;
+
+      pid_offset = p_gain * error + i_gain * integral + d_gain * derivative;
+      pid_offset = keisan::clamp(pid_offset, -60.0, 60.0);
+
+      prev_balance_error = error;
+
+      if (!is_running()) {
+          prev_balance_error = 0.0;
+          integral = 0.0;
+          pid_offset = 0.0;
+      }
+
       auto angles = kinematic.get_angles();
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
@@ -325,6 +352,11 @@ bool WalkingManager::process()
 
         if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
           offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
+          offset -= joints_direction[joint_id] * hip_ankle_ratio * pid_offset;
+        }
+
+        if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
+          offset += joints_direction[joint_id] * (1 - hip_ankle_ratio) * pid_offset;
         }
 
         offset += joint.get_position_value();
@@ -371,6 +403,45 @@ void WalkingManager::set_hip_pitch_offset(const keisan::Angle<double> & offset)
   kinematic.hip_pitch_offset = offset;
 }
 
+void WalkingManager::set_pitch_offset(const keisan::Angle<double> & offset)
+{
+  kinematic.pitch_offset = offset;
+}
+
+void WalkingManager::set_roll_offset(const keisan::Angle<double> & offset)
+{
+  kinematic.roll_offset = offset;
+}
+
+void WalkingManager::set_yaw_offset(const keisan::Angle<double> & offset)
+{
+  kinematic.yaw_offset = offset;
+}
+
+void WalkingManager::set_x_offset(const double & offset)
+{
+  kinematic.x_offset = offset;
+}
+
+void WalkingManager::set_y_offset(const double & offset)
+{
+  kinematic.y_offset = offset;
+}
+
+void WalkingManager::set_z_offset(const double & offset)
+{
+  kinematic.z_offset = offset;
+}
+
 const Kinematic & WalkingManager::get_kinematic() const { return kinematic; }
+
+void WalkingManager::set_odometry_coef(
+  const double & fx, const double & bx, const double & ry, const double & ly)
+{
+  odometry_fx_coefficient = fx;
+  odometry_bx_coefficient = bx;
+  odometry_ry_coefficient = ry;
+  odometry_ly_coefficient = ly;
+}
 
 }  // namespace aruku

@@ -41,6 +41,17 @@ ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
     8ms,
     [this]() {
       if (this->walking_manager->process()) {
+        rclcpp::Time now = this->node->now();
+
+        if (last_time.nanoseconds() == 0) {
+            last_time = now;
+            return;
+        }
+
+        double dt = (now - last_time).seconds();
+        last_time = now;
+
+        this->walking_manager->set_delta_time(dt);
         this->walking_node->update();
       }
       this->walking_node->publish_status();

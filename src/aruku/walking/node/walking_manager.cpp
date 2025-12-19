@@ -325,7 +325,6 @@ bool WalkingManager::process()
       using tachimawari::joint::JointId;
 
       // PID for pitch balancing using IMU pitch
-      const double dt = 0.008;
 
       double error = (0_deg - this->imu_pitch).normalize().degree();
       integral = keisan::clamp(integral + (error * dt), -100.0, 100.0);
@@ -431,6 +430,10 @@ void WalkingManager::set_y_offset(const double & offset)
 void WalkingManager::set_z_offset(const double & offset)
 {
   kinematic.z_offset = offset;
+}
+
+void WalkingManager::set_delta_time(const double & dt){
+  this->dt = dt;
 }
 
 const Kinematic & WalkingManager::get_kinematic() const { return kinematic; }

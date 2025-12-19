@@ -54,6 +54,7 @@ public:
   void set_pitch_offset(const keisan::Angle<double> & offset);
   void set_yaw_offset(const keisan::Angle<double> & offset);
   void set_hip_pitch_offset(const keisan::Angle<double> & offset);
+  void set_delta_time(const double & current_time);
 
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
@@ -68,6 +69,7 @@ public:
   const Kinematic & get_kinematic() const;
 
   // for pid balance
+  double dt;
   double prev_balance_error;
   double integral;
   double pid_offset;

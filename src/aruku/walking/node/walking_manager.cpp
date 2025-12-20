@@ -43,9 +43,9 @@ WalkingManager::WalkingManager()
   joints_direction({1}),
   position(0.0, 0.0),
   gyro(keisan::Vector<3>::zero()),
-  prev_balance_error(0.0),
+  prev_pitch_error(0.0),
   integral(0.0),
-  pid_offset(0.0),
+  pid_offset_pitch(0.0),
   imu_pitch(0_deg)
 {
   using tachimawari::joint::Joint;
@@ -268,8 +268,10 @@ void WalkingManager::update_orientation(const keisan::Angle<double> & orientatio
 }
 
 void WalkingManager::update_gyro(const keisan::Vector<3> & gyro) { this->gyro = gyro; }
-void WalkingManager::update_imu_pitch(const keisan::Angle<double> & pitch)
+void WalkingManager::update_imu(
+  const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch)
 {
+  this->imu_roll = roll;
   this->imu_pitch = pitch;
 }
 
@@ -326,19 +328,32 @@ bool WalkingManager::process()
 
       // PID for pitch balancing using IMU pitch
 
-      double error = (0_deg - this->imu_pitch).normalize().degree();
-      integral = keisan::clamp(integral + (error * dt), -100.0, 100.0);
-      double derivative = (error - prev_balance_error) / dt;
+      double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
+      double roll_error = (0_deg - this->imu_roll).normalize().degree();
 
-      pid_offset = p_gain * error + i_gain * integral + d_gain * derivative;
-      pid_offset = keisan::clamp(pid_offset, -60.0, 60.0);
+      integral = keisan::clamp(integral + (pitch_error * dt), -100.0, 100.0);
 
-      prev_balance_error = error;
+      double pitch_derivative = (pitch_error - prev_pitch_error) / dt;
+      double roll_derivative = (roll_error - prev_roll_error) / dt;
+
+      pid_offset_pitch = p_gain * pitch_error + i_gain * integral + d_gain * pitch_derivative;
+      pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
+
+      pid_offset_roll = p_gain * roll_error + d_gain * roll_derivative;
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -60.0, 60.0);
+
+      prev_pitch_error = pitch_error;
+      prev_roll_error = roll_error;
+
+      std::cout << "pid pitch: " << pid_offset_pitch << "\n"
+                << "pid roll: " << pid_offset_roll << "\n";
 
       if (!is_running()) {
-          prev_balance_error = 0.0;
-          integral = 0.0;
-          pid_offset = 0.0;
+        prev_roll_error = 0.0;
+        prev_pitch_error = 0.0;
+        integral = 0.0;
+        pid_offset_pitch = 0.0;
+        pid_offset_roll = 0.0;
       }
 
       auto angles = kinematic.get_angles();
@@ -346,16 +361,15 @@ bool WalkingManager::process()
         uint8_t joint_id = joint.get_id();
 
         double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
-
         joint.set_position(inital_joints[joint_id]);
 
         if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
           offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
-          offset -= joints_direction[joint_id] * hip_ankle_ratio * pid_offset;
+          offset -= joints_direction[joint_id] * hip_ankle_ratio * pid_offset_pitch;
         }
 
         if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-          offset += joints_direction[joint_id] * (1 - hip_ankle_ratio) * pid_offset;
+          offset += joints_direction[joint_id] * (1 - hip_ankle_ratio) * pid_offset_pitch;
         }
 
         offset += joint.get_position_value();
@@ -417,24 +431,13 @@ void WalkingManager::set_yaw_offset(const keisan::Angle<double> & offset)
   kinematic.yaw_offset = offset;
 }
 
-void WalkingManager::set_x_offset(const double & offset)
-{
-  kinematic.x_offset = offset;
-}
+void WalkingManager::set_x_offset(const double & offset) { kinematic.x_offset = offset; }
 
-void WalkingManager::set_y_offset(const double & offset)
-{
-  kinematic.y_offset = offset;
-}
+void WalkingManager::set_y_offset(const double & offset) { kinematic.y_offset = offset; }
 
-void WalkingManager::set_z_offset(const double & offset)
-{
-  kinematic.z_offset = offset;
-}
+void WalkingManager::set_z_offset(const double & offset) { kinematic.z_offset = offset; }
 
-void WalkingManager::set_delta_time(const double & dt){
-  this->dt = dt;
-}
+void WalkingManager::set_delta_time(const double & dt) { this->dt = dt; }
 
 const Kinematic & WalkingManager::get_kinematic() const { return kinematic; }
 

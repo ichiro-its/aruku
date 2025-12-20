@@ -43,7 +43,7 @@ public:
   void load_config(const std::string & path);
 
   void update_orientation(const keisan::Angle<double> & orientation);
-  void update_imu_pitch(const keisan::Angle<double> & pitch);
+  void update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
@@ -70,10 +70,14 @@ public:
 
   // for pid balance
   double dt;
-  double prev_balance_error;
+  double prev_pitch_error;
   double integral;
-  double pid_offset;
+  double pid_offset_pitch;
   keisan::Angle<double> imu_pitch;
+
+  double prev_roll_error;
+  double pid_offset_roll;
+  keisan::Angle<double> imu_roll;
 
   void set_odometry_coef(
     const double & fx, const double & bx, const double & ry, const double & ly);
@@ -90,6 +94,7 @@ private:
   double i_gain;
   double d_gain;
   double hip_ankle_ratio;
+  double hip_ankle_roll_ratio;
 
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;

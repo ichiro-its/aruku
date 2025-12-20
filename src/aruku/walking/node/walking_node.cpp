@@ -18,10 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/walking/node/walking_node.hpp"
+
 #include <memory>
 #include <string>
-
-#include "aruku/walking/node/walking_node.hpp"
 
 #include "aruku/walking/node/walking_manager.hpp"
 #include "aruku/walking/process/kinematic.hpp"
@@ -34,69 +34,51 @@
 namespace aruku
 {
 
-std::string WalkingNode::get_node_prefix()
-{
-  return "walking";
-}
+std::string WalkingNode::get_node_prefix() { return "walking"; }
 
-std::string WalkingNode::set_walking_topic()
-{
-  return get_node_prefix() + "/set_walking";
-}
+std::string WalkingNode::set_walking_topic() { return get_node_prefix() + "/set_walking"; }
 
-std::string WalkingNode::status_topic()
-{
-  return get_node_prefix() + "/status";
-}
+std::string WalkingNode::status_topic() { return get_node_prefix() + "/status"; }
 
-std::string WalkingNode::set_odometry_topic()
-{
-  return get_node_prefix() + "/set_odometry";
-}
+std::string WalkingNode::set_odometry_topic() { return get_node_prefix() + "/set_odometry"; }
 
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    set_walking_topic(), 10,
-    [this](const SetWalking::SharedPtr message) {
+    set_walking_topic(), 10, [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
-          message->x_move, message->y_move, message->a_move,
-          message->aim_on);
+          message->x_move, message->y_move, message->a_move, message->aim_on);
       } else {
         this->walking_manager->stop();
       }
     });
 
-
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
     kansei::measurement::MeasurementNode::status_topic(), 10,
     [this](const MeasurementStatus::SharedPtr message) {
-      this->walking_manager->update_orientation(
-        keisan::make_degree(message->orientation.yaw));
+      this->walking_manager->update_orientation(keisan::make_degree(message->orientation.yaw));
+      this->walking_manager->update_imu(
+        keisan::make_degree(message->orientation.roll),
+        keisan::make_degree(message->orientation.roll));
     });
 
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
-  unit_subscriber = node->create_subscription<Unit>(
-    "/imu/unit", 10,
-    [this](const Unit::SharedPtr message) {
+  unit_subscriber =
+    node->create_subscription<Unit>("/imu/unit", 10, [this](const Unit::SharedPtr message) {
       this->walking_manager->update_gyro(
-        keisan::Vector<3>(
-          message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
+        keisan::Vector<3>(message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
   set_odometry_subscriber = node->create_subscription<Point2>(
-    set_odometry_topic(), 10,
-    [this](const Point2::SharedPtr message) {
-      this->walking_manager->set_position(
-        keisan::Point2(message->x, message->y));
+    set_odometry_topic(), 10, [this](const Point2::SharedPtr message) {
+      this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 
-  set_joints_publisher = node->create_publisher<SetJoints>(
-    "/joint/set_joints", 10);
+  set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);
 }
 
 void WalkingNode::update()

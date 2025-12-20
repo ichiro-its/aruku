@@ -346,7 +346,8 @@ bool WalkingManager::process()
       prev_roll_error = roll_error;
 
       std::cout << "pid pitch: " << pid_offset_pitch << "\n"
-                << "pid roll: " << pid_offset_roll << "\n";
+                << "pid roll: " << pid_offset_roll << "\n"
+                << "delta time: " << dt << "\n";
 
       if (!is_running()) {
         prev_roll_error = 0.0;

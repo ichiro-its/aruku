@@ -18,12 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "aruku/walking/node/walking_node.hpp"
+
 #include <memory>
 #include <string>
 
-#include "aruku/walking/node/walking_node.hpp"
-
 #include "aruku/walking/node/walking_manager.hpp"
+#include "aruku/walking/node/walking_node.hpp"
 #include "aruku/walking/process/kinematic.hpp"
 #include "kansei/measurement/measurement.hpp"
 #include "keisan/keisan.hpp"
@@ -34,69 +35,44 @@
 namespace aruku
 {
 
-std::string WalkingNode::get_node_prefix()
-{
-  return "walking";
-}
-
-std::string WalkingNode::set_walking_topic()
-{
-  return get_node_prefix() + "/set_walking";
-}
-
-std::string WalkingNode::status_topic()
-{
-  return get_node_prefix() + "/status";
-}
-
-std::string WalkingNode::set_odometry_topic()
-{
-  return get_node_prefix() + "/set_odometry";
-}
-
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
-: walking_manager(walking_manager)
+: walking_manager(walking_manager), disable_publish_joint(false)
 {
   set_walking_subscriber = node->create_subscription<SetWalking>(
-    set_walking_topic(), 10,
-    [this](const SetWalking::SharedPtr message) {
+    "walking/set_walking", 10, [this](const SetWalking::SharedPtr message) {
       if (message->run) {
         this->walking_manager->run(
-          message->x_move, message->y_move, message->a_move,
-          message->aim_on);
+          message->x_move, message->y_move, message->a_move, message->aim_on);
       } else {
         this->walking_manager->stop();
       }
     });
 
+  disable_publish_joint_subscriber = node->create_subscription<Bool>(
+    "walking/disable_walking", 10,
+    [this](const Bool::SharedPtr message) { this->disable_publish_joint = message.get()->data; });
 
   measurement_status_subscriber = node->create_subscription<MeasurementStatus>(
     kansei::measurement::MeasurementNode::status_topic(), 10,
     [this](const MeasurementStatus::SharedPtr message) {
-      this->walking_manager->update_orientation(
-        keisan::make_degree(message->orientation.yaw));
+      this->walking_manager->update_orientation(keisan::make_degree(message->orientation.yaw));
     });
 
-  status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
+  status_publisher = node->create_publisher<WalkingStatus>("walking/status", 10);
 
-  unit_subscriber = node->create_subscription<Unit>(
-    "/imu/unit", 10,
-    [this](const Unit::SharedPtr message) {
+  unit_subscriber =
+    node->create_subscription<Unit>("/imu/unit", 10, [this](const Unit::SharedPtr message) {
       this->walking_manager->update_gyro(
-        keisan::Vector<3>(
-          message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
+        keisan::Vector<3>(message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
 
   set_odometry_subscriber = node->create_subscription<Point2>(
-    set_odometry_topic(), 10,
-    [this](const Point2::SharedPtr message) {
-      this->walking_manager->set_position(
-        keisan::Point2(message->x, message->y));
+    "walking/set_odometry", 10, [this](const Point2::SharedPtr message) {
+      this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 
-  set_joints_publisher = node->create_publisher<SetJoints>(
-    "/joint/set_joints", 10);
+  set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);
 }
 
 void WalkingNode::update()
@@ -111,6 +87,7 @@ void WalkingNode::update()
 
 void WalkingNode::publish_joints()
 {
+  if (disable_publish_joint) return;
   auto joints_msg = SetJoints();
 
   const auto & joints = walking_manager->get_joints();

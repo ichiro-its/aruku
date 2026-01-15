@@ -90,11 +90,11 @@ private:
   double balance_hip_roll_gain;
   double balance_ankle_roll_gain;
 
-  double p_gain;
-  double i_gain;
-  double d_gain;
-  double hip_ankle_ratio;
-  double hip_ankle_roll_ratio;
+  double p_pitch_gain;
+  double i_pitch_gain;
+  double d_pitch_gain;
+  double hip_ankle_ratio_pitch;
+  double hip_ankle_ratio_roll;
 
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;

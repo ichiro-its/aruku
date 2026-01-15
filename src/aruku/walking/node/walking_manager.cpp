@@ -85,10 +85,16 @@ void WalkingManager::set_config(
   nlohmann::json pid_section;
   if (jitsuyo::assign_val(walking_data, "pid", pid_section)) {
     bool valid_section = true;
-    valid_section &= jitsuyo::assign_val(pid_section, "p_gain", p_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "i_gain", i_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "d_gain", d_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio", hip_ankle_ratio);
+    valid_section &= jitsuyo::assign_val(pid_section, "p_pitch_gain", p_pitch_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "i_pitch_gain", i_pitch_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "d_pitch_gain", d_pitch_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_pitch", hip_ankle_ratio_pitch);
+
+    valid_section &= jitsuyo::assign_val(pid_section, "p_roll_gain", p_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
+    
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
       valid_config = false;
@@ -326,10 +332,10 @@ bool WalkingManager::process()
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
 
-      // PID for pitch balancing using IMU pitch
+      // PID for pitch and roll balancing using IMU 
 
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
-      double roll_error = (0_deg - this->imu_roll).normalize().degree();
+      double roll_error = (0_deg - this->imu_roll).normalize().degree(); 
 
       integral = keisan::clamp(integral + (pitch_error * dt), -100.0, 100.0);
 
@@ -373,6 +379,9 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio) * pid_offset_pitch;
         }
 
+        if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL){
+
+        }
         offset += joint.get_position_value();
 
         if (balance_enable) {

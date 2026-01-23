@@ -37,17 +37,12 @@ namespace aruku
 ArukuNode::ArukuNode(rclcpp::Node::SharedPtr node)
 : node(node), walking_manager(nullptr), walking_node(nullptr), config_node(nullptr)
 {
+  last_time = this->node->now();
   node_timer = node->create_wall_timer(
     8ms,
     [this]() {
       if (this->walking_manager->process()) {
         rclcpp::Time now = this->node->now();
-
-        if (last_time.nanoseconds() == 0) {
-            last_time = now;
-            return;
-        }
-
         double dt = (now - last_time).seconds();
         last_time = now;
 

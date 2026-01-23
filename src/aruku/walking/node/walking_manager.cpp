@@ -339,13 +339,17 @@ bool WalkingManager::process()
 
       integral = keisan::clamp(integral + (pitch_error * dt), -100.0, 100.0);
 
-      double pitch_derivative = (pitch_error - prev_pitch_error) / dt;
-      double roll_derivative = (roll_error - prev_roll_error) / dt;
+      double pitch_derivative = (pitch_error - prev_pitch_error);
+      double roll_derivative = (roll_error - prev_roll_error);
 
-      pid_offset_pitch = p_gain * pitch_error + i_gain * integral + d_gain * pitch_derivative;
+      //nan guard if dt is 0
+      pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative/dt);
+      roll_derivative = (dt <= 0.0? 0.0 : roll_derivative/dt);
+
+      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * integral + d_pitch_gain * pitch_derivative;
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
-      pid_offset_roll = p_gain * roll_error + d_gain * roll_derivative;
+      pid_offset_roll = p_roll_gain * roll_error + d_roll_gain * roll_derivative;
       pid_offset_roll = keisan::clamp(pid_offset_roll, -60.0, 60.0);
 
       prev_pitch_error = pitch_error;

@@ -93,6 +93,11 @@ private:
   double p_pitch_gain;
   double i_pitch_gain;
   double d_pitch_gain;
+
+  double p_roll_gain;
+  double i_roll_gain;
+  double d_roll_gain;
+
   double hip_ankle_ratio_pitch;
   double hip_ankle_ratio_roll;
 

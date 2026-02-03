@@ -62,7 +62,7 @@ WalkingNode::WalkingNode(
       this->walking_manager->update_orientation(keisan::make_degree(message->orientation.yaw));
       this->walking_manager->update_imu(
         keisan::make_degree(message->orientation.roll),
-        keisan::make_degree(message->orientation.roll));
+        keisan::make_degree(message->orientation.pitch));
     });
 
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
@@ -79,6 +79,20 @@ WalkingNode::WalkingNode(
     });
 
   set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);
+
+  last_time = node->now();
+  node_timer = node->create_wall_timer(
+    8ms,
+    [this, node]() {
+      if (this->walking_manager->process()) {
+        rclcpp::Time now = node->now();
+        double dt = (now - last_time).seconds();
+        last_time = now;
+
+        this->walking_manager->set_delta_time(dt);
+      }
+    }
+  );
 }
 
 void WalkingNode::update()

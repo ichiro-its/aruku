@@ -346,20 +346,24 @@ bool WalkingManager::process()
       pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative/dt);
       roll_derivative = (dt <= 0.0? 0.0 : roll_derivative/dt);
 
-      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * integral + d_pitch_gain * pitch_derivative;
+      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * integral + d_pitch_gain;
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
-      pid_offset_roll = p_roll_gain * roll_error + d_roll_gain * roll_derivative;
+      pid_offset_roll = p_roll_gain * roll_error + d_roll_gain;
       pid_offset_roll = keisan::clamp(pid_offset_roll, -60.0, 60.0);
 
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
 
-      std::cout << "pid pitch: " << pid_offset_pitch << "\n"
+      std::cout << "pid pitch: " << pid_offset_pitch << "\n" 
+                << "pitch error: " << pitch_error << "\n"
                 << "pid roll: " << pid_offset_roll << "\n"
+                << "roll error: " << roll_error << "\n" 
+                << "r: " << this->imu_roll.normalize().degree() << " p: " << this->imu_pitch.normalize().degree() << "\n"
                 << "delta time: " << dt << "\n";
 
       if (!is_running()) {
+        std::cout<<"not running\n";
         prev_roll_error = 0.0;
         prev_pitch_error = 0.0;
         integral = 0.0;
@@ -384,8 +388,8 @@ bool WalkingManager::process()
         }
 
         if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL){
-          offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
           offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+          // std::cout << "offset: " << offset << "\n";
         }
 
         if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL){

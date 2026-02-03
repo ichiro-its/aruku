@@ -76,6 +76,8 @@ private:
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
+  rclcpp::TimerBase::SharedPtr node_timer;
+  rclcpp::Time last_time;
   int status;
 
   bool action_manager_is_open = false;

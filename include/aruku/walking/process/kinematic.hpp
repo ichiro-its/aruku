@@ -50,6 +50,7 @@ public:
   void set_running_state(bool running_state);
   bool get_running_state() const;
 
+
   void stop_kinematic();
   bool run_kinematic();
 
@@ -64,6 +65,8 @@ public:
   keisan::Angle<double> get_hip_offset() const;
 
   bool time_to_compute_odometry() const;
+
+  int get_support_phase(); 
 
   keisan::Angle<double> yaw_offset;
   keisan::Angle<double> pitch_offset;

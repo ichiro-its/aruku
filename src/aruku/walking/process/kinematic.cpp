@@ -450,6 +450,16 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   run_kinematic();
 }
 
+int Kinematic::get_support_phase(){
+  if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
+    return 1; //right as support leg
+
+  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
+    return -1; //left as support leg
+
+  return 0; //dsp
+}
+
 bool Kinematic::run_kinematic()
 {
   is_compute_odometry = false;

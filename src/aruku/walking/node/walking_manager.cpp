@@ -44,7 +44,7 @@ WalkingManager::WalkingManager()
   position(0.0, 0.0),
   gyro(keisan::Vector<3>::zero()),
   prev_pitch_error(0.0),
-  integral(0.0),
+  pitch_integral(0.0),
   pid_offset_pitch(0.0),
   imu_pitch(0_deg)
 {
@@ -337,7 +337,10 @@ bool WalkingManager::process()
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error = (0_deg - this->imu_roll).normalize().degree(); 
 
-      integral = keisan::clamp(integral + (pitch_error * dt), -100.0, 100.0);
+      std::cout<< "roll: " << this->imu_roll.normalize().degree() << " pitch: " << this->imu_roll.normalize().degree() << "\n";
+
+      pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -100.0, 100.0);
+      roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -100.0, 100.0);
 
       double pitch_derivative = (pitch_error - prev_pitch_error);
       double roll_derivative = (roll_error - prev_roll_error);
@@ -346,11 +349,11 @@ bool WalkingManager::process()
       pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative/dt);
       roll_derivative = (dt <= 0.0? 0.0 : roll_derivative/dt);
 
-      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * integral + d_pitch_gain;
+      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * pitch_integral + d_pitch_gain * pitch_derivative;
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
-      pid_offset_roll = p_roll_gain * roll_error + d_roll_gain;
-      pid_offset_roll = keisan::clamp(pid_offset_roll, -30.0, 30.0);
+      pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -100.0, 100.0);
 
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
@@ -358,7 +361,8 @@ bool WalkingManager::process()
       if (!is_running()) {
         prev_roll_error = 0.0;
         prev_pitch_error = 0.0;
-        integral = 0.0;
+        pitch_integral = 0.0;
+        roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
       }
@@ -390,7 +394,7 @@ bool WalkingManager::process()
             break;
           case -1: //left support leg
               if (joint_id == JointId::LEFT_ANKLE_ROLL){
-                offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
+                offset -= joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
               }
               else if (joint_id == JointId::LEFT_HIP_ROLL){
                 offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;

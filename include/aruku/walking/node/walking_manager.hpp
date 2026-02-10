@@ -71,11 +71,12 @@ public:
   // for pid balance
   double dt;
   double prev_pitch_error;
-  double integral;
+  double pitch_integral;
   double pid_offset_pitch;
   keisan::Angle<double> imu_pitch;
 
   double prev_roll_error;
+  double roll_integral;
   double pid_offset_roll;
   keisan::Angle<double> imu_roll;
 

@@ -15,7 +15,7 @@
   <depend>keisan</depend>
   <depend>nlohmann-json-dev</depend>
   <depend>rclcpp</depend>
-  <depend>soccer_interfaces</depend>
+  <depend>competition_interfaces</depend>
   <depend>tachimawari</depend>
   <depend>tachimawari_interfaces</depend>
   <test_depend>ament_lint_auto</test_depend>

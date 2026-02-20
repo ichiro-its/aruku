@@ -68,7 +68,7 @@ WalkingNode::WalkingNode(
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
   unit_subscriber =
-    node->create_subscription<Unit>("/imu/unit", 10, [this](const Unit::SharedPtr message) {
+    node->create_subscription<Unit>("/measurement/unit", 10, [this](const Unit::SharedPtr message) {
       this->walking_manager->update_gyro(
         keisan::Vector<3>(message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });

@@ -334,26 +334,44 @@ bool WalkingManager::process()
 
       // PID for pitch and roll balancing using IMU 
 
+      double y_swap = kinematic.get_y_swap();
+      double y_move_amp = kinematic.get_y_move_amplitude();
+
+      // get expected roll from kinematic rather than 0_deg 
+      // adjust the multiplyer if PID cause more oscillation
+      double roll_setpoint_deg = kinematic.get_y_swap() * 0.05 + kinematic.get_y_move_amplitude() * 0.1;
+
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
-      double roll_error = (0_deg - this->imu_roll).normalize().degree(); 
+      double roll_error_raw = roll_setpoint_deg - this->imu_roll.normalize().degree();
 
-      std::cout<< "roll: " << this->imu_roll.normalize().degree() << " pitch: " << this->imu_roll.normalize().degree() << "\n";
+      // ignore if roll error is too small
+      double roll_error = (fabs(roll_error_raw) < 0.5) ? 0.0 : roll_error_raw; 
 
-      pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -100.0, 100.0);
-      roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -100.0, 100.0);
+      std::cout << "roll error: "<<roll_error<<"\n";
+
+      int current_support_phase = kinematic.get_support_phase();
+
+      // prevent integral wind up when changing phase
+      if (current_support_phase != prev_support_phase){
+        roll_integral *= 0.5;
+        prev_support_phase = current_support_phase;
+      }
+
+      pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
+      roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
 
       double pitch_derivative = (pitch_error - prev_pitch_error);
       double roll_derivative = (roll_error - prev_roll_error);
 
       //nan guard if dt is 0
-      pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative/dt);
-      roll_derivative = (dt <= 0.0? 0.0 : roll_derivative/dt);
+      pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative / dt);
+      roll_derivative = (dt <= 0.0? 0.0 : roll_derivative / dt);
 
       pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * pitch_integral + d_pitch_gain * pitch_derivative;
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
       pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
-      pid_offset_roll = keisan::clamp(pid_offset_roll, -100.0, 100.0);
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -40.0, 40.0);
 
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
@@ -365,6 +383,7 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
+        prev_support_phase = 0;
       }
 
       auto angles = kinematic.get_angles();
@@ -383,39 +402,54 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
         }
 
-        switch(kinematic.get_support_phase()){
-          case 1: //right support leg
+        switch(current_support_phase){
+          case 1: // RIGHT support, LEFT swinging
               if (joint_id == JointId::RIGHT_ANKLE_ROLL){
-                offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
-              }
-              else if (joint_id == JointId::RIGHT_HIP_ROLL){
-                offset += joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
-              }
-            break;
-          case -1: //left support leg
-              if (joint_id == JointId::LEFT_ANKLE_ROLL){
                 offset -= joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
+              } else if (joint_id == JointId::RIGHT_HIP_ROLL){
+                offset += joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+              } else if (joint_id == JointId::LEFT_HIP_ROLL) {
+                offset -= joints_direction[joint_id]
+                        * hip_ankle_ratio_roll
+                        * 0.3
+                        * pid_offset_roll;
               }
-              else if (joint_id == JointId::LEFT_HIP_ROLL){
-                offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
-              }
+              break;
+
+         case -1:  // LEFT support, RIGHT swinging
+            if (joint_id == JointId::LEFT_ANKLE_ROLL) {
+              offset -= joints_direction[joint_id]
+                      * (1.0 - hip_ankle_ratio_roll) * pid_offset_roll;
+            } else if (joint_id == JointId::LEFT_HIP_ROLL) {
+              offset += joints_direction[joint_id]
+                      * hip_ankle_ratio_roll * pid_offset_roll;
+            } else if (joint_id == JointId::RIGHT_HIP_ROLL) {
+              offset -= joints_direction[joint_id]
+                      * hip_ankle_ratio_roll
+                      * 0.3
+                      * pid_offset_roll;
+            }
             break;
-          case 0: //double support
-              if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL){
-                offset += 0.3 * joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
-              }
+
+          case 0:  // DOUBLE support
+            if (joint_id == JointId::LEFT_ANKLE_ROLL ||
+                joint_id == JointId::RIGHT_ANKLE_ROLL) {
+              offset -= joints_direction[joint_id]
+                      * (1.0 - hip_ankle_ratio_roll)
+                      * 0.4
+                      * pid_offset_roll;
+            } else if (joint_id == JointId::LEFT_HIP_ROLL ||
+                       joint_id == JointId::RIGHT_HIP_ROLL) {
+              offset += joints_direction[joint_id]
+                      * hip_ankle_ratio_roll
+                      * 0.4
+                      * pid_offset_roll;
+            }
             break;
+
           default:
             break;
         }
-        // if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL){
-        //   offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
-        //   // std::cout << "offset: " << offset << "\n";
-        // }
-
-        // if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL){
-        //   offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
-        // }
 
         offset += joint.get_position_value();
 
@@ -440,7 +474,6 @@ bool WalkingManager::process()
         joint.set_position_value(offset);
       }
     }
-
     return true;
   }
 

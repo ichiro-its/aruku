@@ -753,9 +753,4 @@ bool Kinematic::run_kinematic()
   return true;
 }
 
-double Kinematic::get_y_swap() const
-{
-  return wsin(m_time, m_y_swap_period_time, 0, m_y_swap_amplitude, 0);
-}
-
 }  // namespace aruku

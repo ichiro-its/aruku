@@ -450,14 +450,14 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   run_kinematic();
 }
 
-int Kinematic::get_support_phase(){
+Kinematic::WALK_PHASE Kinematic::get_support_phase(){
   if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
-    return 1; //right as support leg
+    return Kinematic::WALK_PHASE::RIGHT_SUPPORT_LEG;
 
   if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
-    return -1; //left as support leg
+    return Kinematic::WALK_PHASE::LEFT_SUPPORT_LEG;
 
-  return 0; //dsp
+  return Kinematic::WALK_PHASE::DOUBLE_SUPPORT;
 }
 
 bool Kinematic::run_kinematic()

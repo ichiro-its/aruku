@@ -41,6 +41,13 @@ public:
     LEFT_LEG,
   };
 
+  enum WALK_PHASE
+  {
+    RIGHT_SUPPORT_LEG,
+    LEFT_SUPPORT_LEG,
+    DOUBLE_SUPPORT
+  };
+
   Kinematic();
 
   void set_config(const nlohmann::json & kinematic_data);
@@ -66,7 +73,7 @@ public:
 
   bool time_to_compute_odometry() const;
 
-  int get_support_phase(); 
+  WALK_PHASE get_support_phase(); 
 
   keisan::Angle<double> yaw_offset;
   keisan::Angle<double> pitch_offset;

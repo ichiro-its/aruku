@@ -79,7 +79,7 @@ public:
   double roll_integral;
   double pid_offset_roll;
   keisan::Angle<double> imu_roll;
-  int prev_support_phase;
+  Kinematic::WALK_PHASE prev_support_phase;
 
   void set_odometry_coef(
     const double & fx, const double & bx, const double & ry, const double & ly);

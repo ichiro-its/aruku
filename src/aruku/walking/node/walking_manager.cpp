@@ -331,6 +331,8 @@ bool WalkingManager::process()
     {
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
+      using WalkPhase = Kinematic::WALK_PHASE;
+
 
       // PID for pitch and roll balancing using IMU 
 
@@ -345,7 +347,7 @@ bool WalkingManager::process()
       // ignore if roll error is too small
       double roll_error = (fabs(roll_error_raw) < 4) ? 0.0 : roll_error_raw; 
 
-      int current_support_phase = kinematic.get_support_phase();
+      Kinematic::WALK_PHASE current_support_phase = kinematic.get_support_phase();
 
       // prevent integral wind up when changing phase
       if (current_support_phase != prev_support_phase){
@@ -379,7 +381,7 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
-        prev_support_phase = 0;
+        prev_support_phase = WalkPhase::DOUBLE_SUPPORT;
       }
 
       auto angles = kinematic.get_angles();
@@ -399,7 +401,7 @@ bool WalkingManager::process()
         }
 
         switch(current_support_phase){
-          case 1: // RIGHT support, LEFT swinging
+          case WalkPhase::RIGHT_SUPPORT_LEG:  
               if (joint_id == JointId::RIGHT_ANKLE_ROLL){
                 offset -= joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
               } else if (joint_id == JointId::RIGHT_HIP_ROLL){
@@ -412,7 +414,7 @@ bool WalkingManager::process()
               }
               break;
 
-         case -1:  // LEFT support, RIGHT swinging
+         case WalkPhase::LEFT_SUPPORT_LEG:
             if (joint_id == JointId::LEFT_ANKLE_ROLL) {
               offset -= joints_direction[joint_id]
                       * (1.0 - hip_ankle_ratio_roll) * pid_offset_roll;
@@ -427,7 +429,7 @@ bool WalkingManager::process()
             }
             break;
 
-          case 0:  // DOUBLE support
+          case WalkPhase::DOUBLE_SUPPORT:
             if (joint_id == JointId::LEFT_ANKLE_ROLL ||
                 joint_id == JointId::RIGHT_ANKLE_ROLL) {
               offset -= joints_direction[joint_id]

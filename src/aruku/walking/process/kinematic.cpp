@@ -753,4 +753,13 @@ bool Kinematic::run_kinematic()
   return true;
 }
 
+void Kinematic::set_period_time(double new_period_time){
+  period_time = new_period_time;
+}
+
+double Kinematic::get_period_time(){
+  return period_time;
+}
+
+
 }  // namespace aruku

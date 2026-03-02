@@ -80,6 +80,9 @@ public:
   keisan::Angle<double> roll_offset;
   keisan::Angle<double> hip_pitch_offset;
 
+  void set_period_time(double new_period_time);
+  double get_period_time();
+
   double x_offset;
   double y_offset;
   double z_offset;
@@ -91,7 +94,6 @@ private:
 
   void update_move_amplitude();
   void update_times();
-
   void reset_angles();
 
   // input member

@@ -94,6 +94,7 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
+    valid_section &= jitsuyo::assign_val(pid_section, "uvc_gain", uvc_gain);
     
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
@@ -250,6 +251,8 @@ void WalkingManager::set_config(
   }
 
   kinematic.set_config(kinematic_data);
+  period_time = kinematic.get_period_time();
+  current_period_time = period_time;
 }
 
 void WalkingManager::load_config(const std::string & path)
@@ -334,15 +337,12 @@ bool WalkingManager::process()
       using WalkPhase = Kinematic::WALK_PHASE;
 
 
-      // PID for pitch and roll balancing using IMU 
+ // PID for pitch and roll balancing using IMU 
 
       double y_move_amp = kinematic.get_y_move_amplitude();
 
-      // Roll set point shouldn't be 0 when the robot is moving sideways
-      double roll_setpoint_deg = kinematic.get_y_move_amplitude() * 0.2;
-      
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
-      double roll_error_raw = roll_setpoint_deg - this->imu_roll.normalize().degree();
+      double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
 
       // ignore if roll error is too small
       double roll_error = (fabs(roll_error_raw) < 4) ? 0.0 : roll_error_raw; 
@@ -369,7 +369,9 @@ bool WalkingManager::process()
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
       pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
-      pid_offset_roll = keisan::clamp(pid_offset_roll, -60.0, 60.0);
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -180.0, 180.0);
+
+      if(y_move_amp != 0) pid_offset_roll = keisan::clamp(pid_offset_roll, -30.0, 30.0);
 
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
@@ -382,9 +384,11 @@ bool WalkingManager::process()
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
         prev_support_phase = WalkPhase::DOUBLE_SUPPORT;
-      }
+        kinematic.set_period_time(period_time);
+      } 
 
       auto angles = kinematic.get_angles();
+
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
 
@@ -400,54 +404,42 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
         }
 
-        switch(current_support_phase){
-          case WalkPhase::RIGHT_SUPPORT_LEG:  
-              if (joint_id == JointId::RIGHT_ANKLE_ROLL){
-                offset -= joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
-              } else if (joint_id == JointId::RIGHT_HIP_ROLL){
-                offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
-              } else if (joint_id == JointId::LEFT_HIP_ROLL) {
-                offset += joints_direction[joint_id]
-                        * hip_ankle_ratio_roll
-                        * 0.3
-                        * pid_offset_roll;
-              }
-              break;
-
-         case WalkPhase::LEFT_SUPPORT_LEG:
-            if (joint_id == JointId::LEFT_ANKLE_ROLL) {
-              offset -= joints_direction[joint_id]
-                      * (1.0 - hip_ankle_ratio_roll) * pid_offset_roll;
-            } else if (joint_id == JointId::LEFT_HIP_ROLL) {
-              offset -= joints_direction[joint_id]
-                      * hip_ankle_ratio_roll * pid_offset_roll;
-            } else if (joint_id == JointId::RIGHT_HIP_ROLL) {
-              offset += joints_direction[joint_id]
-                      * hip_ankle_ratio_roll
-                      * 0.3
-                      * pid_offset_roll;
-            }
-            break;
-
-          case WalkPhase::DOUBLE_SUPPORT:
-            if (joint_id == JointId::LEFT_ANKLE_ROLL ||
-                joint_id == JointId::RIGHT_ANKLE_ROLL) {
-              offset -= joints_direction[joint_id]
-                      * (1.0 - hip_ankle_ratio_roll)
-                      * 0.4
-                      * pid_offset_roll;
-            } else if (joint_id == JointId::LEFT_HIP_ROLL ||
-                       joint_id == JointId::RIGHT_HIP_ROLL) {
-              offset += joints_direction[joint_id]
-                      * hip_ankle_ratio_roll
-                      * 0.4
-                      * pid_offset_roll;
-            }
-            break;
-
-          default:
-            break;
+      // we assume that offset > 0 means left foot is on contact while right foot is floating, and vice versa
+        if(pid_offset_roll > 0){
+          if (joint_id == JointId::RIGHT_HIP_ROLL) {
+          offset -= joints_direction[joint_id]
+          * hip_ankle_ratio_roll
+          * pid_offset_roll;       
+          } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
+            offset += joints_direction[joint_id]
+            * (1 - hip_ankle_ratio_roll)
+            * pid_offset_roll;
+          }  
+        } else if(pid_offset_roll < 0){
+          if (joint_id == JointId::LEFT_HIP_ROLL) {
+          offset -= joints_direction[joint_id]
+          * hip_ankle_ratio_roll
+          * pid_offset_roll;
+          } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
+            offset += joints_direction[joint_id]
+            * (1 - hip_ankle_ratio_roll)
+            * pid_offset_roll;
+          } 
         }
+
+        if (y_move_amp == 0){
+          // slow period time when the robot is about to fall 
+          double roll_scale = keisan::clamp(this->imu_roll.normalize().degree() / 10.0, 0.0, 1.0);
+          double target_period = period_time * (1.0 + roll_scale);
+
+          // smoothly move current_period_time toward target using a low-pass filter
+          double alpha = (target_period > current_period_time) ? 0.1 : 0.03; 
+          current_period_time += alpha * (target_period - current_period_time);
+          kinematic.set_period_time(current_period_time);
+        } else if(y_move_amp != 0 && current_period_time != period_time){
+          kinematic.set_period_time(period_time);
+        }
+     
 
         offset += joint.get_position_value();
 

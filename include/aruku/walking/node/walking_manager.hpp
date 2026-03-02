@@ -57,6 +57,7 @@ public:
   void set_delta_time(const double & current_time);
 
   void set_position(const keisan::Point2 & position);
+  void update_uvc(double roll_error_rad);
   const keisan::Point2 & get_position() const;
 
   void run(double x_move, double y_move, double a_move, bool aim_on = false);
@@ -107,6 +108,11 @@ private:
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
   double odometry_bx_coefficient;
+
+  double current_period_time;
+  double period_time;
+  double uvc_gain;
+  double uvc_correction = 0.0;
 
   // output member
   Kinematic kinematic;

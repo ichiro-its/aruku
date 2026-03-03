@@ -383,9 +383,10 @@ bool WalkingManager::process()
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
         prev_support_phase = WalkPhase::DOUBLE_SUPPORT;
+        current_period_time = period_time; 
         kinematic.set_period_time(period_time);
       } 
-
+      
       auto angles = kinematic.get_angles();
 
       for (auto & joint : joints) {
@@ -426,17 +427,23 @@ bool WalkingManager::process()
           } 
         }
 
-        if (y_move_amp == 0){
+        if (y_move_amp == 0 && fabs(this->imu_roll.normalize().degree() ) > 2){
           // slow period time when the robot is about to fall 
           double roll_scale = keisan::clamp(this->imu_roll.normalize().degree() / 10.0, 0.0, 1.0);
           double target_period = period_time * (1.0 + roll_scale);
-
           // smoothly move current_period_time toward target using a low-pass filter
           double alpha = (target_period > current_period_time) ? 0.1 : 0.03; 
           current_period_time += alpha * (target_period - current_period_time);
           kinematic.set_period_time(current_period_time);
         } else if(y_move_amp != 0 && current_period_time != period_time){
-          kinematic.set_period_time(period_time);
+          // smoothly restore period time regardless of whether y_move_amp != 0 or roll is small
+          double alpha = 0.05;
+          current_period_time += alpha * (period_time - current_period_time);
+          // snap to exact value when close enough to avoid floating point drift
+          if (fabs(current_period_time - period_time) < 1.0) {
+              current_period_time = period_time;
+          }
+          kinematic.set_period_time(current_period_time);
         }
      
 

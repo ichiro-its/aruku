@@ -94,6 +94,7 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
+    valid_section &= jitsuyo::assign_val(pid_section, "roll_deadband", roll_deadband);
     
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
@@ -344,7 +345,7 @@ bool WalkingManager::process()
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
 
       // ignore if roll error is too small
-      double roll_error = (fabs(roll_error_raw) < 4) ? 0.0 : roll_error_raw; 
+      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw; 
 
       Kinematic::WALK_PHASE current_support_phase = kinematic.get_support_phase();
 
@@ -375,6 +376,8 @@ bool WalkingManager::process()
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
 
+      filtered_roll = filtered_roll + 0.1 * (this->imu_roll.normalize().degree() - filtered_roll);
+
       if (!is_running()) {
         prev_roll_error = 0.0;
         prev_pitch_error = 0.0;
@@ -385,6 +388,7 @@ bool WalkingManager::process()
         prev_support_phase = WalkPhase::DOUBLE_SUPPORT;
         current_period_time = period_time; 
         kinematic.set_period_time(period_time);
+        filtered_roll = 0.0;
       } 
       
       auto angles = kinematic.get_angles();
@@ -427,18 +431,21 @@ bool WalkingManager::process()
           } 
         }
 
-        if (y_move_amp == 0 && fabs(this->imu_roll.normalize().degree() ) > 2){
+        if (y_move_amp == 0 && fabs(filtered_roll) > roll_deadband){
           // slow period time when the robot is about to fall 
-          double roll_scale = keisan::clamp(this->imu_roll.normalize().degree() / 10.0, 0.0, 1.0);
+          double roll_scale = keisan::clamp(filtered_roll / 20.0, 0.0, 1.0);
           double target_period = period_time * (1.0 + roll_scale);
+
           // smoothly move current_period_time toward target using a low-pass filter
           double alpha = (target_period > current_period_time) ? 0.1 : 0.03; 
           current_period_time += alpha * (target_period - current_period_time);
           kinematic.set_period_time(current_period_time);
+        
         } else if(y_move_amp != 0 && current_period_time != period_time){
-          // smoothly restore period time regardless of whether y_move_amp != 0 or roll is small
+          // smoothly restore period time
           double alpha = 0.05;
           current_period_time += alpha * (period_time - current_period_time);
+
           // snap to exact value when close enough to avoid floating point drift
           if (fabs(current_period_time - period_time) < 1.0) {
               current_period_time = period_time;

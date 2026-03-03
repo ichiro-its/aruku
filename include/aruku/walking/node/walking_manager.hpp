@@ -103,6 +103,8 @@ private:
   double hip_ankle_ratio_pitch;
   double hip_ankle_ratio_roll;
 
+  double roll_deadband;
+  
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
@@ -110,7 +112,9 @@ private:
 
   double current_period_time;
   double period_time;
+  double filtered_roll = 0.0;
   
+
   // output member
   Kinematic kinematic;
 

@@ -94,7 +94,6 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
-    valid_section &= jitsuyo::assign_val(pid_section, "uvc_gain", uvc_gain);
     
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;

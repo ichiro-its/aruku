@@ -423,30 +423,36 @@ bool WalkingManager::process()
             * pid_offset_roll;
           } 
         }
-
         double roll_error_amp = fabs(roll_error);
-        if (y_move_amp == 0 && roll_error_amp > roll_deadband){
-          // slow period time when the robot is about to fall 
-          double roll_scale = keisan::clamp(roll_error_amp / 20.0, 0.0, 1.0);
-          double target_period = period_time * (1.0 + roll_scale);
 
-          // smoothly move current_period_time toward target using a low-pass filter
-          double alpha = (target_period > current_period_time) ? 0.1 : 0.03; 
-          current_period_time += alpha * (target_period - current_period_time);
-          kinematic.set_period_time(current_period_time);
-        
-        } else if(y_move_amp != 0 && current_period_time > period_time){
-          // smoothly restore period time
-          double alpha = 0.05;
-          current_period_time += alpha * (period_time - current_period_time);
-          // snap to exact value when close enough to avoid floating point drift
-          if (fabs(current_period_time - period_time) < 1.0) {
+        double prev_filtered_roll = filtered_roll;
+        filtered_roll = filtered_roll + 0.1 * (this->imu_roll.normalize().degree() - filtered_roll);
+        double filtered_roll_d = (dt <= 0.0 ? 0.0 : (filtered_roll - prev_filtered_roll) / dt);
+
+        if (y_move_amp == 0 && roll_error_amp > roll_deadband){
+          if (filtered_roll_d > 0.0) {
+            double roll_d_scale = keisan::clamp(filtered_roll_d / 5.0, 0.0, 0.5);
+            double target_period = period_time * (1.0 + roll_d_scale);
+            double alpha = 0.1;
+            current_period_time += alpha * (target_period - current_period_time);
+            kinematic.set_period_time(current_period_time);
+          } else {
+            double alpha = 0.15;
+            current_period_time += alpha * (period_time - current_period_time);
+            if (fabs(current_period_time - period_time) < 1.0) {
               current_period_time = period_time;
+            }
+            kinematic.set_period_time(current_period_time);
+          }
+        } else if (current_period_time > period_time) {
+          double alpha = (y_move_amp != 0) ? 0.05 : 0.08;
+          current_period_time += alpha * (period_time - current_period_time);
+          if (fabs(current_period_time - period_time) < 1.0) {
+            current_period_time = period_time;
           }
           kinematic.set_period_time(current_period_time);
         }
-     
-
+        
         offset += joint.get_position_value();
 
         if (balance_enable) {

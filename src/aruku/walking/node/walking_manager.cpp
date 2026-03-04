@@ -347,16 +347,10 @@ bool WalkingManager::process()
       // ignore if roll error is too small
       double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw; 
 
-      Kinematic::WALK_PHASE current_support_phase = kinematic.get_support_phase();
-
-      // prevent integral wind up when changing phase
-      if (current_support_phase != prev_support_phase){
-        roll_integral *= 0.5;
-        prev_support_phase = current_support_phase;
-      }
-
       pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
       roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
+
+      roll_integral *= 0.9;
 
       double pitch_derivative = (pitch_error - prev_pitch_error);
       double roll_derivative = (roll_error - prev_roll_error);
@@ -385,7 +379,6 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
-        prev_support_phase = WalkPhase::DOUBLE_SUPPORT;
         current_period_time = period_time; 
         kinematic.set_period_time(period_time);
         filtered_roll = 0.0;
@@ -431,9 +424,10 @@ bool WalkingManager::process()
           } 
         }
 
-        if (y_move_amp == 0 && fabs(filtered_roll) > roll_deadband){
+        double roll_error_amp = fabs(roll_error);
+        if (y_move_amp == 0 && roll_error_amp > roll_deadband){
           // slow period time when the robot is about to fall 
-          double roll_scale = keisan::clamp(filtered_roll / 20.0, 0.0, 1.0);
+          double roll_scale = keisan::clamp(roll_error_amp / 20.0, 0.0, 1.0);
           double target_period = period_time * (1.0 + roll_scale);
 
           // smoothly move current_period_time toward target using a low-pass filter
@@ -441,11 +435,10 @@ bool WalkingManager::process()
           current_period_time += alpha * (target_period - current_period_time);
           kinematic.set_period_time(current_period_time);
         
-        } else if(y_move_amp != 0 && current_period_time != period_time){
+        } else if(y_move_amp != 0 && current_period_time > period_time){
           // smoothly restore period time
           double alpha = 0.05;
           current_period_time += alpha * (period_time - current_period_time);
-
           // snap to exact value when close enough to avoid floating point drift
           if (fabs(current_period_time - period_time) < 1.0) {
               current_period_time = period_time;

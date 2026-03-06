@@ -113,7 +113,10 @@ private:
   double current_period_time;
   double period_time;
   double filtered_roll = 0.0;
-  
+  double current_x;
+  double current_y;
+  double current_a;
+  bool aim_on;
 
   // output member
   Kinematic kinematic;

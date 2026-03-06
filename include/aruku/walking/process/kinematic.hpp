@@ -67,6 +67,7 @@ public:
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
   double get_a_move_amplitude() const;
+  bool get_aim_on() const;
 
   keisan::Angle<double> get_raw_hip_offset() const;
   keisan::Angle<double> get_hip_offset() const;

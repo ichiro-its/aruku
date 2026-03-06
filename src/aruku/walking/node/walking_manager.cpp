@@ -300,6 +300,11 @@ void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_o
 {
   kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
+
+  this->current_x = x_move;
+  this->current_y = y_move;
+  this->current_a = a_move;
+  this->aim_on = aim_on;
 }
 
 void WalkingManager::stop() { kinematic.set_running_state(false); }
@@ -423,35 +428,6 @@ bool WalkingManager::process()
             * pid_offset_roll;
           } 
         }
-        double roll_error_amp = fabs(roll_error);
-
-        double prev_filtered_roll = filtered_roll;
-        filtered_roll = filtered_roll + 0.1 * (this->imu_roll.normalize().degree() - filtered_roll);
-        double filtered_roll_d = (dt <= 0.0 ? 0.0 : (filtered_roll - prev_filtered_roll) / dt);
-
-        if (y_move_amp == 0 && roll_error_amp > roll_deadband){
-          if (filtered_roll_d > 0.0) {
-            double roll_d_scale = keisan::clamp(filtered_roll_d / 5.0, 0.0, 0.5);
-            double target_period = period_time * (1.0 + roll_d_scale);
-            double alpha = 0.1;
-            current_period_time += alpha * (target_period - current_period_time);
-            kinematic.set_period_time(current_period_time);
-          } else {
-            double alpha = 0.15;
-            current_period_time += alpha * (period_time - current_period_time);
-            if (fabs(current_period_time - period_time) < 1.0) {
-              current_period_time = period_time;
-            }
-            kinematic.set_period_time(current_period_time);
-          }
-        } else if (current_period_time > period_time) {
-          double alpha = (y_move_amp != 0) ? 0.05 : 0.08;
-          current_period_time += alpha * (period_time - current_period_time);
-          if (fabs(current_period_time - period_time) < 1.0) {
-            current_period_time = period_time;
-          }
-          kinematic.set_period_time(current_period_time);
-        }
         
         offset += joint.get_position_value();
 
@@ -474,7 +450,43 @@ bool WalkingManager::process()
         }
         joint.set_position_value(offset);
       }
+
+      double roll_error_amp = fabs(roll_error);
+
+      double prev_filtered_roll = filtered_roll;
+      filtered_roll = filtered_roll + 0.3 * (this->imu_roll.normalize().degree() - filtered_roll);
+      double filtered_roll_d = (dt <= 0.0 ? 0.0 : (filtered_roll - prev_filtered_roll) / dt);
+
+      bool is_falling = (filtered_roll * filtered_roll_d) > 0.0;
+
+      if (y_move_amp == 0 && roll_error_amp > roll_deadband){
+        if (is_falling) {
+          double roll_d_scale = keisan::clamp(fabs(filtered_roll_d) / 2.0, 0.0, 0.7);
+          double target_period = period_time * (1.0 + roll_d_scale);
+          double alpha = 0.8;
+          current_period_time += alpha * (target_period - current_period_time);
+          kinematic.set_period_time(current_period_time);
+        } else {
+          double alpha = 0.15;
+          current_period_time += alpha * (period_time - current_period_time);
+          if (fabs(current_period_time - period_time) < 1.0) {
+            current_period_time = period_time;
+          }
+          kinematic.set_period_time(current_period_time);
+        }
+      } else if (current_period_time > period_time) {
+        double alpha = (y_move_amp != 0) ? 0.05 : 0.08;
+        current_period_time += alpha * (period_time - current_period_time);
+        if (fabs(current_period_time - period_time) < 1.0) {
+          current_period_time = period_time;
+        }
+        kinematic.set_period_time(current_period_time);
+      }
+
+      double roll_suppression = keisan::clamp(roll_error_amp / 10.0, 0.0, 0.5);
+      kinematic.set_move_amplitude(current_x * (1.0 - roll_suppression), current_y, keisan::make_degree(current_a), aim_on);
     }
+
     return true;
 
   }

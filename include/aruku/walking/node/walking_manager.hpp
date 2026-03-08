@@ -110,13 +110,11 @@ private:
   double odometry_ry_coefficient;
   double odometry_bx_coefficient;
 
-  double current_period_time;
+  bool is_disturbed = false;
   double period_time;
-  double filtered_roll = 0.0;
-  double current_x;
-  double current_y;
-  double current_a;
-  bool aim_on;
+  double current_period_time;
+  int recovery_counter;
+  int recovery_frames = 5;
 
   // output member
   Kinematic kinematic;

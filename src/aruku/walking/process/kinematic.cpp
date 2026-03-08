@@ -717,7 +717,7 @@ bool Kinematic::run_kinematic()
   }
 
   if (m_real_running) {
-    m_time += time_unit;
+    if(!m_is_paused) m_time += time_unit;
 
     if (m_time >= m_period_time) {
       m_time = 0;
@@ -757,6 +757,14 @@ bool Kinematic::run_kinematic()
 
 void Kinematic::set_period_time(double new_period_time){
   period_time = new_period_time;
+}
+
+void Kinematic::pause_walking(bool pause){
+  m_is_paused = pause;
+}
+
+bool Kinematic::is_paused(){
+  return m_is_paused;
 }
 
 double Kinematic::get_period_time(){

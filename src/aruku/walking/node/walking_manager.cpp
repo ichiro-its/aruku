@@ -300,11 +300,6 @@ void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_o
 {
   kinematic.set_move_amplitude(x_move, y_move, keisan::make_degree(a_move), aim_on);
   kinematic.set_running_state(true);
-
-  this->current_x = x_move;
-  this->current_y = y_move;
-  this->current_a = a_move;
-  this->aim_on = aim_on;
 }
 
 void WalkingManager::stop() { kinematic.set_running_state(false); }
@@ -339,10 +334,8 @@ bool WalkingManager::process()
     {
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
-      using WalkPhase = Kinematic::WALK_PHASE;
 
-
- // PID for pitch and roll balancing using IMU 
+      // PID for pitch and roll balancing using IMU 
 
       double y_move_amp = kinematic.get_y_move_amplitude();
 
@@ -355,7 +348,7 @@ bool WalkingManager::process()
       pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
       roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
 
-      roll_integral *= 0.9;
+      roll_integral *= 0.8;
 
       double pitch_derivative = (pitch_error - prev_pitch_error);
       double roll_derivative = (roll_error - prev_roll_error);
@@ -375,8 +368,6 @@ bool WalkingManager::process()
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;
 
-      filtered_roll = filtered_roll + 0.1 * (this->imu_roll.normalize().degree() - filtered_roll);
-
       if (!is_running()) {
         prev_roll_error = 0.0;
         prev_pitch_error = 0.0;
@@ -384,12 +375,30 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
-        current_period_time = period_time; 
+        recovery_counter = 0;
+        is_disturbed = false;
+        kinematic.pause_walking(false);
         kinematic.set_period_time(period_time);
-        filtered_roll = 0.0;
       } 
       
       auto angles = kinematic.get_angles();
+
+      if (fabs(roll_error_raw) > 2 * roll_deadband && !is_disturbed) {
+        is_disturbed = true;
+        recovery_counter = 0;
+      } else if (is_disturbed) {
+        recovery_counter++;
+        if (recovery_counter >= recovery_frames) {
+            is_disturbed = false;
+            kinematic.pause_walking(false);
+        }
+      }
+
+      if (is_disturbed) {
+        kinematic.pause_walking(true);
+      } 
+      // we assume that roll pid > 0 means left foot is on contact while right foot is floating, and vice versa
+      bool left_support = (pid_offset_roll > 0); 
 
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
@@ -406,22 +415,21 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
         }
 
-      // we assume that offset > 0 means left foot is on contact while right foot is floating, and vice versa
-        if(pid_offset_roll > 0){
+        if(left_support){
           if (joint_id == JointId::RIGHT_HIP_ROLL) {
-          offset -= joints_direction[joint_id]
-          * hip_ankle_ratio_roll
-          * pid_offset_roll;       
+            offset -= joints_direction[joint_id]
+            * hip_ankle_ratio_roll
+            * pid_offset_roll;       
           } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
             offset += joints_direction[joint_id]
             * (1 - hip_ankle_ratio_roll)
             * pid_offset_roll;
-          }  
-        } else if(pid_offset_roll < 0){
+          } 
+        } else {
           if (joint_id == JointId::LEFT_HIP_ROLL) {
-          offset -= joints_direction[joint_id]
-          * hip_ankle_ratio_roll
-          * pid_offset_roll;
+            offset -= joints_direction[joint_id]
+            * hip_ankle_ratio_roll
+            * pid_offset_roll;
           } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
             offset += joints_direction[joint_id]
             * (1 - hip_ankle_ratio_roll)
@@ -450,41 +458,6 @@ bool WalkingManager::process()
         }
         joint.set_position_value(offset);
       }
-
-      double roll_error_amp = fabs(roll_error);
-
-      double prev_filtered_roll = filtered_roll;
-      filtered_roll = filtered_roll + 0.3 * (this->imu_roll.normalize().degree() - filtered_roll);
-      double filtered_roll_d = (dt <= 0.0 ? 0.0 : (filtered_roll - prev_filtered_roll) / dt);
-
-      bool is_falling = (filtered_roll * filtered_roll_d) > 0.0;
-
-      if (y_move_amp == 0 && roll_error_amp > roll_deadband){
-        if (is_falling) {
-          double roll_d_scale = keisan::clamp(fabs(filtered_roll_d) / 2.0, 0.0, 0.7);
-          double target_period = period_time * (1.0 + roll_d_scale);
-          double alpha = 0.8;
-          current_period_time += alpha * (target_period - current_period_time);
-          kinematic.set_period_time(current_period_time);
-        } else {
-          double alpha = 0.15;
-          current_period_time += alpha * (period_time - current_period_time);
-          if (fabs(current_period_time - period_time) < 1.0) {
-            current_period_time = period_time;
-          }
-          kinematic.set_period_time(current_period_time);
-        }
-      } else if (current_period_time > period_time) {
-        double alpha = (y_move_amp != 0) ? 0.05 : 0.08;
-        current_period_time += alpha * (period_time - current_period_time);
-        if (fabs(current_period_time - period_time) < 1.0) {
-          current_period_time = period_time;
-        }
-        kinematic.set_period_time(current_period_time);
-      }
-
-      double roll_suppression = keisan::clamp(roll_error_amp / 10.0, 0.0, 0.5);
-      kinematic.set_move_amplitude(current_x * (1.0 - roll_suppression), current_y, keisan::make_degree(current_a), aim_on);
     }
 
     return true;

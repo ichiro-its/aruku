@@ -251,8 +251,8 @@ void WalkingManager::set_config(
   }
 
   kinematic.set_config(kinematic_data);
-  period_time = kinematic.get_period_time();
-  current_period_time = period_time;
+  // period_time = kinematic.get_period_time();
+  // current_period_time = period_time;
 }
 
 void WalkingManager::load_config(const std::string & path)
@@ -282,6 +282,10 @@ void WalkingManager::update_imu(
 {
   this->imu_roll = roll;
   this->imu_pitch = pitch;
+}
+
+void WalkingManager::update_actual_walk_phase(const WalkPhase & current_phase){
+  this->kinematic.set_actual_walk_phase(current_phase);
 }
 
 void WalkingManager::reinit_joints()
@@ -375,29 +379,9 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
-        recovery_counter = 0;
-        is_disturbed = false;
-        kinematic.pause_walking(false);
-        kinematic.set_period_time(period_time);
       } 
       
       auto angles = kinematic.get_angles();
-
-      if (fabs(roll_error_raw) > 2 * roll_deadband && !is_disturbed) {
-        is_disturbed = true;
-        recovery_counter = 0;
-      } else if (is_disturbed) {
-        recovery_counter++;
-        if (recovery_counter >= recovery_frames) {
-            is_disturbed = false;
-            kinematic.pause_walking(false);
-        }
-      }
-
-      if (is_disturbed) {
-        kinematic.pause_walking(true);
-      } 
-      // we assume that roll pid > 0 means left foot is on contact while right foot is floating, and vice versa
       bool left_support = (pid_offset_roll > 0); 
 
       for (auto & joint : joints) {

@@ -28,6 +28,7 @@
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
+#include "aruku_interfaces/msg/walk_phase.hpp"
 
 namespace aruku
 {
@@ -35,17 +36,11 @@ namespace aruku
 class Kinematic
 {
 public:
+using WalkPhase = aruku_interfaces::msg::WalkPhase;
   enum
   {
     RIGHT_LEG,
     LEFT_LEG,
-  };
-
-  enum WALK_PHASE
-  {
-    RIGHT_SUPPORT_LEG,
-    LEFT_SUPPORT_LEG,
-    DOUBLE_SUPPORT
   };
 
   Kinematic();
@@ -74,8 +69,6 @@ public:
 
   bool time_to_compute_odometry() const;
 
-  WALK_PHASE get_support_phase(); 
-
   keisan::Angle<double> yaw_offset;
   keisan::Angle<double> pitch_offset;
   keisan::Angle<double> roll_offset;
@@ -87,6 +80,9 @@ public:
   bool is_walk_ready() const;
   void return_to_walk_ready();
   void set_period_time(double new_period_time);
+  void set_actual_walk_phase(WalkPhase current_phase);
+  WalkPhase get_expected_walk_phase();
+
   double get_period_time();
 
   double x_offset;
@@ -202,6 +198,7 @@ private:
   double m_y_move_amplitude;
 
   bool is_compute_odometry;
+  WalkPhase actual_walk_phase;
 
   std::array<keisan::Angle<double>, 19> angles;
 };

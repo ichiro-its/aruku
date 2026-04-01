@@ -128,13 +128,26 @@ void Kinematic::set_move_amplitude(double x, double y, const keisan::Angle<doubl
   a_move_aim_on = aim_on;
 }
 
+void Kinematic::set_actual_walk_phase(WalkPhase current_phase){
+  actual_walk_phase = current_phase;
+}
+
+WalkPhase Kinematic::get_expected_walk_phase(){
+  if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
+    return WalkPhase::RIGHT_SUPPORT;
+
+  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
+    return WalkPhase::LEFT_SUPPORT;
+
+  return WalkPhase::DOUBLE_SUPPORT;
+}
+
+
 double Kinematic::get_x_move_amplitude() const { return m_x_move_amplitude; }
 
 double Kinematic::get_y_move_amplitude() const { return m_y_move_amplitude; }
 
 double Kinematic::get_a_move_amplitude() const { return m_a_move_amplitude; }
-
-bool Kinematic::get_aim_on() const {return a_move_aim_on; }
 
 keisan::Angle<double> Kinematic::get_raw_hip_offset() const { return hip_pitch_offset; }
 
@@ -452,16 +465,6 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   run_kinematic();
 }
 
-Kinematic::WALK_PHASE Kinematic::get_support_phase(){
-  if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
-    return Kinematic::WALK_PHASE::RIGHT_SUPPORT_LEG;
-
-  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
-    return Kinematic::WALK_PHASE::LEFT_SUPPORT_LEG;
-
-  return Kinematic::WALK_PHASE::DOUBLE_SUPPORT;
-}
-
 bool Kinematic::run_kinematic()
 {
   is_compute_odometry = false;
@@ -717,7 +720,7 @@ bool Kinematic::run_kinematic()
   }
 
   if (m_real_running) {
-    if(!m_is_paused) m_time += time_unit;
+    m_time += time_unit;
 
     if (m_time >= m_period_time) {
       m_time = 0;
@@ -754,22 +757,5 @@ bool Kinematic::run_kinematic()
 
   return true;
 }
-
-void Kinematic::set_period_time(double new_period_time){
-  period_time = new_period_time;
-}
-
-void Kinematic::pause_walking(bool pause){
-  m_is_paused = pause;
-}
-
-bool Kinematic::is_paused(){
-  return m_is_paused;
-}
-
-double Kinematic::get_period_time(){
-  return period_time;
-}
-
 
 }  // namespace aruku

@@ -29,6 +29,7 @@
 #include "aruku_interfaces/msg/point2.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "aruku_interfaces/msg/status.hpp"
+#include "aruku_interfaces/msg/walk_phase.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
@@ -46,6 +47,7 @@ public:
   using MeasurementStatus = kansei_interfaces::msg::Status;
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
 
   static std::string get_node_prefix();
   static std::string set_walking_topic();
@@ -75,6 +77,8 @@ private:
 
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
+
+  rclcpp::Subscription<WalkPhase>::SharedPtr walk_phase_subscriber;
 
   rclcpp::TimerBase::SharedPtr node_timer;
   rclcpp::Time last_time;

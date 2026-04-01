@@ -37,6 +37,8 @@ namespace aruku
 class WalkingManager
 {
 public:
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
+  
   WalkingManager();
 
   void set_config(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data);
@@ -45,6 +47,7 @@ public:
   void update_orientation(const keisan::Angle<double> & orientation);
   void update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
+  void update_actual_walk_phase(uint8_t current_phase);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
   void set_x_offset(const double & offset);
@@ -55,7 +58,6 @@ public:
   void set_yaw_offset(const keisan::Angle<double> & offset);
   void set_hip_pitch_offset(const keisan::Angle<double> & offset);
   void set_delta_time(const double & current_time);
-
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
 
@@ -79,7 +81,6 @@ public:
   double roll_integral;
   double pid_offset_roll;
   keisan::Angle<double> imu_roll;
-  Kinematic::WALK_PHASE prev_support_phase;
 
   void set_odometry_coef(
     const double & fx, const double & bx, const double & ry, const double & ly);

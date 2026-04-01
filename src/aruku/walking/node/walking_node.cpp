@@ -72,6 +72,14 @@ WalkingNode::WalkingNode(
       this->walking_manager->update_gyro(
         keisan::Vector<3>(message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
+  
+  walk_phase_subscriber =
+    node->create_subscription<WalkPhase>(
+      "/walking/walk_phase",
+      10,
+      [this](const WalkPhase::SharedPtr message) {
+        this->walking_manager->update_actual_walk_phase(message->current);
+      });
 
   set_odometry_subscriber = node->create_subscription<Point2>(
     set_odometry_topic(), 10, [this](const Point2::SharedPtr message) {

@@ -80,8 +80,9 @@ using WalkPhase = aruku_interfaces::msg::WalkPhase;
   bool is_walk_ready() const;
   void return_to_walk_ready();
   void set_period_time(double new_period_time);
-  void set_actual_walk_phase(WalkPhase current_phase);
-  WalkPhase get_expected_walk_phase();
+  void set_actual_walk_phase(uint8_t current_phase);
+  void update_imu_roll(const keisan::Angle<double> & roll);
+  uint8_t get_expected_walk_phase();
 
   double get_period_time();
 
@@ -125,10 +126,14 @@ private:
   double ankle_length;
   double leg_length;
 
+  double roll_pause_threshold;
+  double roll_resume_threshold;
+  int max_pause_counter;
   double z_move;
 
   // process member
   keisan::Angle<double> hip_comp;
+  keisan::Angle<double> imu_roll;
   double foot_comp;
 
   bool m_is_paused;
@@ -198,7 +203,9 @@ private:
   double m_y_move_amplitude;
 
   bool is_compute_odometry;
-  WalkPhase actual_walk_phase;
+  uint8_t actual_walk_phase;
+  int phase_mismatch_counter;
+  int pause_timer = 0;
 
   std::array<keisan::Angle<double>, 19> angles;
 };

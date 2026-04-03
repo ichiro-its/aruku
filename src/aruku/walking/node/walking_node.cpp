@@ -64,6 +64,7 @@ WalkingNode::WalkingNode(
         keisan::make_degree(message->orientation.roll),
         keisan::make_degree(message->orientation.pitch));
     });
+  
 
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
@@ -74,10 +75,7 @@ WalkingNode::WalkingNode(
     });
   
   walk_phase_subscriber =
-    node->create_subscription<WalkPhase>(
-      "/walking/walk_phase",
-      10,
-      [this](const WalkPhase::SharedPtr message) {
+    node->create_subscription<WalkPhase>("/walking/walk_phase", 10, [this](const WalkPhase::SharedPtr message) {
         this->walking_manager->update_actual_walk_phase(message->current);
       });
 

@@ -38,6 +38,7 @@
 using keisan::literals::operator""_deg;
 using keisan::literals::operator""_pi;
 using keisan::literals::operator""_pi_rad;
+using WalkPhase = aruku_interfaces::msg::WalkPhase;
 
 namespace aruku
 {
@@ -128,14 +129,17 @@ void Kinematic::set_move_amplitude(double x, double y, const keisan::Angle<doubl
   a_move_aim_on = aim_on;
 }
 
-void Kinematic::set_actual_walk_phase(WalkPhase current_phase){
+void Kinematic::set_actual_walk_phase(uint8_t current_phase){
   actual_walk_phase = current_phase;
 }
 
-WalkPhase Kinematic::get_expected_walk_phase(){
+void Kinematic::update_imu_roll(const keisan::Angle<double> & roll){
+  imu_roll = roll;
+}
+
+uint8_t Kinematic::get_expected_walk_phase(){
   if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
     return WalkPhase::RIGHT_SUPPORT;
-
   if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
     return WalkPhase::LEFT_SUPPORT;
 
@@ -455,6 +459,21 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_config = false;
   }
 
+  nlohmann::json balance_section;
+  if(jitsuyo::assign_val(kinematic_data, "balance", balance_section)){
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(balance_section, "roll_pause_threshold", roll_pause_threshold);
+    valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
+    valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `balance`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
   if (!valid_config) {
     throw std::runtime_error("Failed to load config file `kinematic.json`");
   }
@@ -719,14 +738,30 @@ bool Kinematic::run_kinematic()
       wsin(m_time, m_period_time, 1.5_pi, m_x_move_amplitude * m_arm_swing_gain, 0));
   }
 
-  if (m_real_running) {
-    m_time += time_unit;
+  static bool is_paused = false;
+  static int pause_counter = 0;
+  
+  double roll_abs = std::fabs(imu_roll.degree());
 
-    if (m_time >= m_period_time) {
-      m_time = 0;
+  if(!is_paused && roll_abs > roll_pause_threshold){
+    is_paused = true;
+    pause_counter = 0;
+  }
+
+  if (is_paused && (roll_abs < roll_resume_threshold || pause_counter >= max_pause_counter)){
+    is_paused = false;
+    pause_counter = 0;
+  }
+
+  if (m_real_running) {
+    if(!is_paused){
+      m_time += time_unit;
+      if (m_time >= m_period_time) m_time = 0; 
+    } else {
+      pause_counter++;
     }
   } else {
-    m_time = 0;
+      m_time = 0;
   }
 
   keisan::Point3 translation_target;

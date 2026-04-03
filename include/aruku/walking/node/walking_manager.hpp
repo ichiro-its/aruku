@@ -47,7 +47,7 @@ public:
   void update_orientation(const keisan::Angle<double> & orientation);
   void update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
-  void update_actual_walk_phase(uint8_t current_phase);
+  void update_actual_walk_phase(const uint8_t & current_phase);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
   void set_x_offset(const double & offset);
@@ -111,12 +111,7 @@ private:
   double odometry_ry_coefficient;
   double odometry_bx_coefficient;
 
-  bool is_disturbed = false;
-  double period_time;
-  double current_period_time;
-  int recovery_counter;
-  int recovery_frames = 5;
-
+  uint8_t walk_phase;
   // output member
   Kinematic kinematic;
 

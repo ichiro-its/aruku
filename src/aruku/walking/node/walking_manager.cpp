@@ -251,8 +251,6 @@ void WalkingManager::set_config(
   }
 
   kinematic.set_config(kinematic_data);
-  // period_time = kinematic.get_period_time();
-  // current_period_time = period_time;
 }
 
 void WalkingManager::load_config(const std::string & path)
@@ -277,15 +275,15 @@ void WalkingManager::update_orientation(const keisan::Angle<double> & orientatio
 }
 
 void WalkingManager::update_gyro(const keisan::Vector<3> & gyro) { this->gyro = gyro; }
-void WalkingManager::update_imu(
-  const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch)
+void WalkingManager::update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch)
 {
   this->imu_roll = roll;
   this->imu_pitch = pitch;
+  this->kinematic.update_imu_roll(roll);
 }
 
-void WalkingManager::update_actual_walk_phase(const WalkPhase & current_phase){
-  this->kinematic.set_actual_walk_phase(current_phase);
+void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase){
+  this->walk_phase = static_cast<uint8_t>(current_phase);
 }
 
 void WalkingManager::reinit_joints()
@@ -379,10 +377,10 @@ bool WalkingManager::process()
         roll_integral = 0.0;
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
+        this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
       } 
       
       auto angles = kinematic.get_angles();
-      bool left_support = (pid_offset_roll > 0); 
 
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
@@ -399,26 +397,30 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
         }
 
-        if(left_support){
-          if (joint_id == JointId::RIGHT_HIP_ROLL) {
-            offset -= joints_direction[joint_id]
-            * hip_ankle_ratio_roll
-            * pid_offset_roll;       
-          } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
-            offset += joints_direction[joint_id]
-            * (1 - hip_ankle_ratio_roll)
-            * pid_offset_roll;
-          } 
-        } else {
-          if (joint_id == JointId::LEFT_HIP_ROLL) {
-            offset -= joints_direction[joint_id]
-            * hip_ankle_ratio_roll
-            * pid_offset_roll;
-          } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
-            offset += joints_direction[joint_id]
-            * (1 - hip_ankle_ratio_roll)
-            * pid_offset_roll;
-          } 
+        switch(walk_phase){
+          case WalkPhase::LEFT_SUPPORT:
+            if (joint_id == JointId::RIGHT_HIP_ROLL) {
+              offset -= joints_direction[joint_id]
+              * hip_ankle_ratio_roll
+              * pid_offset_roll;       
+            } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
+              offset += joints_direction[joint_id]
+              * (1 - hip_ankle_ratio_roll)
+              * pid_offset_roll;
+            } 
+            break;
+
+          case WalkPhase::RIGHT_SUPPORT:
+            if (joint_id == JointId::LEFT_HIP_ROLL) {
+              offset -= joints_direction[joint_id]
+              * hip_ankle_ratio_roll
+              * pid_offset_roll;
+            } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
+              offset += joints_direction[joint_id]
+              * (1 - hip_ankle_ratio_roll)
+              * pid_offset_roll;
+            } 
+            break; 
         }
         
         offset += joint.get_position_value();

@@ -399,10 +399,10 @@ bool WalkingManager::process()
 
         switch(walk_phase){
           case WalkPhase::LEFT_SUPPORT:
-            if (joint_id == JointId::RIGHT_HIP_ROLL) {
+            if (joint_id == JointId::RIGHT_KNEE) {
               offset -= joints_direction[joint_id]
               * hip_ankle_ratio_roll
-              * pid_offset_roll;       
+              * pid_offset_roll * 0;       
             } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
               offset += joints_direction[joint_id]
               * (1 - hip_ankle_ratio_roll)
@@ -411,10 +411,10 @@ bool WalkingManager::process()
             break;
 
           case WalkPhase::RIGHT_SUPPORT:
-            if (joint_id == JointId::LEFT_HIP_ROLL) {
+            if (joint_id == JointId::LEFT_KNEE) {
               offset -= joints_direction[joint_id]
               * hip_ankle_ratio_roll
-              * pid_offset_roll;
+              * pid_offset_roll * 0;
             } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
               offset += joints_direction[joint_id]
               * (1 - hip_ankle_ratio_roll)

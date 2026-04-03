@@ -129,6 +129,7 @@ private:
   double roll_pause_threshold;
   double roll_resume_threshold;
   int max_pause_counter;
+  bool pause_enable;
   double z_move;
 
   // process member

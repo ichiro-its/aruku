@@ -462,6 +462,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   nlohmann::json balance_section;
   if(jitsuyo::assign_val(kinematic_data, "balance", balance_section)){
     bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(balance_section, "enable", pause_enable);
     valid_section &= jitsuyo::assign_val(balance_section, "roll_pause_threshold", roll_pause_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
@@ -739,30 +740,52 @@ bool Kinematic::run_kinematic()
   }
 
   static bool is_paused = false;
+  static bool is_waiting_start = false;
   static int pause_counter = 0;
+  static int start_counter = 0;
   
   double roll_abs = std::fabs(imu_roll.degree());
 
   if(!is_paused && roll_abs > roll_pause_threshold){
     is_paused = true;
+    is_waiting_start = false;
     pause_counter = 0;
   }
 
-  if (is_paused && (roll_abs < roll_resume_threshold || pause_counter >= max_pause_counter)){
+  if (is_paused && !is_waiting_start && (roll_abs < roll_resume_threshold)){
+    is_waiting_start = true;
+    start_counter = 0;
+  }
+
+  if (is_waiting_start && roll_abs > roll_pause_threshold){
+    is_waiting_start - false;
+  }
+
+  if (is_paused && ((is_waiting_start && start_counter > 10) || pause_counter >= max_pause_counter)){
     is_paused = false;
+    is_waiting_start = false;
     pause_counter = 0;
+    start_counter = 0;
   }
 
   if (m_real_running) {
-    if(!is_paused){
+    if(!is_paused || !pause_enable){
       m_time += time_unit;
       if (m_time >= m_period_time) m_time = 0; 
     } else {
       pause_counter++;
+      if (is_waiting_start) start_counter++;
     }
   } else {
       m_time = 0;
   }
+  
+  if (is_paused && pause_enable){
+    double landing_factor = 1.0 - (std::min(pause_counter, 10) / 10.0);
+    z_move_l *= landing_factor;
+    z_move_r *= landing_factor;
+  }
+
 
   keisan::Point3 translation_target;
   translation_target.x = x_swap + x_move_r + x_offset;

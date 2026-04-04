@@ -283,7 +283,8 @@ void WalkingManager::update_imu(const keisan::Angle<double> & roll, const keisan
 }
 
 void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase){
-  this->walk_phase = static_cast<uint8_t>(current_phase);
+  this->kinematic.set_actual_walk_phase(current_phase);
+  this->walk_phase = current_phase;
 }
 
 void WalkingManager::reinit_joints()

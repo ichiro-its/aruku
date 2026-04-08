@@ -74,9 +74,6 @@ using WalkPhase = aruku_interfaces::msg::WalkPhase;
   keisan::Angle<double> roll_offset;
   keisan::Angle<double> hip_pitch_offset;
 
-  bool is_paused();
-  void pause_walking(bool pause);
-
   bool is_walk_ready() const;
   void return_to_walk_ready();
   void set_period_time(double new_period_time);
@@ -137,7 +134,6 @@ private:
   keisan::Angle<double> imu_roll;
   double foot_comp;
 
-  bool m_is_paused;
   double m_period_time;
   double m_dsp_ratio;
   double m_ssp_ratio;

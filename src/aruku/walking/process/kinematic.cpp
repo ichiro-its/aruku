@@ -742,30 +742,42 @@ bool Kinematic::run_kinematic()
   static bool is_paused = false;
   static int pause_counter = 0;
   static uint8_t phase_on_pause = WalkPhase::DOUBLE_SUPPORT;
-  
+  static bool roll_has_recovered = false;
+
+  // reset pause state on new walk cycle
+  if (m_time == 0) {
+    is_paused = false;
+    pause_counter = 0;
+    phase_on_pause = WalkPhase::DOUBLE_SUPPORT;
+    roll_has_recovered = false;
+  }
+
   double roll_abs = std::fabs(imu_roll.degree());
 
-  if(!is_paused && pause_enable && roll_abs > roll_pause_threshold){
+  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold) {
     is_paused = true;
     phase_on_pause = actual_walk_phase;
     pause_counter = 0;
+    roll_has_recovered = false;
   }
 
-  if (is_paused){
-    std::cout<<"paused on: "<<static_cast<int>(phase_on_pause)<<"\ncurrent: "<<static_cast<int>(actual_walk_phase)<<"\n";
-    bool opposite_foot_landed = 
-      (phase_on_pause == WalkPhase::RIGHT_SUPPORT && actual_walk_phase == WalkPhase::LEFT_SUPPORT) ||
-      (phase_on_pause == WalkPhase::LEFT_SUPPORT && actual_walk_phase == WalkPhase::RIGHT_SUPPORT);
+  if (is_paused) {
+    // wait for roll to recover below resume threshold before allowing resume
+    if (!roll_has_recovered && roll_abs <= roll_resume_threshold) {
+      roll_has_recovered = true;
+    }
 
-    if (opposite_foot_landed){
-      if (phase_on_pause == WalkPhase::RIGHT_SUPPORT){
+    if (roll_has_recovered && actual_walk_phase != phase_on_pause) {
+      if (phase_on_pause == WalkPhase::RIGHT_SUPPORT) {
+        m_time = m_ssp_time_start_l;
+      } else if (phase_on_pause == WalkPhase::LEFT_SUPPORT){
         m_time = m_ssp_time_start_r;
       } else {
-        m_time = m_ssp_time_start_l;
+        m_time = 0;
       }
       is_paused = false;
       pause_counter = 0;
-    } else if (pause_counter >= max_pause_counter){
+    } else if (pause_counter >= max_pause_counter) {
       is_paused = false;
       pause_counter = 0;
     }
@@ -787,7 +799,6 @@ bool Kinematic::run_kinematic()
     z_move_l *= landing_factor;
     z_move_r *= landing_factor;
   }
-
 
   keisan::Point3 translation_target;
   translation_target.x = x_swap + x_move_r + x_offset;

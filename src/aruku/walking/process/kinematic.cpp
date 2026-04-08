@@ -96,6 +96,8 @@ Kinematic::Kinematic()
   y_move(0.0),
   a_move(0_deg),
   a_move_aim_on(false),
+  pause_x_equalize(1.0),
+  pause_y_equalize(1.0),
   is_compute_odometry(false)
 {
   reset_angles();
@@ -466,6 +468,8 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(balance_section, "roll_pause_threshold", roll_pause_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
+    jitsuyo::assign_val(balance_section, "pause_x_equalize", pause_x_equalize);
+    jitsuyo::assign_val(balance_section, "pause_y_equalize", pause_y_equalize);
 
     if (!valid_section) {
       std::cout << "Error found at section `balance`" << std::endl;
@@ -754,7 +758,7 @@ bool Kinematic::run_kinematic()
 
   double roll_abs = std::fabs(imu_roll.degree());
 
-  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold) {
+  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold && actual_walk_phase != WalkPhase::DOUBLE_SUPPORT) {
     is_paused = true;
     phase_on_pause = actual_walk_phase;
     pause_counter = 0;

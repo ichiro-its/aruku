@@ -341,7 +341,6 @@ bool WalkingManager::process()
       // PID for pitch and roll balancing using IMU 
 
       double y_move_amp = kinematic.get_y_move_amplitude();
-
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
 
@@ -400,11 +399,7 @@ bool WalkingManager::process()
 
         switch(walk_phase){
           case WalkPhase::LEFT_SUPPORT:
-            if (joint_id == JointId::RIGHT_KNEE) {
-              offset -= joints_direction[joint_id]
-              * hip_ankle_ratio_roll
-              * pid_offset_roll * 0;       
-            } else if (joint_id == JointId::LEFT_ANKLE_ROLL){
+            if (joint_id == JointId::LEFT_ANKLE_ROLL){
               offset += joints_direction[joint_id]
               * (1 - hip_ankle_ratio_roll)
               * pid_offset_roll;
@@ -412,11 +407,7 @@ bool WalkingManager::process()
             break;
 
           case WalkPhase::RIGHT_SUPPORT:
-            if (joint_id == JointId::LEFT_KNEE) {
-              offset -= joints_direction[joint_id]
-              * hip_ankle_ratio_roll
-              * pid_offset_roll * 0;
-            } else if (joint_id == JointId::RIGHT_ANKLE_ROLL){
+            if (joint_id == JointId::RIGHT_ANKLE_ROLL){
               offset += joints_direction[joint_id]
               * (1 - hip_ankle_ratio_roll)
               * pid_offset_roll;

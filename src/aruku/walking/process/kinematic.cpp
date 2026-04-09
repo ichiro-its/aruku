@@ -96,8 +96,6 @@ Kinematic::Kinematic()
   y_move(0.0),
   a_move(0_deg),
   a_move_aim_on(false),
-  pause_x_equalize(1.0),
-  pause_y_equalize(1.0),
   is_compute_odometry(false)
 {
   reset_angles();

@@ -363,7 +363,7 @@ bool WalkingManager::process()
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
       pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
-      pid_offset_roll = keisan::clamp(pid_offset_roll, -120.0, 120.0);
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -180.0, 180.0);
 
       //reduce correction value during lateral movement
       if(y_move_amp != 0) pid_offset_roll = keisan::clamp(pid_offset_roll, -30.0, 30.0); 

@@ -468,9 +468,8 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(balance_section, "roll_pause_threshold", roll_pause_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
-    jitsuyo::assign_val(balance_section, "pause_x_equalize", pause_x_equalize);
-    jitsuyo::assign_val(balance_section, "pause_y_equalize", pause_y_equalize);
-
+    valid_section &= jitsuyo::assign_val(balance_section, "max_pause_speed", max_pause_speed);
+    
     if (!valid_section) {
       std::cout << "Error found at section `balance`" << std::endl;
       valid_config = false;
@@ -758,7 +757,7 @@ bool Kinematic::run_kinematic()
 
   double roll_abs = std::fabs(imu_roll.degree());
 
-  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold && actual_walk_phase != WalkPhase::DOUBLE_SUPPORT) {
+  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold && actual_walk_phase != WalkPhase::DOUBLE_SUPPORT && x_move <= max_pause_speed) {
     is_paused = true;
     phase_on_pause = actual_walk_phase;
     pause_counter = 0;
@@ -771,6 +770,7 @@ bool Kinematic::run_kinematic()
       roll_has_recovered = true;
     }
 
+    // before resuming, move period time according to the supporting foot during pause
     if (roll_has_recovered && actual_walk_phase != phase_on_pause) {
       if (phase_on_pause == WalkPhase::RIGHT_SUPPORT) {
         m_time = m_ssp_time_start_l;
@@ -798,6 +798,7 @@ bool Kinematic::run_kinematic()
       m_time = 0;
   }
   
+  // equalize both leg's height during pause to ensure stability
   if (is_paused && pause_enable){
     double landing_factor = 1.0 - (std::min(pause_counter, 10) / 10.0);
     z_move_l *= landing_factor;

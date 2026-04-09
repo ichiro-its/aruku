@@ -771,9 +771,9 @@ bool Kinematic::run_kinematic()
     // before resuming, move period time according to the supporting foot during pause
     if (roll_has_recovered && actual_walk_phase != phase_on_pause) {
       if (phase_on_pause == WalkPhase::RIGHT_SUPPORT) {
-        m_time = m_ssp_time_start_l;
+        m_time = m_ssp_time_start_r - time_unit;
       } else if (phase_on_pause == WalkPhase::LEFT_SUPPORT){
-        m_time = m_ssp_time_start_r;
+        m_time = m_ssp_time_start_l - time_unit;
       } else {
         m_time = 0;
       }

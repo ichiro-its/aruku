@@ -96,7 +96,11 @@ Kinematic::Kinematic()
   y_move(0.0),
   a_move(0_deg),
   a_move_aim_on(false),
-  is_compute_odometry(false)
+  is_compute_odometry(false),
+  is_paused(false),
+  pause_counter(0),
+  phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
+  do_walk_in_place(false)
 {
   reset_angles();
 }
@@ -337,7 +341,7 @@ void Kinematic::update_move_amplitude()
 {
   double x_input = x_move;
   double y_input = y_move * 0.5;
-  auto a_input = a_move;
+  auto a_input   = a_move;
 
   if (m_z_move_amplitude < (z_move * 0.45)) {
     x_input = 0.0;
@@ -460,7 +464,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   }
 
   nlohmann::json balance_section;
-  if(jitsuyo::assign_val(kinematic_data, "balance", balance_section)){
+  if(jitsuyo::assign_val(kinematic_data, "balance_pause", balance_section)){
     bool valid_section = true;
     valid_section &= jitsuyo::assign_val(balance_section, "enable", pause_enable);
     valid_section &= jitsuyo::assign_val(balance_section, "roll_pause_threshold", roll_pause_threshold);
@@ -516,14 +520,14 @@ bool Kinematic::run_kinematic()
     // left leg
     update_move_amplitude();
     is_compute_odometry = true;
+    do_walk_in_place = false; 
   } else if (
     m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
     m_time < (m_phase_time2 + time_unit / 2)) {
     update_move_amplitude();
     update_times();
-
     m_time = m_phase_time2;
-
+  
     if (!m_ctrl_running) {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_x_move_amplitude) <= 5.0);
@@ -546,6 +550,7 @@ bool Kinematic::run_kinematic()
     // right leg
     update_move_amplitude();
     is_compute_odometry = true;
+    do_walk_in_place = false; 
   }
 
   // compute endpoints
@@ -740,17 +745,12 @@ bool Kinematic::run_kinematic()
       wsin(m_time, m_period_time, 1.5_pi, m_x_move_amplitude * m_arm_swing_gain, 0));
   }
 
-  static bool is_paused = false;
-  static int pause_counter = 0;
-  static uint8_t phase_on_pause = WalkPhase::DOUBLE_SUPPORT;
-  static bool roll_has_recovered = false;
-
   // reset pause state on new walk cycle
   if (m_time == 0) {
     is_paused = false;
     pause_counter = 0;
     phase_on_pause = WalkPhase::DOUBLE_SUPPORT;
-    roll_has_recovered = false;
+    do_walk_in_place = false;
   }
 
   double roll_abs = std::fabs(imu_roll.degree());
@@ -759,17 +759,12 @@ bool Kinematic::run_kinematic()
     is_paused = true;
     phase_on_pause = actual_walk_phase;
     pause_counter = 0;
-    roll_has_recovered = false;
+    do_walk_in_place = true;
   }
 
   if (is_paused) {
-    // wait for roll to recover below resume threshold before allowing resume
-    if (!roll_has_recovered && roll_abs <= roll_resume_threshold) {
-      roll_has_recovered = true;
-    }
-
     // before resuming, move period time according to the supporting foot during pause
-    if (roll_has_recovered && actual_walk_phase != phase_on_pause) {
+    if (roll_abs <= roll_resume_threshold && actual_walk_phase != phase_on_pause) {
       if (phase_on_pause == WalkPhase::RIGHT_SUPPORT) {
         m_time = m_ssp_time_start_r - time_unit;
       } else if (phase_on_pause == WalkPhase::LEFT_SUPPORT){
@@ -802,6 +797,12 @@ bool Kinematic::run_kinematic()
     z_move_l *= landing_factor;
     z_move_r *= landing_factor;
   }
+
+  if (do_walk_in_place) {
+    x_move_l = 0.0;  x_move_r = 0.0;
+    y_move_l = 0.0;  y_move_r = 0.0;
+    c_move_l = 0.0;  c_move_r = 0.0;
+}
 
   keisan::Point3 translation_target;
   translation_target.x = x_swap + x_move_r + x_offset;

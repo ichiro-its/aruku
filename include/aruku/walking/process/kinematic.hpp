@@ -195,6 +195,11 @@ private:
 
   double m_time;
   double time_unit;
+  
+  bool is_paused;
+  int pause_counter;
+  uint8_t phase_on_pause;
+  bool do_walk_in_place;
 
   // output member
   double m_x_move_amplitude;

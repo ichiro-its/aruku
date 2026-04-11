@@ -81,6 +81,8 @@ using WalkPhase = aruku_interfaces::msg::WalkPhase;
   void update_imu_roll(const keisan::Angle<double> & roll);
   uint8_t get_expected_walk_phase();
 
+  bool should_enable_roll_pause(double roll_abs) const;
+
   double get_period_time();
 
   double x_offset;
@@ -127,6 +129,7 @@ private:
   double roll_resume_threshold;
   int max_pause_counter;
   bool pause_enable;
+  bool has_paused_this_cycle;
   double max_pause_speed;
   double z_move;
 

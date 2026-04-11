@@ -747,6 +747,7 @@ bool Kinematic::run_kinematic()
 
   // reset pause state on new walk cycle
   if (m_time == 0) {
+    has_paused_this_cycle = false;
     is_paused = false;
     pause_counter = 0;
     phase_on_pause = WalkPhase::DOUBLE_SUPPORT;
@@ -755,10 +756,11 @@ bool Kinematic::run_kinematic()
 
   double roll_abs = std::fabs(imu_roll.degree());
 
-  if (!is_paused && pause_enable && roll_abs > roll_pause_threshold && actual_walk_phase != WalkPhase::DOUBLE_SUPPORT && x_move <= max_pause_speed) {
+  if (!is_paused && should_enable_roll_pause(roll_abs)) {
     is_paused = true;
     phase_on_pause = actual_walk_phase;
     pause_counter = 0;
+    has_paused_this_cycle = true;
     do_walk_in_place = true;
   }
 
@@ -767,7 +769,7 @@ bool Kinematic::run_kinematic()
     if (roll_abs <= roll_resume_threshold && actual_walk_phase != phase_on_pause) {
       if (phase_on_pause == WalkPhase::RIGHT_SUPPORT) {
         m_time = m_ssp_time_start_r - time_unit;
-      } else if (phase_on_pause == WalkPhase::LEFT_SUPPORT){
+      } else if (phase_on_pause == WalkPhase::LEFT_SUPPORT) {
         m_time = m_ssp_time_start_l - time_unit;
       } else {
         m_time = 0;
@@ -788,7 +790,7 @@ bool Kinematic::run_kinematic()
       pause_counter++;
     }
   } else {
-      m_time = 0;
+    m_time = 0;
   }
   
   // equalize both leg's height during pause to ensure stability
@@ -831,6 +833,15 @@ bool Kinematic::run_kinematic()
   }
 
   return true;
+}
+
+bool Kinematic::should_enable_roll_pause(double roll_abs) const
+{
+  return pause_enable &&
+         roll_abs > roll_pause_threshold &&
+         actual_walk_phase != WalkPhase::DOUBLE_SUPPORT &&
+         x_move <= max_pause_speed &&
+         !has_paused_this_cycle;
 }
 
 }  // namespace aruku

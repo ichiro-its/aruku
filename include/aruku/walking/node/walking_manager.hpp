@@ -103,8 +103,6 @@ private:
 
   double hip_ankle_ratio_pitch;
   double hip_ankle_ratio_roll;
-
-  double roll_deadband;
   
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;

@@ -94,7 +94,6 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
-    valid_section &= jitsuyo::assign_val(pid_section, "roll_deadband", roll_deadband);
     
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
@@ -345,7 +344,8 @@ bool WalkingManager::process()
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
 
       // ignore if roll error is too small
-      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw; 
+      // +-3 deg is a safe spot to prevent too many configs
+      double roll_error = (fabs(roll_error_raw) < 3.0) ? 0.0 : roll_error_raw; 
 
       pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
       roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);

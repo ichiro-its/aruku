@@ -342,10 +342,10 @@ bool WalkingManager::process()
       double y_move_amp = kinematic.get_y_move_amplitude();
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
+      double roll_deadband = y_move_amp == 0? 3.0 : 12.0;  
 
       // ignore if roll error is too small
-      // +-3 deg is a safe spot to prevent too many configs
-      double roll_error = (fabs(roll_error_raw) < 3.0) ? 0.0 : roll_error_raw; 
+      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw; 
 
       pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
       roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
@@ -364,9 +364,6 @@ bool WalkingManager::process()
 
       pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
       pid_offset_roll = keisan::clamp(pid_offset_roll, -180.0, 180.0);
-
-      //reduce correction value during lateral movement
-      if(y_move_amp != 0) pid_offset_roll = keisan::clamp(pid_offset_roll, -30.0, 30.0); 
 
       prev_pitch_error = pitch_error;
       prev_roll_error = roll_error;

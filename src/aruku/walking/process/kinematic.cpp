@@ -100,7 +100,8 @@ Kinematic::Kinematic()
   is_paused(false),
   pause_counter(0),
   phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
-  do_walk_in_place(false)
+  do_walk_in_place(false),
+  has_paused_this_cycle(false)
 {
   reset_angles();
 }

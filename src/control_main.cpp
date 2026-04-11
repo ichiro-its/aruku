@@ -87,10 +87,10 @@ int main(int argc, char * argv[])
 
       auto joints = walking_manager->get_joints();
 
-      // for (const auto & joint : joints) {
-      //   std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
-      //     joint.get_position() << "\n";
-      // }
+      for (const auto & joint : joints) {
+        std::cout << "id " << static_cast<int>(joint.get_id()) << ": " <<
+          joint.get_position() << "\n";
+      }
     } else {
       std::cout << "kinematic failed!\n";
     }

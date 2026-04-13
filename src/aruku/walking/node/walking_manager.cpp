@@ -75,29 +75,10 @@ void WalkingManager::set_config(
   const nlohmann::json & walking_data, const nlohmann::json & kinematic_data)
 {
   bool valid_config = true;
-
-  nlohmann::json balance_section;
-  if (jitsuyo::assign_val(walking_data, "balance", balance_section)) {
-    bool valid_section = true;
-    valid_section &= jitsuyo::assign_val(balance_section, "enable", balance_enable);
-    valid_section &= jitsuyo::assign_val(balance_section, "balance_knee_gain", balance_knee_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_ankle_pitch_gain", balance_ankle_pitch_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_hip_roll_gain", balance_hip_roll_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_ankle_roll_gain", balance_ankle_roll_gain);
-    if (!valid_section) {
-      std::cout << "Error found at section `balance`" << std::endl;
-      valid_config = false;
-    }
-  } else {
-    valid_config = false;
-  }
-
   nlohmann::json pid_section;
   if (jitsuyo::assign_val(walking_data, "pid", pid_section)) {
     bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(pid_section, "enable", balance_enable);
     valid_section &= jitsuyo::assign_val(pid_section, "p_pitch_gain", p_pitch_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "i_pitch_gain", i_pitch_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_pitch_gain", d_pitch_gain);
@@ -390,7 +371,7 @@ bool WalkingManager::process()
         pid_offset_roll = 0.0;
         this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
       } 
-      
+    
       auto angles = kinematic.get_angles();
 
       for (auto & joint : joints) {
@@ -400,12 +381,14 @@ bool WalkingManager::process()
         joint.set_position(inital_joints[joint_id]);
 
         offset += joint.get_position_value();
+        if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH){
+          offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
+        }
 
         if (balance_enable) {
           if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
-                    offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
-                    offset -= joints_direction[joint_id] * hip_ankle_ratio_pitch * pid_offset_pitch;
-                  }
+            offset -= joints_direction[joint_id] * hip_ankle_ratio_pitch * pid_offset_pitch;
+          }
 
           if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
             offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
@@ -413,27 +396,27 @@ bool WalkingManager::process()
 
           if (walk_phase == WalkPhase::LEFT_SUPPORT || walk_phase == WalkPhase::RIGHT_SUPPORT) {
             bool is_left = (walk_phase == WalkPhase::LEFT_SUPPORT);
-          
+
             auto ankle_roll = is_left ? JointId::LEFT_ANKLE_ROLL : JointId::RIGHT_ANKLE_ROLL;
             auto hip_roll = is_left ? JointId::LEFT_HIP_ROLL : JointId::RIGHT_HIP_ROLL;
-          
+
             if (joint_id == ankle_roll) {
               offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
             } else if (joint_id == hip_roll) {
-              offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+              offset += joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
             }
+          }
         }
-        
-        }
+
         joint.set_position_value(offset);
       }
-    }
 
     return true;
-
   }
-
+  
   return false;
+  
+  }
 }
 
 bool WalkingManager::is_running() const { return kinematic.get_running_state(); }

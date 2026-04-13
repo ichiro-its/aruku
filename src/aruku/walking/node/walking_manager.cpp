@@ -43,10 +43,23 @@ WalkingManager::WalkingManager()
   joints_direction({1}),
   position(0.0, 0.0),
   gyro(keisan::Vector<3>::zero()),
+  imu_pitch(0_deg),
+  imu_roll(0_deg),
   prev_pitch_error(0.0),
   pitch_integral(0.0),
   pid_offset_pitch(0.0),
-  imu_pitch(0_deg)
+  prev_roll_error(0.0),
+  roll_integral(0.0),
+  pid_offset_roll(0.0),
+  p_pitch_gain(0.0),
+  i_pitch_gain(0.0),
+  d_pitch_gain(0.0),
+  p_roll_gain(0.0),
+  i_roll_gain(0.0),
+  d_roll_gain(0.0),
+  hip_ankle_ratio_pitch(0.0),
+  hip_ankle_ratio_roll(0.0),
+  walk_phase(0)
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;

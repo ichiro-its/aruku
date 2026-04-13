@@ -36,7 +36,7 @@ namespace aruku
 class Kinematic
 {
 public:
-using WalkPhase = aruku_interfaces::msg::WalkPhase;
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
   enum
   {
     RIGHT_LEG,

@@ -399,46 +399,31 @@ bool WalkingManager::process()
         double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
         joint.set_position(inital_joints[joint_id]);
 
-        if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
-          offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
-          offset -= joints_direction[joint_id] * hip_ankle_ratio_pitch * pid_offset_pitch;
-        }
-
-        if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-          offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
-        }
-
-        if (walk_phase == WalkPhase::LEFT_SUPPORT || walk_phase == WalkPhase::RIGHT_SUPPORT) {
-          bool is_left = (walk_phase == WalkPhase::LEFT_SUPPORT);
-        
-          auto ankle_roll = is_left ? JointId::LEFT_ANKLE_ROLL : JointId::RIGHT_ANKLE_ROLL;
-          auto hip_roll = is_left ? JointId::LEFT_HIP_ROLL : JointId::RIGHT_HIP_ROLL;
-        
-          if (joint_id == ankle_roll) {
-            offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
-          } else if (joint_id == hip_roll) {
-            offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
-          }
-        }
-        
         offset += joint.get_position_value();
 
         if (balance_enable) {
-          if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL) {
-            offset += joints_direction[joint_id] * balance_hip_roll_gain * gyro[0] * 4;
-          }
-
-          if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
-            offset -= joints_direction[joint_id] * balance_ankle_roll_gain * gyro[0] * 4;
-          }
-
-          if (joint_id == JointId::LEFT_KNEE || joint_id == JointId::RIGHT_KNEE) {
-            offset -= joints_direction[joint_id] * balance_knee_gain * gyro[1] * 4;
-          }
+          if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
+                    offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
+                    offset -= joints_direction[joint_id] * hip_ankle_ratio_pitch * pid_offset_pitch;
+                  }
 
           if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-            offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * gyro[1] * 4;
+            offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
           }
+
+          if (walk_phase == WalkPhase::LEFT_SUPPORT || walk_phase == WalkPhase::RIGHT_SUPPORT) {
+            bool is_left = (walk_phase == WalkPhase::LEFT_SUPPORT);
+          
+            auto ankle_roll = is_left ? JointId::LEFT_ANKLE_ROLL : JointId::RIGHT_ANKLE_ROLL;
+            auto hip_roll = is_left ? JointId::LEFT_HIP_ROLL : JointId::RIGHT_HIP_ROLL;
+          
+            if (joint_id == ankle_roll) {
+              offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
+            } else if (joint_id == hip_roll) {
+              offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+            }
+        }
+        
         }
         joint.set_position_value(offset);
       }

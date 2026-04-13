@@ -395,30 +395,17 @@ bool WalkingManager::process()
           offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
         }
 
-        switch(walk_phase){
-          case WalkPhase::LEFT_SUPPORT:
-            if (joint_id == JointId::LEFT_ANKLE_ROLL){
-              offset += joints_direction[joint_id]
-              * (1 - hip_ankle_ratio_roll)
-              * pid_offset_roll;
-            } else if (joint_id == JointId::LEFT_HIP_ROLL){
-              offset -= joints_direction[joint_id]
-              * hip_ankle_ratio_roll
-              * pid_offset_roll;
-            }
-            break;
-
-          case WalkPhase::RIGHT_SUPPORT:
-            if (joint_id == JointId::RIGHT_ANKLE_ROLL){
-              offset += joints_direction[joint_id]
-              * (1 - hip_ankle_ratio_roll)
-              * pid_offset_roll; 
-            } else if (joint_id == JointId::RIGHT_HIP_ROLL){
-              offset -= joints_direction[joint_id]
-              * hip_ankle_ratio_roll
-              * pid_offset_roll;
-            }
-            break; 
+        if (walk_phase == WalkPhase::LEFT_SUPPORT || walk_phase == WalkPhase::RIGHT_SUPPORT) {
+          bool is_left = (walk_phase == WalkPhase::LEFT_SUPPORT);
+        
+          auto ankle_roll = is_left ? JointId::LEFT_ANKLE_ROLL : JointId::RIGHT_ANKLE_ROLL;
+          auto hip_roll = is_left ? JointId::LEFT_HIP_ROLL : JointId::RIGHT_HIP_ROLL;
+        
+          if (joint_id == ankle_roll) {
+            offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
+          } else if (joint_id == hip_roll) {
+            offset -= joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+          }
         }
         
         offset += joint.get_position_value();

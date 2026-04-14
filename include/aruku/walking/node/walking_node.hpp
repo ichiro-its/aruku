@@ -53,6 +53,7 @@ public:
   static std::string set_walking_topic();
   static std::string status_topic();
   static std::string set_odometry_topic();
+  static std::string delta_position_topic();
 
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
@@ -63,6 +64,7 @@ public:
 
   void publish_joints();
   void publish_status();
+  void publish_delta_position();
 private:
 
   rclcpp::Node::SharedPtr node;
@@ -74,6 +76,7 @@ private:
 
   rclcpp::Subscription<Point2>::SharedPtr set_odometry_subscriber;
   rclcpp::Publisher<WalkingStatus>::SharedPtr status_publisher;
+  rclcpp::Publisher<Point2>::SharedPtr delta_position_publisher;
 
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;

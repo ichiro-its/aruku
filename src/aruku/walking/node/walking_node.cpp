@@ -42,6 +42,8 @@ std::string WalkingNode::status_topic() { return get_node_prefix() + "/status"; 
 
 std::string WalkingNode::set_odometry_topic() { return get_node_prefix() + "/set_odometry"; }
 
+std::string WalkingNode::delta_position_topic() { return get_node_prefix() + "/delta_position"; }
+
 WalkingNode::WalkingNode(
   rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager)
 : walking_manager(walking_manager)
@@ -64,7 +66,7 @@ WalkingNode::WalkingNode(
         keisan::make_degree(message->orientation.roll),
         keisan::make_degree(message->orientation.pitch));
     });
-  
+
 
   status_publisher = node->create_publisher<WalkingStatus>(status_topic(), 10);
 
@@ -73,7 +75,7 @@ WalkingNode::WalkingNode(
       this->walking_manager->update_gyro(
         keisan::Vector<3>(message->gyro.roll, message->gyro.pitch, message->gyro.yaw));
     });
-  
+
   walk_phase_subscriber =
     node->create_subscription<WalkPhase>("/walking/walk_phase", 10, [this](const WalkPhase::SharedPtr message) {
         this->walking_manager->update_actual_walk_phase(message->current);
@@ -83,6 +85,8 @@ WalkingNode::WalkingNode(
     set_odometry_topic(), 10, [this](const Point2::SharedPtr message) {
       this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
+
+  delta_position_publisher = node->create_publisher<Point2>(delta_position_topic(), 10);
 
   set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);
 
@@ -109,6 +113,7 @@ void WalkingNode::update()
 
   publish_joints();
   publish_status();
+  publish_delta_position();
 }
 
 void WalkingNode::publish_joints()
@@ -144,6 +149,17 @@ void WalkingNode::publish_status()
   status_msg.odometry.y = walking_manager->get_position().y;
 
   status_publisher->publish(status_msg);
+}
+
+void WalkingNode::publish_delta_position()
+{
+  auto delta_position = walking_manager->get_delta_position();
+
+  auto delta_position_msg = Point2();
+  delta_position_msg.x = delta_position.x;
+  delta_position_msg.y = delta_position.y;
+
+  delta_position_publisher->publish(delta_position_msg);
 }
 
 }  // namespace aruku

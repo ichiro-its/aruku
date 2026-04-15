@@ -28,6 +28,7 @@
 #include "keisan/keisan.hpp"
 #include "nlohmann/json.hpp"
 #include "tachimawari/joint/model/joint.hpp"
+#include "aruku_interfaces/msg/walk_phase.hpp"
 
 namespace aruku
 {
@@ -35,6 +36,7 @@ namespace aruku
 class Kinematic
 {
 public:
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
   enum
   {
     RIGHT_LEG,
@@ -50,6 +52,7 @@ public:
   void set_running_state(bool running_state);
   bool get_running_state() const;
 
+
   void stop_kinematic();
   bool run_kinematic();
 
@@ -59,6 +62,7 @@ public:
   double get_x_move_amplitude() const;
   double get_y_move_amplitude() const;
   double get_a_move_amplitude() const;
+  bool get_aim_on() const;
 
   keisan::Angle<double> get_raw_hip_offset() const;
   keisan::Angle<double> get_hip_offset() const;
@@ -69,6 +73,17 @@ public:
   keisan::Angle<double> pitch_offset;
   keisan::Angle<double> roll_offset;
   keisan::Angle<double> hip_pitch_offset;
+
+  bool is_walk_ready() const;
+  void return_to_walk_ready();
+  void set_period_time(double new_period_time);
+  void set_actual_walk_phase(uint8_t current_phase);
+  void update_imu_roll(const keisan::Angle<double> & roll);
+  uint8_t get_expected_walk_phase();
+
+  bool should_enable_roll_pause(double roll_abs) const;
+
+  double get_period_time();
 
   double x_offset;
   double y_offset;
@@ -81,7 +96,6 @@ private:
 
   void update_move_amplitude();
   void update_times();
-
   void reset_angles();
 
   // input member
@@ -111,10 +125,17 @@ private:
   double ankle_length;
   double leg_length;
 
+  double roll_pause_threshold;
+  double roll_resume_threshold;
+  int max_pause_counter;
+  bool pause_enable;
+  bool has_paused_this_cycle;
+  double max_pause_speed;
   double z_move;
 
   // process member
   keisan::Angle<double> hip_comp;
+  keisan::Angle<double> imu_roll;
   double foot_comp;
 
   double m_period_time;
@@ -177,12 +198,20 @@ private:
 
   double m_time;
   double time_unit;
+  
+  bool is_paused;
+  int pause_counter;
+  uint8_t phase_on_pause;
+  bool do_walk_in_place;
 
   // output member
   double m_x_move_amplitude;
   double m_y_move_amplitude;
 
   bool is_compute_odometry;
+  uint8_t actual_walk_phase;
+  int phase_mismatch_counter;
+  int pause_timer = 0;
 
   std::array<keisan::Angle<double>, 19> angles;
 };

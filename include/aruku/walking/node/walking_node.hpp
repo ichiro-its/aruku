@@ -34,6 +34,7 @@
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
+#include "std_msgs/msg/int8.hpp"
 
 namespace aruku
 {
@@ -48,6 +49,7 @@ public:
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
   using WalkPhase = aruku_interfaces::msg::WalkPhase;
+  using Int8 = std_msgs::msg::Int8;
 
   static std::string get_node_prefix();
   static std::string set_walking_topic();
@@ -82,6 +84,8 @@ private:
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
   rclcpp::Subscription<WalkPhase>::SharedPtr walk_phase_subscriber;
+
+  rclcpp::Subscription<Int8>::SharedPtr walk_kick_subscriber;
 
   rclcpp::TimerBase::SharedPtr node_timer;
   rclcpp::Time last_time;

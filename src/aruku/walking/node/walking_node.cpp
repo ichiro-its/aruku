@@ -86,6 +86,11 @@ WalkingNode::WalkingNode(
       this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 
+  walk_kick_subscriber = node->create_subscription<Int8>(
+    "/walking/walk_kick", 10, [this](const Int8::SharedPtr message) {
+      this->walking_manager->update_trigger_kick(message->data);
+    });
+
   delta_position_publisher = node->create_publisher<Point2>(delta_position_topic(), 10);
 
   set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);

@@ -43,6 +43,19 @@ public:
     LEFT_LEG,
   };
 
+  enum class KickState {
+    IDLE,
+    ARMED,
+    EXECUTING,
+    DONE
+  };
+
+  enum class KickLeg {
+    LEFT,
+    RIGHT
+  };
+
+
   Kinematic();
 
   void set_config(const nlohmann::json & kinematic_data);
@@ -88,6 +101,9 @@ public:
   double x_offset;
   double y_offset;
   double z_offset;
+
+  void trigger_kick(KickLeg leg);
+  bool is_kick_done() const { return kick_state == KickState::DONE; }
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;
@@ -198,7 +214,7 @@ private:
 
   double m_time;
   double time_unit;
-  
+
   bool is_paused;
   int pause_counter;
   uint8_t phase_on_pause;
@@ -214,6 +230,12 @@ private:
   int pause_timer = 0;
 
   std::array<keisan::Angle<double>, 19> angles;
+
+  KickState kick_state = KickState::IDLE;
+  KickLeg kick_leg = KickLeg::RIGHT;
+
+  double kick_x_amplitude = 80.0;
+  double kick_z_amplitude = 30.0;
 };
 
 }  // namespace aruku

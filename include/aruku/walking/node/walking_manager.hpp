@@ -38,7 +38,7 @@ class WalkingManager
 {
 public:
   using WalkPhase = aruku_interfaces::msg::WalkPhase;
-  
+
   WalkingManager();
 
   void set_config(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data);
@@ -48,6 +48,7 @@ public:
   void update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
   void update_actual_walk_phase(const uint8_t & current_phase);
+  void update_trigger_kick(const uint8_t & leg);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
   void set_x_offset(const double & offset);
@@ -104,7 +105,7 @@ private:
 
   double hip_ankle_ratio_pitch;
   double hip_ankle_ratio_roll;
-  
+
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;

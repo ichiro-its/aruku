@@ -101,7 +101,8 @@ Kinematic::Kinematic()
   pause_counter(0),
   phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
   do_walk_in_place(false),
-  has_paused_this_cycle(false)
+  has_paused_this_cycle(false),
+  use_gaussian(true)
 {
   reset_angles();
 }
@@ -472,7 +473,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_speed", max_pause_speed);
-    
+
     if (!valid_section) {
       std::cout << "Error found at section `balance`" << std::endl;
       valid_config = false;
@@ -521,14 +522,14 @@ bool Kinematic::run_kinematic()
     // left leg
     update_move_amplitude();
     is_compute_odometry = true;
-    do_walk_in_place = false; 
+    do_walk_in_place = false;
   } else if (
     m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
     m_time < (m_phase_time2 + time_unit / 2)) {
     update_move_amplitude();
     update_times();
     m_time = m_phase_time2;
-  
+
     if (!m_ctrl_running) {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_x_move_amplitude) <= 5.0);
@@ -551,7 +552,7 @@ bool Kinematic::run_kinematic()
     // right leg
     update_move_amplitude();
     is_compute_odometry = true;
-    do_walk_in_place = false; 
+    do_walk_in_place = false;
   }
 
   // compute endpoints
@@ -786,14 +787,14 @@ bool Kinematic::run_kinematic()
   if (m_real_running) {
     if(!is_paused || !pause_enable){
       m_time += time_unit;
-      if (m_time >= m_period_time) m_time = 0; 
+      if (m_time >= m_period_time) m_time = 0;
     } else {
       pause_counter++;
     }
   } else {
     m_time = 0;
   }
-  
+
   // equalize both leg's height during pause to ensure stability
   if (is_paused && pause_enable){
     double landing_factor = 1.0 - (std::min(pause_counter, 10) / 10.0);
@@ -854,23 +855,38 @@ bool Kinematic::run_kinematic()
   }
 
   if (kick_state == KickState::EXECUTING) {
-    bool still_in_swing = (kick_leg_is_left && in_left_swing) ||
-                          (kick_leg_is_right && in_right_swing);
+  bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
 
     if (still_in_swing) {
-      double swing_start = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
-      double swing_end   = kick_leg_is_left ? m_ssp_time_end_l   : m_ssp_time_End_r;
+      double swing_start    = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
+      double swing_end      = kick_leg_is_left ? m_ssp_time_end_l   : m_ssp_time_End_r;
       double swing_progress = (m_time - swing_start) / (swing_end - swing_start);
 
-      double kick_profile = sin(swing_progress * M_PI);
+      double kick_x_profile = 0.0;
+      double kick_z_profile = 0.0;
+      const char* profile_name = "";
 
-      double kick_x = kick_x_amplitude * kick_profile;
-      double kick_z = kick_z_amplitude * kick_profile;
+      if (!use_gaussian) {
+        auto [xp, zp]  = compute_sine_kick(swing_progress);
+        kick_x_profile = xp;
+        kick_z_profile = zp;
+        profile_name   = "SINE";
+      } else {
+        constexpr double SIGMA = 0.8;
+        auto profile  = compute_gaussian_kick(swing_progress, SIGMA);
+        kick_x_profile = profile;
+        kick_z_profile = profile;
+        profile_name   = "GAUSSIAN";
+      }
+
+      double kick_x = kick_x_amplitude * kick_x_profile;
+      double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK EXEC] leg=%s | progress=%.3f | profile=%.3f | kick_x=%.2f kick_z=%.2f\n",
+        "[KICK EXEC] profile=%s | leg=%s | progress=%.3f | x_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
+        profile_name,
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, kick_profile, kick_x, kick_z);
+        swing_progress, kick_x_profile, kick_z_profile, kick_x, kick_z);
 
       if (kick_leg_is_right) {
         x_move_r = kick_x;
@@ -883,8 +899,8 @@ bool Kinematic::run_kinematic()
     } else {
       kick_state = KickState::DONE;
       printf("[KICK EXEC→DONE]\n");
-    }
   }
+}
 
   if (kick_state == KickState::DONE && m_time == 0) {
     kick_state = KickState::IDLE;
@@ -938,4 +954,23 @@ void Kinematic::trigger_kick(KickLeg leg)
   kick_state = KickState::ARMED;
 }
 
+std::pair<double, double> Kinematic::compute_sine_kick(double swing_progress) const
+{
+  constexpr double X_RETURN_RATIO = 0.65;
+
+  double kick_z_profile = sin(swing_progress * M_PI);
+
+  double x_progress     = std::min(swing_progress / X_RETURN_RATIO, 1.0);
+  double kick_x_profile = sin(x_progress * M_PI);
+
+  return {kick_x_profile, kick_z_profile};
+}
+
+double Kinematic::compute_gaussian_kick(double swing_progress, double sigma) const
+{
+  double x_K = 2.0 * swing_progress - 1.0;  // map [0,1] → [-1,1]
+  double profile = std::exp(-0.5 * std::pow(x_K / sigma, 2));
+
+  return profile;
+}
 }  // namespace aruku

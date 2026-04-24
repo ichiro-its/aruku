@@ -317,52 +317,58 @@ void WalkingManager::stop()
 bool WalkingManager::process()
 {
   if (kinematic.run_kinematic()) {
-    const auto & right_foot_pose = kinematic.get_right_foot_pose();
-    const auto & left_foot_pose = kinematic.get_left_foot_pose();
+    if (kinematic.time_to_compute_odometry()) {
+      const auto & right_foot_pose = kinematic.get_right_foot_pose();
+      const auto & left_foot_pose = kinematic.get_left_foot_pose();
 
-    constexpr double support_switch_threshold = 1.0;
-    int support_leg = prev_support_leg;
-    Kinematic::FootPose current_support_state;
-    double z_difference = right_foot_pose.z - left_foot_pose.z;
-    if (z_difference < -support_switch_threshold) {
-      support_leg = Kinematic::RIGHT_LEG;
-      current_support_state = right_foot_pose;
-    } else if (z_difference > support_switch_threshold) {
-      support_leg = Kinematic::LEFT_LEG;
-      current_support_state = left_foot_pose;
+      constexpr double support_switch_threshold = 1.0;
+      int support_leg = prev_support_leg;
+      SupportFootState current_support_state = prev_support_state;
+
+      double z_difference = right_foot_pose.z - left_foot_pose.z;
+      if (z_difference < -support_switch_threshold) {
+        support_leg = Kinematic::RIGHT_LEG;
+        current_support_state = {right_foot_pose.x, right_foot_pose.y, right_foot_pose.yaw};
+      } else if (z_difference > support_switch_threshold) {
+        support_leg = Kinematic::LEFT_LEG;
+        current_support_state = {left_foot_pose.x, left_foot_pose.y, left_foot_pose.yaw};
+      }
+
+      if (has_prev_support_state && support_leg == prev_support_leg) {
+        double cos_current = current_support_state.yaw.cos();
+        double sin_current = current_support_state.yaw.sin();
+
+        double current_inverse_x =
+          -(cos_current * current_support_state.x + sin_current * current_support_state.y);
+        double current_inverse_y =
+          sin_current * current_support_state.x - cos_current * current_support_state.y;
+
+        double cos_previous = prev_support_state.yaw.cos();
+        double sin_previous = prev_support_state.yaw.sin();
+
+        double dx = prev_support_state.x + cos_previous * current_inverse_x -
+                    sin_previous * current_inverse_y;
+        double dy = prev_support_state.y + sin_previous * current_inverse_x +
+                    cos_previous * current_inverse_y;
+
+        double x_coefficient = dx >= 0.0 ? odometry_fx_coefficient : odometry_bx_coefficient;
+        double y_coefficient = dy >= 0.0 ? odometry_ry_coefficient : odometry_ly_coefficient;
+
+        dx *= x_coefficient;
+        dy *= y_coefficient;
+
+        // Kinematic leg lengths/offsets are configured in mm, while published odometry uses cm.
+        dx /= 10.0;
+        dy /= 10.0;
+
+        position.x += dx * orientation.cos() - dy * orientation.sin();
+        position.y += dx * orientation.sin() + dy * orientation.cos();
+      }
+
+      has_prev_support_state = true;
+      prev_support_leg = support_leg;
+      prev_support_state = current_support_state;
     }
-
-    // Update odometry
-    if (has_prev_support_state && support_leg == prev_support_leg) {
-      double cos_current = current_support_state.yaw.cos();
-      double sin_current = current_support_state.yaw.sin();
-
-      double current_inverse_x =
-        -(cos_current * current_support_state.x + sin_current * current_support_state.y);
-      double current_inverse_y =
-        sin_current * current_support_state.x - cos_current * current_support_state.y;
-
-      double cos_previous = prev_support_state.yaw.cos();
-      double sin_previous = prev_support_state.yaw.sin();
-
-      double dx =
-        prev_support_state.x + cos_previous * current_inverse_x - sin_previous * current_inverse_y;
-      double dy =
-        prev_support_state.y + sin_previous * current_inverse_x + cos_previous * current_inverse_y;
-
-      double x_coefficient = dx >= 0.0 ? odometry_fx_coefficient : odometry_bx_coefficient;
-      double y_coefficient = dy >= 0.0 ? odometry_ry_coefficient : odometry_ly_coefficient;
-
-      dx *= x_coefficient;
-      dy *= y_coefficient;
-
-      position.x += dx * orientation.cos() - dy * orientation.sin();
-      position.y += dx * orientation.sin() + dy * orientation.cos();
-    }
-
-    has_prev_support_state = true;
-    prev_support_leg = support_leg;
-    prev_support_state = current_support_state;
 
     {
       using tachimawari::joint::Joint;

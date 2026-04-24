@@ -326,6 +326,7 @@ bool WalkingManager::process()
       Kinematic::FootPose current_support_state = prev_support_state;
 
       double z_difference = right_foot_pose.z - left_foot_pose.z;
+      std::cout << "z difference: " << z_difference << "\n";
       if (z_difference < -support_switch_threshold) {
         support_leg = Kinematic::RIGHT_LEG;
         current_support_state = right_foot_pose;
@@ -334,7 +335,9 @@ bool WalkingManager::process()
         current_support_state = left_foot_pose;
       }
 
-      if (has_prev_support_state && support_leg == prev_support_leg) {
+      std::cout << "has_prev_support_state: " << has_prev_support_state << "\n";
+      std::cout << "support leg: " << support_leg << ", prev_support_leg: " << prev_support_leg << "\n";
+      if (has_prev_support_state && support_leg != prev_support_leg) {
         double cos_current = current_support_state.yaw.cos();
         double sin_current = current_support_state.yaw.sin();
 
@@ -357,9 +360,12 @@ bool WalkingManager::process()
         dx *= x_coefficient;
         dy *= y_coefficient;
 
+        
         // Kinematic leg lengths/offsets are configured in mm, while published odometry uses cm.
-        dx /= 10.0;
-        dy /= 10.0;
+        // dx /= 10.0;
+        // dy /= 10.0;
+        std::cout << "dx: " << dx <<"\n";
+        std::cout << "dy: " << dy <<"\n";
 
         position.x += dx * orientation.cos() - dy * orientation.sin();
         position.y += dx * orientation.sin() + dy * orientation.cos();

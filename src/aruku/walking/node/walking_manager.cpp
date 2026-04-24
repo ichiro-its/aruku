@@ -323,15 +323,15 @@ bool WalkingManager::process()
 
       constexpr double support_switch_threshold = 1.0;
       int support_leg = prev_support_leg;
-      SupportFootState current_support_state = prev_support_state;
+      Kinematic::FootPose current_support_state = prev_support_state;
 
       double z_difference = right_foot_pose.z - left_foot_pose.z;
       if (z_difference < -support_switch_threshold) {
         support_leg = Kinematic::RIGHT_LEG;
-        current_support_state = {right_foot_pose.x, right_foot_pose.y, right_foot_pose.yaw};
+        current_support_state = right_foot_pose;
       } else if (z_difference > support_switch_threshold) {
         support_leg = Kinematic::LEFT_LEG;
-        current_support_state = {left_foot_pose.x, left_foot_pose.y, left_foot_pose.yaw};
+        current_support_state = left_foot_pose;
       }
 
       if (has_prev_support_state && support_leg == prev_support_leg) {

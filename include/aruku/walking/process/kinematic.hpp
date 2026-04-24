@@ -35,6 +35,14 @@ namespace aruku
 class Kinematic
 {
 public:
+  struct FootPose
+  {
+    double x;
+    double y;
+    double z;
+    keisan::Angle<double> yaw;
+  };
+
   enum
   {
     RIGHT_LEG,
@@ -62,6 +70,8 @@ public:
 
   keisan::Angle<double> get_raw_hip_offset() const;
   keisan::Angle<double> get_hip_offset() const;
+  const FootPose & get_right_foot_pose() const;
+  const FootPose & get_left_foot_pose() const;
 
   bool time_to_compute_odometry() const;
 
@@ -185,6 +195,8 @@ private:
   bool is_compute_odometry;
 
   std::array<keisan::Angle<double>, 19> angles;
+  FootPose right_foot_pose;
+  FootPose left_foot_pose;
 };
 
 }  // namespace aruku

@@ -46,7 +46,10 @@ WalkingManager::WalkingManager()
   prev_balance_error(0.0),
   integral(0.0),
   pid_offset(0.0),
-  imu_pitch(0_deg)
+  imu_pitch(0_deg),
+  has_prev_support_state(false),
+  prev_support_leg(Kinematic::RIGHT_LEG),
+  prev_support_state({0.0, 0.0, 0.0, 0_deg})
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;
@@ -279,6 +282,8 @@ void WalkingManager::reinit_joints()
     uint8_t joint_id = joint.get_id();
     joint.set_position(inital_joints[joint_id]);
   }
+
+  has_prev_support_state = false;
 }
 
 void WalkingManager::set_position(const keisan::Point2 & position) { this->position = position; }
@@ -291,34 +296,61 @@ void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_o
   kinematic.set_running_state(true);
 }
 
-void WalkingManager::stop() { kinematic.set_running_state(false); }
+void WalkingManager::stop()
+{
+  kinematic.set_running_state(false);
+  has_prev_support_state = false;
+}
 
 bool WalkingManager::process()
 {
   if (kinematic.run_kinematic()) {
-    if (kinematic.time_to_compute_odometry()) {
-      double x_amplitude = kinematic.get_x_move_amplitude();
-      double y_amplitude = kinematic.get_y_move_amplitude();
+    const auto & right_foot_pose = kinematic.get_right_foot_pose();
+    const auto & left_foot_pose = kinematic.get_left_foot_pose();
 
-      if (fabs(x_amplitude) >= 5 || fabs(y_amplitude) >= 5) {
-        float dx = 0.0;
-        if (x_amplitude > 0.0) {
-          dx = x_amplitude * odometry_fx_coefficient / 30.0;
-        } else {
-          dx = x_amplitude * odometry_bx_coefficient / 30.0;
-        }
-
-        double dy = 0.0;
-        if (y_amplitude > 0.0) {
-          dy = -y_amplitude * odometry_ly_coefficient / 30.0;
-        } else {
-          dy = -y_amplitude * odometry_ry_coefficient / 30.0;
-        }
-
-        position.x += dx * orientation.cos() - dy * orientation.sin();
-        position.y += dx * orientation.sin() + dy * orientation.cos();
-      }
+    constexpr double support_switch_threshold = 1.0;
+    int support_leg = prev_support_leg;
+    Kinematic::FootPose current_support_state;
+    double z_difference = right_foot_pose.z - left_foot_pose.z;
+    if (z_difference < -support_switch_threshold) {
+      support_leg = Kinematic::RIGHT_LEG;
+      current_support_state = right_foot_pose;
+    } else if (z_difference > support_switch_threshold) {
+      support_leg = Kinematic::LEFT_LEG;
+      current_support_state = left_foot_pose;
     }
+
+    // Update odometry
+    if (has_prev_support_state && support_leg == prev_support_leg) {
+      double cos_current = current_support_state.yaw.cos();
+      double sin_current = current_support_state.yaw.sin();
+
+      double current_inverse_x =
+        -(cos_current * current_support_state.x + sin_current * current_support_state.y);
+      double current_inverse_y =
+        sin_current * current_support_state.x - cos_current * current_support_state.y;
+
+      double cos_previous = prev_support_state.yaw.cos();
+      double sin_previous = prev_support_state.yaw.sin();
+
+      double dx =
+        prev_support_state.x + cos_previous * current_inverse_x - sin_previous * current_inverse_y;
+      double dy =
+        prev_support_state.y + sin_previous * current_inverse_x + cos_previous * current_inverse_y;
+
+      double x_coefficient = dx >= 0.0 ? odometry_fx_coefficient : odometry_bx_coefficient;
+      double y_coefficient = dy >= 0.0 ? odometry_ry_coefficient : odometry_ly_coefficient;
+
+      dx *= x_coefficient;
+      dy *= y_coefficient;
+
+      position.x += dx * orientation.cos() - dy * orientation.sin();
+      position.y += dx * orientation.sin() + dy * orientation.cos();
+    }
+
+    has_prev_support_state = true;
+    prev_support_leg = support_leg;
+    prev_support_state = current_support_state;
 
     {
       using tachimawari::joint::Joint;
@@ -337,9 +369,9 @@ bool WalkingManager::process()
       prev_balance_error = error;
 
       if (!is_running()) {
-          prev_balance_error = 0.0;
-          integral = 0.0;
-          pid_offset = 0.0;
+        prev_balance_error = 0.0;
+        integral = 0.0;
+        pid_offset = 0.0;
       }
 
       auto angles = kinematic.get_angles();
@@ -418,20 +450,11 @@ void WalkingManager::set_yaw_offset(const keisan::Angle<double> & offset)
   kinematic.yaw_offset = offset;
 }
 
-void WalkingManager::set_x_offset(const double & offset)
-{
-  kinematic.x_offset = offset;
-}
+void WalkingManager::set_x_offset(const double & offset) { kinematic.x_offset = offset; }
 
-void WalkingManager::set_y_offset(const double & offset)
-{
-  kinematic.y_offset = offset;
-}
+void WalkingManager::set_y_offset(const double & offset) { kinematic.y_offset = offset; }
 
-void WalkingManager::set_z_offset(const double & offset)
-{
-  kinematic.z_offset = offset;
-}
+void WalkingManager::set_z_offset(const double & offset) { kinematic.z_offset = offset; }
 
 const Kinematic & WalkingManager::get_kinematic() const { return kinematic; }
 

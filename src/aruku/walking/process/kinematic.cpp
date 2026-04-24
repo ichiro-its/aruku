@@ -140,6 +140,10 @@ keisan::Angle<double> Kinematic::get_hip_offset() const { return hip_pitch_offse
 
 bool Kinematic::time_to_compute_odometry() const { return is_compute_odometry; }
 
+const Kinematic::FootPose & Kinematic::get_right_foot_pose() const { return right_foot_pose; }
+
+const Kinematic::FootPose & Kinematic::get_left_foot_pose() const { return left_foot_pose; }
+
 void Kinematic::stop_kinematic()
 {
   m_ctrl_running = false;
@@ -724,6 +728,9 @@ bool Kinematic::run_kinematic()
   rotation_target.pitch = keisan::make_radian(b_swap + b_move_r + pitch_offset.radian());
   rotation_target.yaw = keisan::make_radian(c_swap + c_move_r - yaw_offset.radian() / 2);
 
+  right_foot_pose = {
+    translation_target.x, translation_target.y, translation_target.z, rotation_target.yaw};
+
   // compute angles
   if (!compute_inverse_kinematic(RIGHT_LEG, translation_target, rotation_target)) {
     return false;
@@ -735,6 +742,9 @@ bool Kinematic::run_kinematic()
   rotation_target.roll = keisan::make_radian(a_swap + a_move_l + roll_offset.radian() / 2);
   rotation_target.pitch = keisan::make_radian(b_swap + b_move_l + pitch_offset.radian());
   rotation_target.yaw = keisan::make_radian(c_swap + c_move_l + yaw_offset.radian() / 2);
+
+  left_foot_pose = {
+    translation_target.x, translation_target.y, translation_target.z, rotation_target.yaw};
 
   if (!compute_inverse_kinematic(LEFT_LEG, translation_target, rotation_target)) {
     return false;

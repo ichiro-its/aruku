@@ -105,6 +105,9 @@ private:
 
   keisan::Angle<double> orientation;
   keisan::Vector<3> gyro;
+  bool has_prev_support_state;
+  int prev_support_leg;
+  Kinematic::FootPose prev_support_state;
 };
 
 }  // namespace aruku

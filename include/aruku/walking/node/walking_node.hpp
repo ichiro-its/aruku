@@ -29,6 +29,7 @@
 #include "aruku_interfaces/msg/point2.hpp"
 #include "aruku_interfaces/msg/set_walking.hpp"
 #include "aruku_interfaces/msg/status.hpp"
+#include "aruku_interfaces/msg/walk_phase.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "kansei_interfaces/msg/status.hpp"
 #include "kansei_interfaces/msg/unit.hpp"
@@ -46,11 +47,13 @@ public:
   using MeasurementStatus = kansei_interfaces::msg::Status;
   using WalkingStatus = aruku_interfaces::msg::Status;
   using Unit = kansei_interfaces::msg::Unit;
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
 
   static std::string get_node_prefix();
   static std::string set_walking_topic();
   static std::string status_topic();
   static std::string set_odometry_topic();
+  static std::string delta_position_topic();
 
   explicit WalkingNode(
     rclcpp::Node::SharedPtr node, std::shared_ptr<WalkingManager> walking_manager);
@@ -61,6 +64,7 @@ public:
 
   void publish_joints();
   void publish_status();
+  void publish_delta_position();
 private:
 
   rclcpp::Node::SharedPtr node;
@@ -72,10 +76,15 @@ private:
 
   rclcpp::Subscription<Point2>::SharedPtr set_odometry_subscriber;
   rclcpp::Publisher<WalkingStatus>::SharedPtr status_publisher;
+  rclcpp::Publisher<Point2>::SharedPtr delta_position_publisher;
 
   rclcpp::Subscription<MeasurementStatus>::SharedPtr measurement_status_subscriber;
   rclcpp::Subscription<Unit>::SharedPtr unit_subscriber;
 
+  rclcpp::Subscription<WalkPhase>::SharedPtr walk_phase_subscriber;
+
+  rclcpp::TimerBase::SharedPtr node_timer;
+  rclcpp::Time last_time;
   int status;
 
   bool action_manager_is_open = false;

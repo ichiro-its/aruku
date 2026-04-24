@@ -37,14 +37,17 @@ namespace aruku
 class WalkingManager
 {
 public:
+  using WalkPhase = aruku_interfaces::msg::WalkPhase;
+  
   WalkingManager();
 
   void set_config(const nlohmann::json & walking_data, const nlohmann::json & kinematic_data);
   void load_config(const std::string & path);
 
   void update_orientation(const keisan::Angle<double> & orientation);
-  void update_imu_pitch(const keisan::Angle<double> & pitch);
+  void update_imu(const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch);
   void update_gyro(const keisan::Vector<3> & gyro);
+  void update_actual_walk_phase(const uint8_t & current_phase);
   void reinit_joints();
   void set_initial_joint(uint8_t id, const keisan::Angle<double> & angle);
   void set_x_offset(const double & offset);
@@ -54,9 +57,10 @@ public:
   void set_pitch_offset(const keisan::Angle<double> & offset);
   void set_yaw_offset(const keisan::Angle<double> & offset);
   void set_hip_pitch_offset(const keisan::Angle<double> & offset);
-
+  void set_delta_time(const double & current_time);
   void set_position(const keisan::Point2 & position);
   const keisan::Point2 & get_position() const;
+  const keisan::Point2 & get_delta_position() const;
 
   void run(double x_move, double y_move, double a_move, bool aim_on = false);
   void stop();
@@ -68,10 +72,16 @@ public:
   const Kinematic & get_kinematic() const;
 
   // for pid balance
-  double prev_balance_error;
-  double integral;
-  double pid_offset;
+  double dt;
+  double prev_pitch_error;
+  double pitch_integral;
+  double pid_offset_pitch;
   keisan::Angle<double> imu_pitch;
+
+  double prev_roll_error;
+  double roll_integral;
+  double pid_offset_roll;
+  keisan::Angle<double> imu_roll;
 
   void set_odometry_coef(
     const double & fx, const double & bx, const double & ry, const double & ly);
@@ -84,16 +94,23 @@ private:
   double balance_hip_roll_gain;
   double balance_ankle_roll_gain;
 
-  double p_gain;
-  double i_gain;
-  double d_gain;
-  double hip_ankle_ratio;
+  double p_pitch_gain;
+  double i_pitch_gain;
+  double d_pitch_gain;
 
+  double p_roll_gain;
+  double i_roll_gain;
+  double d_roll_gain;
+
+  double hip_ankle_ratio_pitch;
+  double hip_ankle_ratio_roll;
+  
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;
   double odometry_bx_coefficient;
 
+  uint8_t walk_phase;
   // output member
   Kinematic kinematic;
 
@@ -102,6 +119,7 @@ private:
   std::array<double, 23> joints_direction;
 
   keisan::Point2 position;
+  keisan::Point2 delta_position;
 
   keisan::Angle<double> orientation;
   keisan::Vector<3> gyro;

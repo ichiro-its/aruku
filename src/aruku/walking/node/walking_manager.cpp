@@ -49,7 +49,24 @@ WalkingManager::WalkingManager()
   imu_pitch(0_deg),
   has_prev_support_state(false),
   prev_support_leg(Kinematic::RIGHT_LEG),
-  prev_support_state({0.0, 0.0, 0.0, 0_deg})
+  prev_support_state({0.0, 0.0, 0.0, 0_deg}),
+  imu_pitch(0_deg),
+  imu_roll(0_deg),
+  prev_pitch_error(0.0),
+  pitch_integral(0.0),
+  pid_offset_pitch(0.0),
+  prev_roll_error(0.0),
+  roll_integral(0.0),
+  pid_offset_roll(0.0),
+  p_pitch_gain(0.0),
+  i_pitch_gain(0.0),
+  d_pitch_gain(0.0),
+  p_roll_gain(0.0),
+  i_roll_gain(0.0),
+  d_roll_gain(0.0),
+  hip_ankle_ratio_pitch(0.0),
+  hip_ankle_ratio_roll(0.0),
+  walk_phase(0)
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;
@@ -65,33 +82,21 @@ void WalkingManager::set_config(
   const nlohmann::json & walking_data, const nlohmann::json & kinematic_data)
 {
   bool valid_config = true;
-
-  nlohmann::json balance_section;
-  if (jitsuyo::assign_val(walking_data, "balance", balance_section)) {
-    bool valid_section = true;
-    valid_section &= jitsuyo::assign_val(balance_section, "enable", balance_enable);
-    valid_section &= jitsuyo::assign_val(balance_section, "balance_knee_gain", balance_knee_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_ankle_pitch_gain", balance_ankle_pitch_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_hip_roll_gain", balance_hip_roll_gain);
-    valid_section &=
-      jitsuyo::assign_val(balance_section, "balance_ankle_roll_gain", balance_ankle_roll_gain);
-    if (!valid_section) {
-      std::cout << "Error found at section `balance`" << std::endl;
-      valid_config = false;
-    }
-  } else {
-    valid_config = false;
-  }
-
   nlohmann::json pid_section;
   if (jitsuyo::assign_val(walking_data, "pid", pid_section)) {
     bool valid_section = true;
-    valid_section &= jitsuyo::assign_val(pid_section, "p_gain", p_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "i_gain", i_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "d_gain", d_gain);
-    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio", hip_ankle_ratio);
+    valid_section &= jitsuyo::assign_val(pid_section, "enable", balance_enable);
+    valid_section &= jitsuyo::assign_val(pid_section, "p_pitch_gain", p_pitch_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "i_pitch_gain", i_pitch_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "d_pitch_gain", d_pitch_gain);
+    valid_section &=
+      jitsuyo::assign_val(pid_section, "hip_ankle_ratio_pitch", hip_ankle_ratio_pitch);
+
+    valid_section &= jitsuyo::assign_val(pid_section, "p_roll_gain", p_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
+    valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
+
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
       valid_config = false;
@@ -271,9 +276,18 @@ void WalkingManager::update_orientation(const keisan::Angle<double> & orientatio
 }
 
 void WalkingManager::update_gyro(const keisan::Vector<3> & gyro) { this->gyro = gyro; }
-void WalkingManager::update_imu_pitch(const keisan::Angle<double> & pitch)
+void WalkingManager::update_imu(
+  const keisan::Angle<double> & roll, const keisan::Angle<double> & pitch)
 {
+  this->imu_roll = roll;
   this->imu_pitch = pitch;
+  this->kinematic.update_imu_roll(roll);
+}
+
+void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase)
+{
+  this->kinematic.set_actual_walk_phase(current_phase);
+  this->walk_phase = current_phase;
 }
 
 void WalkingManager::reinit_joints()
@@ -289,6 +303,8 @@ void WalkingManager::reinit_joints()
 void WalkingManager::set_position(const keisan::Point2 & position) { this->position = position; }
 
 const keisan::Point2 & WalkingManager::get_position() const { return position; }
+
+const keisan::Point2 & WalkingManager::get_delta_position() const { return delta_position; }
 
 void WalkingManager::run(double x_move, double y_move, double a_move, bool aim_on)
 {
@@ -356,69 +372,93 @@ bool WalkingManager::process()
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
 
-      // PID for pitch balancing using IMU pitch
-      const double dt = 0.008;
+      // PID for pitch and roll balancing using IMU
 
-      double error = (0_deg - this->imu_pitch).normalize().degree();
-      integral = keisan::clamp(integral + (error * dt), -100.0, 100.0);
-      double derivative = (error - prev_balance_error) / dt;
+      double y_move_amp = kinematic.get_y_move_amplitude();
+      double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
+      double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
+      double roll_deadband = y_move_amp == 0 ? 3.0 : 12.0;
 
-      pid_offset = p_gain * error + i_gain * integral + d_gain * derivative;
-      pid_offset = keisan::clamp(pid_offset, -60.0, 60.0);
+      // ignore if roll error is too small
+      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw;
 
-      prev_balance_error = error;
+      pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
+      roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
+
+      roll_integral *= 0.8;
+
+      double pitch_derivative = (pitch_error - prev_pitch_error);
+      double roll_derivative = (roll_error - prev_roll_error);
+
+      //nan guard if dt is 0
+      pitch_derivative = (dt <= 0.0 ? 0.0 : pitch_derivative / dt);
+      roll_derivative = (dt <= 0.0 ? 0.0 : roll_derivative / dt);
+
+      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * pitch_integral +
+                         d_pitch_gain * pitch_derivative;
+      pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
+
+      pid_offset_roll =
+        p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
+      pid_offset_roll = keisan::clamp(pid_offset_roll, -120.0, 120.0);
+
+      prev_pitch_error = pitch_error;
+      prev_roll_error = roll_error;
 
       if (!is_running()) {
-        prev_balance_error = 0.0;
-        integral = 0.0;
-        pid_offset = 0.0;
+        prev_roll_error = 0.0;
+        prev_pitch_error = 0.0;
+        pitch_integral = 0.0;
+        roll_integral = 0.0;
+        pid_offset_pitch = 0.0;
+        pid_offset_roll = 0.0;
+        this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
       }
 
       auto angles = kinematic.get_angles();
+
       for (auto & joint : joints) {
         uint8_t joint_id = joint.get_id();
 
         double offset = joints_direction[joint_id] * Joint::angle_to_value(angles[joint_id]);
-
         joint.set_position(inital_joints[joint_id]);
 
+        offset += joint.get_position_value();
         if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
           offset -= joints_direction[joint_id] * Joint::angle_to_value(kinematic.get_hip_offset());
-          offset -= joints_direction[joint_id] * hip_ankle_ratio * pid_offset;
         }
-
-        if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-          offset += joints_direction[joint_id] * (1 - hip_ankle_ratio) * pid_offset;
-        }
-
-        offset += joint.get_position_value();
 
         if (balance_enable) {
-          if (joint_id == JointId::LEFT_HIP_ROLL || joint_id == JointId::RIGHT_HIP_ROLL) {
-            offset += joints_direction[joint_id] * balance_hip_roll_gain * gyro[0] * 4;
-          }
-
-          if (joint_id == JointId::LEFT_ANKLE_ROLL || joint_id == JointId::RIGHT_ANKLE_ROLL) {
-            offset -= joints_direction[joint_id] * balance_ankle_roll_gain * gyro[0] * 4;
-          }
-
-          if (joint_id == JointId::LEFT_KNEE || joint_id == JointId::RIGHT_KNEE) {
-            offset -= joints_direction[joint_id] * balance_knee_gain * gyro[1] * 4;
+          if (joint_id == JointId::LEFT_HIP_PITCH || joint_id == JointId::RIGHT_HIP_PITCH) {
+            offset -= joints_direction[joint_id] * hip_ankle_ratio_pitch * pid_offset_pitch;
           }
 
           if (joint_id == JointId::LEFT_ANKLE_PITCH || joint_id == JointId::RIGHT_ANKLE_PITCH) {
-            offset -= joints_direction[joint_id] * balance_ankle_pitch_gain * gyro[1] * 4;
+            offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_pitch) * pid_offset_pitch;
+          }
+
+          if (walk_phase == WalkPhase::LEFT_SUPPORT || walk_phase == WalkPhase::RIGHT_SUPPORT) {
+            bool is_left = (walk_phase == WalkPhase::LEFT_SUPPORT);
+
+            auto ankle_roll = is_left ? JointId::LEFT_ANKLE_ROLL : JointId::RIGHT_ANKLE_ROLL;
+            auto hip_roll = is_left ? JointId::LEFT_HIP_ROLL : JointId::RIGHT_HIP_ROLL;
+
+            if (joint_id == ankle_roll) {
+              offset += joints_direction[joint_id] * (1 - hip_ankle_ratio_roll) * pid_offset_roll;
+            } else if (joint_id == hip_roll) {
+              offset += joints_direction[joint_id] * hip_ankle_ratio_roll * pid_offset_roll;
+            }
           }
         }
 
         joint.set_position_value(offset);
       }
+
+      return true;
     }
 
-    return true;
+    return false;
   }
-
-  return false;
 }
 
 bool WalkingManager::is_running() const { return kinematic.get_running_state(); }
@@ -455,6 +495,8 @@ void WalkingManager::set_x_offset(const double & offset) { kinematic.x_offset = 
 void WalkingManager::set_y_offset(const double & offset) { kinematic.y_offset = offset; }
 
 void WalkingManager::set_z_offset(const double & offset) { kinematic.z_offset = offset; }
+
+void WalkingManager::set_delta_time(const double & dt) { this->dt = dt; }
 
 const Kinematic & WalkingManager::get_kinematic() const { return kinematic; }
 

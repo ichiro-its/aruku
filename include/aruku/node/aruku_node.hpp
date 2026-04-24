@@ -44,7 +44,6 @@ public:
 private:
   rclcpp::Node::SharedPtr node;
   rclcpp::TimerBase::SharedPtr node_timer;
-
   std::shared_ptr<WalkingManager> walking_manager;
   std::shared_ptr<WalkingNode> walking_node;
 

@@ -235,6 +235,7 @@ private:
 
   double kick_x_amplitude = 80.0;
   double kick_z_amplitude = 30.0;
+  double m_kick_period_scale = 1.0;
 };
 
 }  // namespace aruku

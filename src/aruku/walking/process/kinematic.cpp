@@ -306,7 +306,8 @@ void Kinematic::update_times()
 {
   double dsp_comp = fabs(m_x_move_amplitude) * dsp_comp_ratio * 0.001;
 
-  m_period_time = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
+  m_period_time = (period_time - (fabs(m_x_move_amplitude) * period_comp_ratio))
+                * m_kick_period_scale;
 
   m_dsp_ratio = dsp_ratio + dsp_comp;
   m_ssp_ratio = 1 - m_dsp_ratio;
@@ -840,6 +841,7 @@ bool Kinematic::run_kinematic()
                         (m_ssp_time_end_l - m_ssp_time_start_l);
       if (progress < 0.15) {
         kick_state = KickState::KICKING;
+        m_kick_period_scale = 1.1;
         printf("[KICK PREPARE→KICKING] Left swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
@@ -848,6 +850,7 @@ bool Kinematic::run_kinematic()
                         (m_ssp_time_end_r - m_ssp_time_start_r);
       if (progress < 0.15) {
         kick_state = KickState::KICKING;
+        m_kick_period_scale = 1.1;
         printf("[KICK PREPARE→KICKING] Right swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
@@ -858,22 +861,32 @@ bool Kinematic::run_kinematic()
 
     if (still_in_swing) {
       double swing_start = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
-      double swing_end   = kick_leg_is_left ? m_ssp_time_end_l   : m_ssp_time_end_r;
+      double swing_end = kick_leg_is_left ? m_ssp_time_end_l : m_ssp_time_end_r;
       double swing_progress = (m_time - swing_start) / (swing_end - swing_start);
 
       double kick_z_profile = sin(swing_progress * M_PI);
 
-      constexpr double X_RETURN_RATIO = 0.7;
-      double x_progress    = std::min(swing_progress / X_RETURN_RATIO, 1.0);
+      constexpr double X_START_RATIO  = 0.15;
+      constexpr double X_RETURN_RATIO = 0.75;
+
+      double x_progress;
+      if (swing_progress < X_START_RATIO) {
+        x_progress = 0.0;
+      } else if (swing_progress > X_RETURN_RATIO) {
+        x_progress = 1.0;
+      } else {
+        x_progress = (swing_progress - X_START_RATIO) / (X_RETURN_RATIO  - X_START_RATIO);
+      }
+
       double kick_x_profile = sin(x_progress * M_PI);
 
       double kick_x = kick_x_amplitude * kick_x_profile;
       double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
+        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | x_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, x_progress, kick_z_profile, kick_x, kick_z);
+        swing_progress, x_progress, kick_x_profile, kick_z_profile, kick_x, kick_z);
 
       if (kick_leg_is_right) {
         x_move_r = kick_x;
@@ -882,6 +895,18 @@ bool Kinematic::run_kinematic()
         x_move_l = kick_x;
         z_move_l = kick_z;
       }
+
+    } else {
+      double t_normalized = m_time / m_period_time;
+
+      m_kick_period_scale  = 1.0;
+      double normal_period = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
+
+      m_time = t_normalized * normal_period;
+
+      kick_state = KickState::DONE;
+      printf("[KICK KICKING→DONE] scale reset, m_time rescaled → %.1f (normal_period=%.1f)\n",
+             m_time, normal_period);
     }
   }
 

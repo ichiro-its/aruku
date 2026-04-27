@@ -58,7 +58,7 @@ Kinematic::Kinematic()
   m_ssp_time_start_l(0),
   m_ssp_time_end_l(0),
   m_ssp_time_start_r(0),
-  m_ssp_time_End_r(0),
+  m_ssp_time_end_r(0),
   m_phase_time1(0),
   m_phase_time2(0),
   m_phase_time3(0),
@@ -101,8 +101,7 @@ Kinematic::Kinematic()
   pause_counter(0),
   phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
   do_walk_in_place(false),
-  has_paused_this_cycle(false),
-  use_gaussian(true)
+  has_paused_this_cycle(false)
 {
   reset_angles();
 }
@@ -146,7 +145,7 @@ void Kinematic::update_imu_roll(const keisan::Angle<double> & roll){
 uint8_t Kinematic::get_expected_walk_phase(){
   if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
     return WalkPhase::RIGHT_SUPPORT;
-  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
+  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_end_r)
     return WalkPhase::LEFT_SUPPORT;
 
   return WalkPhase::DOUBLE_SUPPORT;
@@ -324,11 +323,11 @@ void Kinematic::update_times()
   m_ssp_time_start_l = (1 - m_ssp_ratio) * m_period_time / 4;
   m_ssp_time_end_l = (1 + m_ssp_ratio) * m_period_time / 4;
   m_ssp_time_start_r = (3 - m_ssp_ratio) * m_period_time / 4;
-  m_ssp_time_End_r = (3 + m_ssp_ratio) * m_period_time / 4;
+  m_ssp_time_end_r = (3 + m_ssp_ratio) * m_period_time / 4;
 
   m_phase_time1 = (m_ssp_time_start_l + m_ssp_time_end_l) / 2;
   m_phase_time2 = (m_ssp_time_end_l + m_ssp_time_start_r) / 2;
-  m_phase_time3 = (m_ssp_time_start_r + m_ssp_time_End_r) / 2;
+  m_phase_time3 = (m_ssp_time_start_r + m_ssp_time_end_r) / 2;
 
   m_arm_swing_gain = arm_swing_gain;
 
@@ -670,7 +669,7 @@ bool Kinematic::run_kinematic()
       m_ssp_time_end_l, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude,
       -m_a_move_amplitude_shift);
-  } else if (m_time <= m_ssp_time_End_r) {
+  } else if (m_time <= m_ssp_time_end_r) {
     x_move_l = wsin(
       m_time, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
@@ -705,11 +704,11 @@ bool Kinematic::run_kinematic()
       -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else {
     x_move_l = wsin(
-      m_ssp_time_End_r, m_x_move_period_time,
+      m_ssp_time_end_r, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
       m_x_move_amplitude, m_x_move_amplitude_shift);
     y_move_l = wsin(
-      m_ssp_time_End_r, m_y_move_period_time,
+      m_ssp_time_end_r, m_y_move_period_time,
       m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
       m_y_move_amplitude, m_y_move_amplitude_shift);
     z_move_l = wsin(
@@ -717,23 +716,23 @@ bool Kinematic::run_kinematic()
       m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
       m_z_move_amplitude_shift);
     c_move_l = wsin(
-      m_ssp_time_End_r, m_a_move_period_time,
+      m_ssp_time_end_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
       m_a_move_amplitude, m_a_move_amplitude_shift);
     x_move_r = wsin(
-      m_ssp_time_End_r, m_x_move_period_time,
+      m_ssp_time_end_r, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_x_move_amplitude, -m_x_move_amplitude_shift);
     y_move_r = wsin(
-      m_ssp_time_End_r, m_y_move_period_time,
+      m_ssp_time_end_r, m_y_move_period_time,
       m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_y_move_amplitude, -m_y_move_amplitude_shift);
     z_move_r = wsin(
-      m_ssp_time_End_r, m_z_move_period_time,
+      m_ssp_time_end_r, m_z_move_period_time,
       m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
       m_z_move_amplitude_shift);
     c_move_r = wsin(
-      m_ssp_time_End_r, m_a_move_period_time,
+      m_ssp_time_end_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_a_move_amplitude, -m_a_move_amplitude_shift);
   }
@@ -810,7 +809,7 @@ bool Kinematic::run_kinematic()
 
   // In walk kick inject
   bool in_left_swing  = (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l);
-  bool in_right_swing = (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r);
+  bool in_right_swing = (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_end_r);
 
   bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT);
   bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT);
@@ -818,8 +817,8 @@ bool Kinematic::run_kinematic()
   auto kick_state_name = [](KickState s) -> const char* {
     switch (s) {
       case KickState::IDLE:      return "IDLE";
-      case KickState::ARMED:     return "ARMED";
-      case KickState::EXECUTING: return "EXECUTING";
+      case KickState::PREPARE:   return "PREPARE";
+      case KickState::KICKING:   return "KICKING";
       case KickState::DONE:      return "DONE";
       default:                   return "UNKNOWN";
     }
@@ -831,62 +830,50 @@ bool Kinematic::run_kinematic()
     "in_L=%d in_R=%d | state=%s\n",
     m_time, m_period_time,
     m_ssp_time_start_l, m_ssp_time_end_l,
-    m_ssp_time_start_r, m_ssp_time_End_r,
+    m_ssp_time_start_r, m_ssp_time_end_r,
     in_left_swing, in_right_swing,
     kick_state_name(kick_state));
 
-  if (kick_state == KickState::ARMED) {
+  if (kick_state == KickState::PREPARE) {
     if (kick_leg_is_left && in_left_swing) {
       double progress = (m_time - m_ssp_time_start_l) /
                         (m_ssp_time_end_l - m_ssp_time_start_l);
       if (progress < 0.15) {
-        kick_state = KickState::EXECUTING;
-        printf("[KICK ARMED→EXEC] Left swing FRESH (progress=%.3f), executing!\n", progress);
+        kick_state = KickState::KICKING;
+        printf("[KICK PREPARE→KICKING] Left swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
     if (kick_leg_is_right && in_right_swing) {
       double progress = (m_time - m_ssp_time_start_r) /
-                        (m_ssp_time_End_r - m_ssp_time_start_r);
+                        (m_ssp_time_end_r - m_ssp_time_start_r);
       if (progress < 0.15) {
-        kick_state = KickState::EXECUTING;
-        printf("[KICK ARMED→EXEC] Right swing FRESH (progress=%.3f), executing!\n", progress);
+        kick_state = KickState::KICKING;
+        printf("[KICK PREPARE→KICKING] Right swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
   }
 
-  if (kick_state == KickState::EXECUTING) {
-  bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
+  if (kick_state == KickState::KICKING) {
+    bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
 
     if (still_in_swing) {
-      double swing_start    = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
-      double swing_end      = kick_leg_is_left ? m_ssp_time_end_l   : m_ssp_time_End_r;
+      double swing_start = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
+      double swing_end   = kick_leg_is_left ? m_ssp_time_end_l   : m_ssp_time_end_r;
       double swing_progress = (m_time - swing_start) / (swing_end - swing_start);
 
-      double kick_x_profile = 0.0;
-      double kick_z_profile = 0.0;
-      const char* profile_name = "";
+      double kick_z_profile = sin(swing_progress * M_PI);
 
-      if (!use_gaussian) {
-        auto [xp, zp]  = compute_sine_kick(swing_progress);
-        kick_x_profile = xp;
-        kick_z_profile = zp;
-        profile_name   = "SINE";
-      } else {
-        constexpr double SIGMA = 0.8;
-        auto profile  = compute_gaussian_kick(swing_progress, SIGMA);
-        kick_x_profile = profile;
-        kick_z_profile = profile;
-        profile_name   = "GAUSSIAN";
-      }
+      constexpr double X_RETURN_RATIO = 0.7;
+      double x_progress    = std::min(swing_progress / X_RETURN_RATIO, 1.0);
+      double kick_x_profile = sin(x_progress * M_PI);
 
       double kick_x = kick_x_amplitude * kick_x_profile;
       double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK EXEC] profile=%s | leg=%s | progress=%.3f | x_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
-        profile_name,
+        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, kick_x_profile, kick_z_profile, kick_x, kick_z);
+        swing_progress, x_progress, kick_z_profile, kick_x, kick_z);
 
       if (kick_leg_is_right) {
         x_move_r = kick_x;
@@ -895,12 +882,8 @@ bool Kinematic::run_kinematic()
         x_move_l = kick_x;
         z_move_l = kick_z;
       }
-
-    } else {
-      kick_state = KickState::DONE;
-      printf("[KICK EXEC→DONE]\n");
+    }
   }
-}
 
   if (kick_state == KickState::DONE && m_time == 0) {
     kick_state = KickState::IDLE;
@@ -951,26 +934,7 @@ void Kinematic::trigger_kick(KickLeg leg)
     return;
   }
   kick_leg  = leg;
-  kick_state = KickState::ARMED;
+  kick_state = KickState::PREPARE;
 }
 
-std::pair<double, double> Kinematic::compute_sine_kick(double swing_progress) const
-{
-  constexpr double X_RETURN_RATIO = 0.65;
-
-  double kick_z_profile = sin(swing_progress * M_PI);
-
-  double x_progress     = std::min(swing_progress / X_RETURN_RATIO, 1.0);
-  double kick_x_profile = sin(x_progress * M_PI);
-
-  return {kick_x_profile, kick_z_profile};
-}
-
-double Kinematic::compute_gaussian_kick(double swing_progress, double sigma) const
-{
-  double x_K = 2.0 * swing_progress - 1.0;  // map [0,1] → [-1,1]
-  double profile = std::exp(-0.5 * std::pow(x_K / sigma, 2));
-
-  return profile;
-}
 }  // namespace aruku

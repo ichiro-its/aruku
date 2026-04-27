@@ -45,8 +45,8 @@ public:
 
   enum class KickState {
     IDLE,
-    ARMED,
-    EXECUTING,
+    PREPARE,
+    KICKING,
     DONE
   };
 
@@ -54,7 +54,6 @@ public:
     LEFT,
     RIGHT
   };
-
 
   Kinematic();
 
@@ -113,10 +112,6 @@ private:
   void update_move_amplitude();
   void update_times();
   void reset_angles();
-
-  double compute_gaussian_kick(double swing_progress, double sigma) const;
-  std::pair<double, double> compute_sine_kick(double swing_progress) const;
-
 
   // input member
   double x_move;
@@ -177,7 +172,7 @@ private:
   double m_ssp_time_start_l;
   double m_ssp_time_end_l;
   double m_ssp_time_start_r;
-  double m_ssp_time_End_r;
+  double m_ssp_time_end_r;
 
   double m_phase_time1;
   double m_phase_time2;
@@ -223,7 +218,6 @@ private:
   int pause_counter;
   uint8_t phase_on_pause;
   bool do_walk_in_place;
-  bool use_gaussian;
 
   // output member
   double m_x_move_amplitude;
@@ -239,8 +233,8 @@ private:
   KickState kick_state = KickState::IDLE;
   KickLeg kick_leg = KickLeg::RIGHT;
 
-  double kick_x_amplitude = 50.0;
-  double kick_z_amplitude = 50.0;
+  double kick_x_amplitude = 80.0;
+  double kick_z_amplitude = 30.0;
 };
 
 }  // namespace aruku

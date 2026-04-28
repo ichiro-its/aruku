@@ -104,10 +104,10 @@ Kinematic::Kinematic()
   has_paused_this_cycle(false),
   kick_state(KickState::IDLE),
   kick_leg(KickLeg::RIGHT),
-  m_kick_period_scale(0.0),
+  m_kick_period_scale(1.0),
   kick_x_amplitude(0.0),
   kick_z_amplitude(0.0),
-  kick_start_ratio(0.0),
+  kick_start_ratio(1.0),
   kick_return_ratio(0.0),
   kick_period_scale(0.0)
 {

@@ -283,10 +283,19 @@ void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase){
 void WalkingManager::update_trigger_kick(const uint8_t & leg){
   if (!is_running()) return;
 
-  if (leg == 0) {
-    this->kinematic.trigger_kick(Kinematic::KickLeg::LEFT);
-  } else if (leg == 1) {
-    this->kinematic.trigger_kick(Kinematic::KickLeg::RIGHT);
+  switch (leg) {
+    case 0:
+      this->kinematic.trigger_kick(Kinematic::KickLeg::LEFT);
+      break;
+    case 1:
+      this->kinematic.trigger_kick(Kinematic::KickLeg::RIGHT);
+      break;
+    case 2:
+      this->kinematic.trigger_kick(Kinematic::KickLeg::LEFT_CENTER);
+      break;
+    case 3:
+      this->kinematic.trigger_kick(Kinematic::KickLeg::RIGHT_CENTER);
+      break;
   }
 }
 

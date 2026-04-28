@@ -106,6 +106,7 @@ Kinematic::Kinematic()
   kick_leg(KickLeg::RIGHT),
   m_kick_period_scale(1.0),
   kick_x_amplitude(0.0),
+  kick_y_amplitude(0.0),
   kick_z_amplitude(0.0),
   kick_start_ratio(1.0),
   kick_return_ratio(0.0),
@@ -500,6 +501,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
   if(jitsuyo::assign_val(kinematic_data, "in_walk_kick", kick_section)){
     bool valid_section = true;
     valid_section &= jitsuyo::assign_val(kick_section, "x_amplitude", kick_x_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "y_amplitude", kick_y_amplitude);
     valid_section &= jitsuyo::assign_val(kick_section, "z_amplitude", kick_z_amplitude);
     valid_section &= jitsuyo::assign_val(kick_section, "start_ratio", kick_start_ratio);
     valid_section &= jitsuyo::assign_val(kick_section, "return_ratio", kick_return_ratio);
@@ -529,13 +531,13 @@ bool Kinematic::run_kinematic()
 
   if (m_time == 0) {
     // Right kick finished, reset kick period scale
-    if (kick_state == KickState::KICKING && kick_leg == KickLeg::RIGHT) {
+    if (kick_state == KickState::KICKING && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
       m_kick_period_scale = 1.0;
       kick_state = KickState::DONE;
       printf("[KICK KICKING→DONE] Right swing ended at phase boundary\n");
     }
     // Left kick ready, apply kick period scale before left SSP
-    if (kick_state == KickState::PREPARE && kick_leg == KickLeg::LEFT) {
+    if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
       m_kick_period_scale = kick_period_scale;
       kick_state = KickState::KICKING;
       printf("[KICK PREPARE→KICKING] Left kick armed, scale applied\n");
@@ -572,13 +574,13 @@ bool Kinematic::run_kinematic()
     m_time < (m_phase_time2 + time_unit / 2)) {
 
     // Left kick finished, reset kick period scale
-    if (kick_state == KickState::KICKING && kick_leg == KickLeg::LEFT) {
+    if (kick_state == KickState::KICKING && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
       m_kick_period_scale = 1.0;
       kick_state = KickState::DONE;
       printf("[KICK KICKING→DONE] Left swing ended at phase boundary\n");
     }
     // Right kick ready, apply kick period scale before right SSP
-    if (kick_state == KickState::PREPARE && kick_leg == KickLeg::RIGHT) {
+    if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
       m_kick_period_scale = kick_period_scale;
       kick_state = KickState::KICKING;
       printf("[KICK PREPARE→KICKING] Right kick armed, scale applied\n");
@@ -870,8 +872,10 @@ bool Kinematic::run_kinematic()
   bool in_left_swing  = (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l);
   bool in_right_swing = (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_end_r);
 
-  bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT);
-  bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT);
+  bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER);
+  bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER);
+
+  bool is_center_kick = (kick_leg == KickLeg::LEFT_CENTER || kick_leg == KickLeg::RIGHT_CENTER);
 
   if (kick_state == KickState::KICKING) {
     bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
@@ -889,25 +893,34 @@ bool Kinematic::run_kinematic()
       } else if (swing_progress > kick_return_ratio) {
         x_progress = 1.0;
       } else {
-        x_progress = (swing_progress - kick_start_ratio) / (kick_return_ratio  - kick_start_ratio);
+        x_progress = (swing_progress - kick_start_ratio) / (kick_return_ratio - kick_start_ratio);
       }
 
-      double kick_x_profile = sin(x_progress * M_PI);
+      double kick_xy_profile = sin(x_progress * M_PI);
 
-      double kick_x = kick_x_amplitude * kick_x_profile;
+      double kick_x = kick_x_amplitude * kick_xy_profile;
+      double kick_y = kick_y_amplitude * kick_xy_profile;
       double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | x_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_z=%.2f\n",
+        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | xy_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, x_progress, kick_x_profile, kick_z_profile, kick_x, kick_z);
+        swing_progress, x_progress, kick_xy_profile, kick_z_profile, kick_x, kick_y, kick_z);
 
       if (kick_leg_is_right) {
         x_move_r = kick_x;
         z_move_r = kick_z;
+
+        if (is_center_kick) {
+          y_move_r = kick_y;
+        }
       } else {
         x_move_l = kick_x;
         z_move_l = kick_z;
+
+        if (is_center_kick) {
+          y_move_l = -kick_y;
+        }
       }
     }
   }
@@ -960,7 +973,7 @@ void Kinematic::trigger_kick(KickLeg leg)
   if (kick_state != KickState::IDLE && kick_state != KickState::DONE) {
     return;
   }
-  kick_leg  = leg;
+  kick_leg = leg;
   kick_state = KickState::PREPARE;
 }
 

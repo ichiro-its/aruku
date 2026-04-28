@@ -52,7 +52,9 @@ public:
 
   enum class KickLeg {
     LEFT,
-    RIGHT
+    RIGHT,
+    LEFT_CENTER,
+    RIGHT_CENTER
   };
 
   Kinematic();
@@ -237,6 +239,7 @@ private:
 
   double m_kick_period_scale;
   double kick_x_amplitude;
+  double kick_y_amplitude;
   double kick_z_amplitude;
   double kick_start_ratio;
   double kick_return_ratio;

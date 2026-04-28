@@ -124,7 +124,8 @@ private:
 
   double dsp_ratio;
   double dsp_comp_ratio;
-  double period_comp_ratio;
+  double backward_period_comp_ratio;
+  double forward_period_comp_ratio;
   double backward_hip_comp_ratio;
   double forward_hip_comp_ratio;
   double foot_comp_ratio;
@@ -230,12 +231,16 @@ private:
 
   std::array<keisan::Angle<double>, 19> angles;
 
+  // in-walk kick member
   KickState kick_state = KickState::IDLE;
   KickLeg kick_leg = KickLeg::RIGHT;
 
-  double kick_x_amplitude = 80.0;
-  double kick_z_amplitude = 30.0;
-  double m_kick_period_scale = 1.0;
+  double m_kick_period_scale;
+  double kick_x_amplitude;
+  double kick_z_amplitude;
+  double kick_start_ratio;
+  double kick_return_ratio;
+  double kick_period_scale;
 };
 
 }  // namespace aruku

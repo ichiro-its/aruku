@@ -101,7 +101,15 @@ Kinematic::Kinematic()
   pause_counter(0),
   phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
   do_walk_in_place(false),
-  has_paused_this_cycle(false)
+  has_paused_this_cycle(false),
+  kick_state(KickState::IDLE),
+  kick_leg(KickLeg::RIGHT),
+  m_kick_period_scale(0.0),
+  kick_x_amplitude(0.0),
+  kick_z_amplitude(0.0),
+  kick_start_ratio(0.0),
+  kick_return_ratio(0.0),
+  kick_period_scale(0.0)
 {
   reset_angles();
 }
@@ -305,6 +313,9 @@ bool Kinematic::compute_inverse_kinematic(
 void Kinematic::update_times()
 {
   double dsp_comp = fabs(m_x_move_amplitude) * dsp_comp_ratio * 0.001;
+  double period_comp_ratio = (m_x_move_amplitude > 0)
+                            ? forward_period_comp_ratio
+                            : backward_period_comp_ratio;
 
   m_period_time = (period_time - (fabs(m_x_move_amplitude) * period_comp_ratio))
                 * m_kick_period_scale;
@@ -406,7 +417,10 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
       jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_comp_ratio", foot_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "dsp_comp_ratio", dsp_comp_ratio);
-    valid_section &= jitsuyo::assign_val(ratio_section, "period_comp_ratio", period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "forward_period_comp_ratio", forward_period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "backward_period_comp_ratio", backward_period_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "move_accel_ratio", move_accel_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_accel_ratio", foot_accel_ratio);
 
@@ -476,6 +490,23 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
 
     if (!valid_section) {
       std::cout << "Error found at section `balance`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
+  nlohmann::json kick_section;
+  if(jitsuyo::assign_val(kinematic_data, "in_walk_kick", kick_section)){
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(kick_section, "x_amplitude", kick_x_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "z_amplitude", kick_z_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "start_ratio", kick_start_ratio);
+    valid_section &= jitsuyo::assign_val(kick_section, "return_ratio", kick_return_ratio);
+    valid_section &= jitsuyo::assign_val(kick_section, "period_scale", kick_period_scale);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `in_walk_kick`" << std::endl;
       valid_config = false;
     }
   } else {
@@ -815,33 +846,13 @@ bool Kinematic::run_kinematic()
   bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT);
   bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT);
 
-  auto kick_state_name = [](KickState s) -> const char* {
-    switch (s) {
-      case KickState::IDLE:      return "IDLE";
-      case KickState::PREPARE:   return "PREPARE";
-      case KickState::KICKING:   return "KICKING";
-      case KickState::DONE:      return "DONE";
-      default:                   return "UNKNOWN";
-    }
-  };
-
-  printf(
-    "[KICK DBG] m_time=%.1f | period=%.1f | "
-    "ssp_L=[%.1f~%.1f] ssp_R=[%.1f~%.1f] | "
-    "in_L=%d in_R=%d | state=%s\n",
-    m_time, m_period_time,
-    m_ssp_time_start_l, m_ssp_time_end_l,
-    m_ssp_time_start_r, m_ssp_time_end_r,
-    in_left_swing, in_right_swing,
-    kick_state_name(kick_state));
-
   if (kick_state == KickState::PREPARE) {
     if (kick_leg_is_left && in_left_swing) {
       double progress = (m_time - m_ssp_time_start_l) /
                         (m_ssp_time_end_l - m_ssp_time_start_l);
       if (progress < 0.15) {
         kick_state = KickState::KICKING;
-        m_kick_period_scale = 1.1;
+        m_kick_period_scale = kick_period_scale;
         printf("[KICK PREPARE→KICKING] Left swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
@@ -850,7 +861,7 @@ bool Kinematic::run_kinematic()
                         (m_ssp_time_end_r - m_ssp_time_start_r);
       if (progress < 0.15) {
         kick_state = KickState::KICKING;
-        m_kick_period_scale = 1.1;
+        m_kick_period_scale = kick_period_scale;
         printf("[KICK PREPARE→KICKING] Right swing FRESH (progress=%.3f), KICKING!\n", progress);
       }
     }
@@ -866,16 +877,13 @@ bool Kinematic::run_kinematic()
 
       double kick_z_profile = sin(swing_progress * M_PI);
 
-      constexpr double X_START_RATIO  = 0.15;
-      constexpr double X_RETURN_RATIO = 0.75;
-
       double x_progress;
-      if (swing_progress < X_START_RATIO) {
+      if (swing_progress < kick_start_ratio) {
         x_progress = 0.0;
-      } else if (swing_progress > X_RETURN_RATIO) {
+      } else if (swing_progress > kick_return_ratio) {
         x_progress = 1.0;
       } else {
-        x_progress = (swing_progress - X_START_RATIO) / (X_RETURN_RATIO  - X_START_RATIO);
+        x_progress = (swing_progress - kick_start_ratio) / (kick_return_ratio  - kick_start_ratio);
       }
 
       double kick_x_profile = sin(x_progress * M_PI);
@@ -897,16 +905,9 @@ bool Kinematic::run_kinematic()
       }
 
     } else {
-      double t_normalized = m_time / m_period_time;
-
       m_kick_period_scale  = 1.0;
-      double normal_period = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
-
-      m_time = t_normalized * normal_period;
-
       kick_state = KickState::DONE;
-      printf("[KICK KICKING→DONE] scale reset, m_time rescaled → %.1f (normal_period=%.1f)\n",
-             m_time, normal_period);
+      printf("[KICK KICKING→DONE]\n");
     }
   }
 

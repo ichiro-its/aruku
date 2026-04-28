@@ -88,7 +88,7 @@ void WalkingManager::set_config(
     valid_section &= jitsuyo::assign_val(pid_section, "i_roll_gain", i_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "d_roll_gain", d_roll_gain);
     valid_section &= jitsuyo::assign_val(pid_section, "hip_ankle_ratio_roll", hip_ankle_ratio_roll);
-    
+
     if (!valid_section) {
       std::cout << "Error found at section `pid`" << std::endl;
       valid_config = false;
@@ -281,6 +281,8 @@ void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase){
 }
 
 void WalkingManager::update_trigger_kick(const uint8_t & leg){
+  if (!is_running()) return;
+
   if (leg == 0) {
     this->kinematic.trigger_kick(Kinematic::KickLeg::LEFT);
   } else if (leg == 1) {
@@ -350,15 +352,15 @@ bool WalkingManager::process()
       using tachimawari::joint::Joint;
       using tachimawari::joint::JointId;
 
-      // PID for pitch and roll balancing using IMU 
+      // PID for pitch and roll balancing using IMU
 
       double y_move_amp = kinematic.get_y_move_amplitude();
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
-      double roll_deadband = y_move_amp == 0? 3.0 : 12.0;  
+      double roll_deadband = y_move_amp == 0? 3.0 : 12.0;
 
       // ignore if roll error is too small
-      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw; 
+      double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw;
 
       pitch_integral = keisan::clamp(pitch_integral + (pitch_error * dt), -50.0, 50.0);
       roll_integral = keisan::clamp(roll_integral + (roll_error * dt), -50.0, 50.0);
@@ -389,8 +391,8 @@ bool WalkingManager::process()
         pid_offset_pitch = 0.0;
         pid_offset_roll = 0.0;
         this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
-      } 
-    
+      }
+
       auto angles = kinematic.get_angles();
 
       for (auto & joint : joints) {
@@ -432,9 +434,9 @@ bool WalkingManager::process()
 
     return true;
   }
-  
+
   return false;
-  
+
   }
 }
 

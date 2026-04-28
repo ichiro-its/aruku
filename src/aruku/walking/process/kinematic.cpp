@@ -909,7 +909,6 @@ bool Kinematic::run_kinematic()
         x_move_l = kick_x;
         z_move_l = kick_z;
       }
-
     }
   }
 

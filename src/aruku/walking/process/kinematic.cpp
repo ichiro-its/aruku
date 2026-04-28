@@ -528,6 +528,19 @@ bool Kinematic::run_kinematic()
   is_compute_odometry = false;
 
   if (m_time == 0) {
+    // Right kick finished, reset kick period scale
+    if (kick_state == KickState::KICKING && kick_leg == KickLeg::RIGHT) {
+      m_kick_period_scale = 1.0;
+      kick_state = KickState::DONE;
+      printf("[KICK KICKING→DONE] Right swing ended at phase boundary\n");
+    }
+    // Left kick ready, apply kick period scale before left SSP
+    if (kick_state == KickState::PREPARE && kick_leg == KickLeg::LEFT) {
+      m_kick_period_scale = kick_period_scale;
+      kick_state = KickState::KICKING;
+      printf("[KICK PREPARE→KICKING] Left kick armed, scale applied\n");
+    }
+
     update_move_amplitude();
     update_times();
 
@@ -557,6 +570,20 @@ bool Kinematic::run_kinematic()
   } else if (
     m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
     m_time < (m_phase_time2 + time_unit / 2)) {
+
+    // Left kick finished, reset kick period scale
+    if (kick_state == KickState::KICKING && kick_leg == KickLeg::LEFT) {
+      m_kick_period_scale = 1.0;
+      kick_state = KickState::DONE;
+      printf("[KICK KICKING→DONE] Left swing ended at phase boundary\n");
+    }
+    // Right kick ready, apply kick period scale before right SSP
+    if (kick_state == KickState::PREPARE && kick_leg == KickLeg::RIGHT) {
+      m_kick_period_scale = kick_period_scale;
+      kick_state = KickState::KICKING;
+      printf("[KICK PREPARE→KICKING] Right kick armed, scale applied\n");
+    }
+
     update_move_amplitude();
     update_times();
     m_time = m_phase_time2;
@@ -846,27 +873,6 @@ bool Kinematic::run_kinematic()
   bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT);
   bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT);
 
-  if (kick_state == KickState::PREPARE) {
-    if (kick_leg_is_left && in_left_swing) {
-      double progress = (m_time - m_ssp_time_start_l) /
-                        (m_ssp_time_end_l - m_ssp_time_start_l);
-      if (progress < 0.15) {
-        kick_state = KickState::KICKING;
-        m_kick_period_scale = kick_period_scale;
-        printf("[KICK PREPARE→KICKING] Left swing FRESH (progress=%.3f), KICKING!\n", progress);
-      }
-    }
-    if (kick_leg_is_right && in_right_swing) {
-      double progress = (m_time - m_ssp_time_start_r) /
-                        (m_ssp_time_end_r - m_ssp_time_start_r);
-      if (progress < 0.15) {
-        kick_state = KickState::KICKING;
-        m_kick_period_scale = kick_period_scale;
-        printf("[KICK PREPARE→KICKING] Right swing FRESH (progress=%.3f), KICKING!\n", progress);
-      }
-    }
-  }
-
   if (kick_state == KickState::KICKING) {
     bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
 
@@ -904,10 +910,6 @@ bool Kinematic::run_kinematic()
         z_move_l = kick_z;
       }
 
-    } else {
-      m_kick_period_scale  = 1.0;
-      kick_state = KickState::DONE;
-      printf("[KICK KICKING→DONE]\n");
     }
   }
 

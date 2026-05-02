@@ -68,6 +68,7 @@ public:
   bool process();
 
   bool is_running() const;
+  bool is_kicking() const;
 
   std::vector<tachimawari::joint::Joint> get_joints() const;
   const Kinematic & get_kinematic() const;

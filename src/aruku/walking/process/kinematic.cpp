@@ -977,7 +977,7 @@ bool Kinematic::should_enable_roll_pause(double roll_abs) const
 
 void Kinematic::trigger_kick(KickLeg leg)
 {
-  if (kick_state != KickState::IDLE && kick_state != KickState::DONE) {
+  if (kick_state != KickState::IDLE) {
     return;
   }
   kick_leg = leg;

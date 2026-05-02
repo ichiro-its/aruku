@@ -366,7 +366,7 @@ bool WalkingManager::process()
       double y_move_amp = kinematic.get_y_move_amplitude();
       double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
-      double roll_deadband = y_move_amp == 0? 3.0 : 12.0;
+      double roll_deadband = y_move_amp == 0 ? 3.0 : 12.0;
 
       // ignore if roll error is too small
       double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw;
@@ -450,6 +450,8 @@ bool WalkingManager::process()
 }
 
 bool WalkingManager::is_running() const { return kinematic.get_running_state(); }
+
+bool WalkingManager::is_kicking() const { return kinematic.is_kicking(); }
 
 std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const { return joints; }
 

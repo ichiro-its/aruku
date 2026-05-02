@@ -35,6 +35,7 @@
 #include "kansei_interfaces/msg/unit.hpp"
 #include "tachimawari_interfaces/msg/set_joints.hpp"
 #include "std_msgs/msg/int8.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 namespace aruku
 {
@@ -50,6 +51,7 @@ public:
   using Unit = kansei_interfaces::msg::Unit;
   using WalkPhase = aruku_interfaces::msg::WalkPhase;
   using Int8 = std_msgs::msg::Int8;
+  using Bool = std_msgs::msg::Bool;
 
   static std::string get_node_prefix();
   static std::string set_walking_topic();
@@ -67,6 +69,7 @@ public:
   void publish_joints();
   void publish_status();
   void publish_delta_position();
+  void publish_walk_kick_status();
 private:
 
   rclcpp::Node::SharedPtr node;
@@ -86,6 +89,7 @@ private:
   rclcpp::Subscription<WalkPhase>::SharedPtr walk_phase_subscriber;
 
   rclcpp::Subscription<Int8>::SharedPtr walk_kick_subscriber;
+  rclcpp::Publisher<Bool>::SharedPtr walk_kick_status_publisher;
 
   rclcpp::TimerBase::SharedPtr node_timer;
   rclcpp::Time last_time;

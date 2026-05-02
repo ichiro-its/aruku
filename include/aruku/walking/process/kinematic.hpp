@@ -105,6 +105,7 @@ public:
 
   void trigger_kick(KickLeg leg);
   bool is_kick_done() const { return kick_state == KickState::DONE; }
+  bool is_kicking() const { return kick_state != KickState::IDLE; }
 
 private:
   double wsin(double time, double period, double period_shift, double mag, double mag_shift) const;

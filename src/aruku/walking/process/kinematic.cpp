@@ -895,32 +895,39 @@ bool Kinematic::run_kinematic()
       } else {
         x_progress = (swing_progress - kick_start_ratio) / (kick_return_ratio - kick_start_ratio);
       }
+      double kick_x_profile = sin(x_progress * M_PI);
 
-      double kick_xy_profile = sin(x_progress * M_PI);
+      double kick_y_profile = 0.0;
+      if (is_center_kick) {
+        if (swing_progress < kick_start_ratio) {
+          double t = swing_progress / kick_start_ratio;
+          kick_y_profile = sin(t * M_PI / 2.0);
+        } else if (swing_progress <= kick_return_ratio) {
+          kick_y_profile = 1.0;
+        } else {
+          double t = (swing_progress - kick_return_ratio) / (1.0 - kick_return_ratio);
+          kick_y_profile = cos(t * M_PI / 2.0);
+        }
+      }
 
-      double kick_x = kick_x_amplitude * kick_xy_profile;
-      double kick_y = kick_y_amplitude * kick_xy_profile;
+      double kick_x = kick_x_amplitude * kick_x_profile;
+      double kick_y = kick_y_amplitude * kick_y_profile;
       double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | xy_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
+        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | x_prof=%.3f | y_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, x_progress, kick_xy_profile, kick_z_profile, kick_x, kick_y, kick_z);
+        swing_progress, x_progress, kick_x_profile, kick_y_profile, kick_z_profile,
+        kick_x, kick_y, kick_z);
 
       if (kick_leg_is_right) {
         x_move_r = kick_x;
         z_move_r = kick_z;
-
-        if (is_center_kick) {
-          y_move_r = kick_y;
-        }
+        if (is_center_kick) y_move_r =  kick_y;
       } else {
         x_move_l = kick_x;
         z_move_l = kick_z;
-
-        if (is_center_kick) {
-          y_move_l = -kick_y;
-        }
+        if (is_center_kick) y_move_l = -kick_y;
       }
     }
   }

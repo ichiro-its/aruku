@@ -887,26 +887,37 @@ bool Kinematic::run_kinematic()
 
       double kick_z_profile = sin(swing_progress * M_PI);
 
-      double x_progress;
-      if (swing_progress < kick_start_ratio) {
-        x_progress = 0.0;
-      } else if (swing_progress > kick_return_ratio) {
-        x_progress = 1.0;
-      } else {
-        x_progress = (swing_progress - kick_start_ratio) / (kick_return_ratio - kick_start_ratio);
+      double kick_x_profile = 0.0;
+      if (swing_progress >= kick_start_ratio && swing_progress <= kick_return_ratio) {
+        double window = kick_return_ratio - kick_start_ratio;
+        double local_t = (swing_progress - kick_start_ratio) / window;
+        if (local_t < 1.0 / 3.0) {
+          double t = local_t / (1.0 / 3.0);
+          kick_x_profile = sin(t * M_PI / 2.0);
+        } else if (local_t < 2.0 / 3.0) {
+          kick_x_profile = 1.0;
+        } else {
+          double t = (local_t - 2.0 / 3.0) / (1.0 / 3.0);
+          kick_x_profile = cos(t * M_PI / 2.0);
+        }
       }
-      double kick_x_profile = sin(x_progress * M_PI);
 
       double kick_y_profile = 0.0;
       if (is_center_kick) {
         if (swing_progress < kick_start_ratio) {
           double t = swing_progress / kick_start_ratio;
           kick_y_profile = sin(t * M_PI / 2.0);
-        } else if (swing_progress <= kick_return_ratio) {
-          kick_y_profile = 1.0;
+        } else if (swing_progress < kick_return_ratio) {
+          double window = kick_return_ratio - kick_start_ratio;
+          double local_t = (swing_progress - kick_start_ratio) / window;
+          if (local_t < 0.5) {
+            kick_y_profile = 1.0;
+          } else {
+            double t = (local_t - 0.5) / 0.5;
+            kick_y_profile = cos(t * M_PI / 2.0);
+          }
         } else {
-          double t = (swing_progress - kick_return_ratio) / (1.0 - kick_return_ratio);
-          kick_y_profile = cos(t * M_PI / 2.0);
+          kick_y_profile = 0.0;
         }
       }
 
@@ -915,9 +926,9 @@ bool Kinematic::run_kinematic()
       double kick_z = kick_z_amplitude * kick_z_profile;
 
       printf(
-        "[KICK KICKING] leg=%s | progress=%.3f | x_prog=%.3f | x_prof=%.3f | y_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
+        "[KICK KICKING] leg=%s | progress=%.3f | x_prof=%.3f | y_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
         kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, x_progress, kick_x_profile, kick_y_profile, kick_z_profile,
+        swing_progress, kick_x_profile, kick_y_profile, kick_z_profile,
         kick_x, kick_y, kick_z);
 
       if (kick_leg_is_right) {

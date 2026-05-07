@@ -66,6 +66,7 @@ public:
 
   keisan::Angle<double> get_raw_hip_offset() const;
   keisan::Angle<double> get_hip_offset() const;
+  keisan::Angle<double> get_hip_comp() const;
 
   bool time_to_compute_odometry() const;
 
@@ -198,7 +199,7 @@ private:
 
   double m_time;
   double time_unit;
-  
+
   bool is_paused;
   int pause_counter;
   uint8_t phase_on_pause;

@@ -307,6 +307,9 @@ bool Kinematic::compute_inverse_kinematic(
 void Kinematic::update_times()
 {
   double dsp_comp = fabs(m_x_move_amplitude) * dsp_comp_ratio * 0.001;
+  double period_comp_ratio = (m_x_move_amplitude > 0)
+                            ? forward_period_comp_ratio
+                            : backward_period_comp_ratio;
 
   m_period_time = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
 
@@ -407,7 +410,10 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
       jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_comp_ratio", foot_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "dsp_comp_ratio", dsp_comp_ratio);
-    valid_section &= jitsuyo::assign_val(ratio_section, "period_comp_ratio", period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "forward_period_comp_ratio", forward_period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "backward_period_comp_ratio", backward_period_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "move_accel_ratio", move_accel_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_accel_ratio", foot_accel_ratio);
 

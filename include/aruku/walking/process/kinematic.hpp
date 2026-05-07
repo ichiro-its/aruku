@@ -110,7 +110,8 @@ private:
 
   double dsp_ratio;
   double dsp_comp_ratio;
-  double period_comp_ratio;
+  double backward_period_comp_ratio;
+  double forward_period_comp_ratio;
   double backward_hip_comp_ratio;
   double forward_hip_comp_ratio;
   double foot_comp_ratio;

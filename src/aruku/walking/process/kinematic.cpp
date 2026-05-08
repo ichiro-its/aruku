@@ -893,13 +893,13 @@ bool Kinematic::run_kinematic()
       if (swing_progress >= kick_start_ratio && swing_progress <= kick_return_ratio) {
         double window = kick_return_ratio - kick_start_ratio;
         double local_t = (swing_progress - kick_start_ratio) / window;
-        if (local_t < 1.0 / 3.0) {
-          double t = local_t / (1.0 / 3.0);
+        if (local_t < 0.2) {
+          double t = local_t / 0.2;
           kick_x_profile = sin(t * M_PI / 2.0);
-        } else if (local_t < 2.0 / 3.0) {
+        } else if (local_t < 0.8) {
           kick_x_profile = 1.0;
         } else {
-          double t = (local_t - 2.0 / 3.0) / (1.0 / 3.0);
+          double t = (local_t - 0.8) / 0.2;
           kick_x_profile = cos(t * M_PI / 2.0);
         }
       }

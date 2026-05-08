@@ -162,6 +162,8 @@ keisan::Angle<double> Kinematic::get_raw_hip_offset() const { return hip_pitch_o
 
 keisan::Angle<double> Kinematic::get_hip_offset() const { return hip_pitch_offset + hip_comp; }
 
+keisan::Angle<double> Kinematic::get_hip_comp() const { return hip_comp; }
+
 bool Kinematic::time_to_compute_odometry() const { return is_compute_odometry; }
 
 void Kinematic::stop_kinematic()
@@ -305,6 +307,9 @@ bool Kinematic::compute_inverse_kinematic(
 void Kinematic::update_times()
 {
   double dsp_comp = fabs(m_x_move_amplitude) * dsp_comp_ratio * 0.001;
+  double period_comp_ratio = (m_x_move_amplitude > 0)
+                            ? forward_period_comp_ratio
+                            : backward_period_comp_ratio;
 
   m_period_time = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
 
@@ -405,7 +410,10 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
       jitsuyo::assign_val(ratio_section, "forward_hip_comp_ratio", forward_hip_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_comp_ratio", foot_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "dsp_comp_ratio", dsp_comp_ratio);
-    valid_section &= jitsuyo::assign_val(ratio_section, "period_comp_ratio", period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "forward_period_comp_ratio", forward_period_comp_ratio);
+    valid_section &=
+      jitsuyo::assign_val(ratio_section, "backward_period_comp_ratio", backward_period_comp_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "move_accel_ratio", move_accel_ratio);
     valid_section &= jitsuyo::assign_val(ratio_section, "foot_accel_ratio", foot_accel_ratio);
 
@@ -472,7 +480,7 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_section &= jitsuyo::assign_val(balance_section, "roll_resume_threshold", roll_resume_threshold);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_counter", max_pause_counter);
     valid_section &= jitsuyo::assign_val(balance_section, "max_pause_speed", max_pause_speed);
-    
+
     if (!valid_section) {
       std::cout << "Error found at section `balance`" << std::endl;
       valid_config = false;
@@ -521,14 +529,14 @@ bool Kinematic::run_kinematic()
     // left leg
     update_move_amplitude();
     is_compute_odometry = true;
-    do_walk_in_place = false; 
+    do_walk_in_place = false;
   } else if (
     m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
     m_time < (m_phase_time2 + time_unit / 2)) {
     update_move_amplitude();
     update_times();
     m_time = m_phase_time2;
-  
+
     if (!m_ctrl_running) {
       bool walk_in_position = true;
       walk_in_position &= (fabs(m_x_move_amplitude) <= 5.0);
@@ -551,7 +559,7 @@ bool Kinematic::run_kinematic()
     // right leg
     update_move_amplitude();
     is_compute_odometry = true;
-    do_walk_in_place = false; 
+    do_walk_in_place = false;
   }
 
   // compute endpoints
@@ -786,14 +794,14 @@ bool Kinematic::run_kinematic()
   if (m_real_running) {
     if(!is_paused || !pause_enable){
       m_time += time_unit;
-      if (m_time >= m_period_time) m_time = 0; 
+      if (m_time >= m_period_time) m_time = 0;
     } else {
       pause_counter++;
     }
   } else {
     m_time = 0;
   }
-  
+
   // equalize both leg's height during pause to ensure stability
   if (is_paused && pause_enable){
     double landing_factor = 1.0 - (std::min(pause_counter, 10) / 10.0);

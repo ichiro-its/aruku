@@ -171,6 +171,8 @@ keisan::Angle<double> Kinematic::get_raw_hip_offset() const { return hip_pitch_o
 
 keisan::Angle<double> Kinematic::get_hip_offset() const { return hip_pitch_offset + hip_comp; }
 
+keisan::Angle<double> Kinematic::get_hip_comp() const { return hip_comp; }
+
 bool Kinematic::time_to_compute_odometry() const { return is_compute_odometry; }
 
 void Kinematic::stop_kinematic()

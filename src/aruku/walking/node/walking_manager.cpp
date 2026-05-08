@@ -362,11 +362,12 @@ bool WalkingManager::process()
       using tachimawari::joint::JointId;
 
       // PID for pitch and roll balancing using IMU
+      keisan::Angle<double> pitch_setpoint = 0.0_deg - kinematic.get_hip_comp();
+      double pitch_error = (pitch_setpoint - this->imu_pitch).normalize().degree();
 
       double y_move_amp = kinematic.get_y_move_amplitude();
-      double pitch_error = (0_deg - this->imu_pitch).normalize().degree();
       double roll_error_raw = (0_deg - this->imu_roll).normalize().degree();
-      double roll_deadband = y_move_amp == 0 ? 3.0 : 12.0;
+      double roll_deadband = y_move_amp == 0? 3.0 : 12.0;
 
       // ignore if roll error is too small
       double roll_error = (fabs(roll_error_raw) < roll_deadband) ? 0.0 : roll_error_raw;
@@ -441,11 +442,10 @@ bool WalkingManager::process()
         joint.set_position_value(offset);
       }
 
-    return true;
-  }
+      return true;
+    }
 
   return false;
-
   }
 }
 

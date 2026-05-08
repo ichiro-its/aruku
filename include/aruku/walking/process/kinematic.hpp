@@ -80,6 +80,7 @@ public:
 
   keisan::Angle<double> get_raw_hip_offset() const;
   keisan::Angle<double> get_hip_offset() const;
+  keisan::Angle<double> get_hip_comp() const;
 
   bool time_to_compute_odometry() const;
 

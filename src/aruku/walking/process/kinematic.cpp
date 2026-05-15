@@ -536,13 +536,11 @@ bool Kinematic::run_kinematic()
     if (kick_state == KickState::KICKING && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
       m_kick_period_scale = 1.0;
       kick_state = KickState::DONE;
-      printf("[KICK KICKING→DONE] Right swing ended at phase boundary\n");
     }
     // Left kick ready, apply kick period scale before left SSP
     if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
       m_kick_period_scale = kick_period_scale;
       kick_state = KickState::KICKING;
-      printf("[KICK PREPARE→KICKING] Left kick armed, scale applied\n");
     }
 
     update_move_amplitude();
@@ -579,13 +577,11 @@ bool Kinematic::run_kinematic()
     if (kick_state == KickState::KICKING && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
       m_kick_period_scale = 1.0;
       kick_state = KickState::DONE;
-      printf("[KICK KICKING→DONE] Left swing ended at phase boundary\n");
     }
     // Right kick ready, apply kick period scale before right SSP
     if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
       m_kick_period_scale = kick_period_scale;
       kick_state = KickState::KICKING;
-      printf("[KICK PREPARE→KICKING] Right kick armed, scale applied\n");
     }
 
     update_move_amplitude();
@@ -927,12 +923,6 @@ bool Kinematic::run_kinematic()
       double kick_y = kick_y_amplitude * kick_y_profile;
       double kick_z = kick_z_amplitude * kick_z_profile;
 
-      printf(
-        "[KICK KICKING] leg=%s | progress=%.3f | x_prof=%.3f | y_prof=%.3f | z_prof=%.3f | kick_x=%.2f kick_y=%.2f kick_z=%.2f\n",
-        kick_leg_is_right ? "RIGHT" : "LEFT",
-        swing_progress, kick_x_profile, kick_y_profile, kick_z_profile,
-        kick_x, kick_y, kick_z);
-
       if (kick_leg_is_right) {
         x_move_r = kick_x;
         z_move_r = kick_z;
@@ -947,7 +937,6 @@ bool Kinematic::run_kinematic()
 
   if (kick_state == KickState::DONE && m_time == 0) {
     kick_state = KickState::IDLE;
-    printf("[KICK DONE→IDLE]\n");
   }
 
   keisan::Point3 translation_target;

@@ -54,7 +54,8 @@ public:
     LEFT,
     RIGHT,
     LEFT_CENTER,
-    RIGHT_CENTER
+    RIGHT_CENTER,
+    COUNT
   };
 
   Kinematic();

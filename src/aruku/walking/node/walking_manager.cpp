@@ -280,6 +280,14 @@ void WalkingManager::update_actual_walk_phase(const uint8_t & current_phase){
   this->walk_phase = current_phase;
 }
 
+void WalkingManager::update_trigger_kick(const uint8_t & leg){
+  if (!is_running()) return;
+
+  if (leg >= static_cast<uint8_t>(Kinematic::KickLeg::COUNT)) return;
+
+  this->kinematic.trigger_kick(static_cast<Kinematic::KickLeg>(leg));
+}
+
 void WalkingManager::reinit_joints()
 {
   for (auto & joint : joints) {
@@ -431,6 +439,8 @@ bool WalkingManager::process()
 }
 
 bool WalkingManager::is_running() const { return kinematic.get_running_state(); }
+
+bool WalkingManager::is_kicking() const { return kinematic.is_kicking(); }
 
 std::vector<tachimawari::joint::Joint> WalkingManager::get_joints() const { return joints; }
 

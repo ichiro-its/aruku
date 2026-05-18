@@ -86,6 +86,13 @@ WalkingNode::WalkingNode(
       this->walking_manager->set_position(keisan::Point2(message->x, message->y));
     });
 
+  walk_kick_subscriber = node->create_subscription<Int8>(
+    "/walking/walk_kick", 10, [this](const Int8::SharedPtr message) {
+      this->walking_manager->update_trigger_kick(message->data);
+    });
+
+  walk_kick_status_publisher = node->create_publisher<Bool>("/walking/walk_kick_status", 10);
+
   delta_position_publisher = node->create_publisher<Point2>(delta_position_topic(), 10);
 
   set_joints_publisher = node->create_publisher<SetJoints>("/joint/set_joints", 10);
@@ -114,6 +121,7 @@ void WalkingNode::update()
   publish_joints();
   publish_status();
   publish_delta_position();
+  publish_walk_kick_status();
 }
 
 void WalkingNode::publish_joints()
@@ -160,6 +168,15 @@ void WalkingNode::publish_delta_position()
   delta_position_msg.y = delta_position.y;
 
   delta_position_publisher->publish(delta_position_msg);
+}
+
+void WalkingNode::publish_walk_kick_status()
+{
+  auto message = Bool();
+
+  message.data = walking_manager->is_kicking();
+
+  walk_kick_status_publisher->publish(message);
 }
 
 }  // namespace aruku

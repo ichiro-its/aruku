@@ -58,7 +58,7 @@ Kinematic::Kinematic()
   m_ssp_time_start_l(0),
   m_ssp_time_end_l(0),
   m_ssp_time_start_r(0),
-  m_ssp_time_End_r(0),
+  m_ssp_time_end_r(0),
   m_phase_time1(0),
   m_phase_time2(0),
   m_phase_time3(0),
@@ -101,7 +101,16 @@ Kinematic::Kinematic()
   pause_counter(0),
   phase_on_pause(WalkPhase::DOUBLE_SUPPORT),
   do_walk_in_place(false),
-  has_paused_this_cycle(false)
+  has_paused_this_cycle(false),
+  kick_state(KickState::IDLE),
+  kick_leg(KickLeg::RIGHT),
+  m_kick_period_scale(1.0),
+  kick_x_amplitude(0.0),
+  kick_y_amplitude(0.0),
+  kick_z_amplitude(0.0),
+  kick_start_ratio(1.0),
+  kick_return_ratio(0.0),
+  kick_period_scale(0.0)
 {
   reset_angles();
 }
@@ -145,7 +154,7 @@ void Kinematic::update_imu_roll(const keisan::Angle<double> & roll){
 uint8_t Kinematic::get_expected_walk_phase(){
   if (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l)
     return WalkPhase::RIGHT_SUPPORT;
-  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_End_r)
+  if (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_end_r)
     return WalkPhase::LEFT_SUPPORT;
 
   return WalkPhase::DOUBLE_SUPPORT;
@@ -311,7 +320,8 @@ void Kinematic::update_times()
                             ? forward_period_comp_ratio
                             : backward_period_comp_ratio;
 
-  m_period_time = period_time - (fabs(m_x_move_amplitude) * period_comp_ratio);
+  m_period_time = (period_time - (fabs(m_x_move_amplitude) * period_comp_ratio))
+                * m_kick_period_scale;
 
   m_dsp_ratio = dsp_ratio + dsp_comp;
   m_ssp_ratio = 1 - m_dsp_ratio;
@@ -328,11 +338,11 @@ void Kinematic::update_times()
   m_ssp_time_start_l = (1 - m_ssp_ratio) * m_period_time / 4;
   m_ssp_time_end_l = (1 + m_ssp_ratio) * m_period_time / 4;
   m_ssp_time_start_r = (3 - m_ssp_ratio) * m_period_time / 4;
-  m_ssp_time_End_r = (3 + m_ssp_ratio) * m_period_time / 4;
+  m_ssp_time_end_r = (3 + m_ssp_ratio) * m_period_time / 4;
 
   m_phase_time1 = (m_ssp_time_start_l + m_ssp_time_end_l) / 2;
   m_phase_time2 = (m_ssp_time_end_l + m_ssp_time_start_r) / 2;
-  m_phase_time3 = (m_ssp_time_start_r + m_ssp_time_End_r) / 2;
+  m_phase_time3 = (m_ssp_time_start_r + m_ssp_time_end_r) / 2;
 
   m_arm_swing_gain = arm_swing_gain;
 
@@ -489,6 +499,24 @@ void Kinematic::set_config(const nlohmann::json & kinematic_data)
     valid_config = false;
   }
 
+  nlohmann::json kick_section;
+  if(jitsuyo::assign_val(kinematic_data, "in_walk_kick", kick_section)){
+    bool valid_section = true;
+    valid_section &= jitsuyo::assign_val(kick_section, "x_amplitude", kick_x_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "y_amplitude", kick_y_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "z_amplitude", kick_z_amplitude);
+    valid_section &= jitsuyo::assign_val(kick_section, "start_ratio", kick_start_ratio);
+    valid_section &= jitsuyo::assign_val(kick_section, "return_ratio", kick_return_ratio);
+    valid_section &= jitsuyo::assign_val(kick_section, "period_scale", kick_period_scale);
+
+    if (!valid_section) {
+      std::cout << "Error found at section `in_walk_kick`" << std::endl;
+      valid_config = false;
+    }
+  } else {
+    valid_config = false;
+  }
+
   if (!valid_config) {
     throw std::runtime_error("Failed to load config file `kinematic.json`");
   }
@@ -504,6 +532,17 @@ bool Kinematic::run_kinematic()
   is_compute_odometry = false;
 
   if (m_time == 0) {
+    // Right kick finished, reset kick period scale
+    if (kick_state == KickState::KICKING && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
+      m_kick_period_scale = 1.0;
+      kick_state = KickState::DONE;
+    }
+    // Left kick ready, apply kick period scale before left SSP
+    if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
+      m_kick_period_scale = kick_period_scale;
+      kick_state = KickState::KICKING;
+    }
+
     update_move_amplitude();
     update_times();
 
@@ -533,6 +572,18 @@ bool Kinematic::run_kinematic()
   } else if (
     m_time >= (m_phase_time2 - time_unit / 2) &&  // NOLINT
     m_time < (m_phase_time2 + time_unit / 2)) {
+
+    // Left kick finished, reset kick period scale
+    if (kick_state == KickState::KICKING && (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER)) {
+      m_kick_period_scale = 1.0;
+      kick_state = KickState::DONE;
+    }
+    // Right kick ready, apply kick period scale before right SSP
+    if (kick_state == KickState::PREPARE && (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER)) {
+      m_kick_period_scale = kick_period_scale;
+      kick_state = KickState::KICKING;
+    }
+
     update_move_amplitude();
     update_times();
     m_time = m_phase_time2;
@@ -677,7 +728,7 @@ bool Kinematic::run_kinematic()
       m_ssp_time_end_l, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_l, -m_a_move_amplitude,
       -m_a_move_amplitude_shift);
-  } else if (m_time <= m_ssp_time_End_r) {
+  } else if (m_time <= m_ssp_time_end_r) {
     x_move_l = wsin(
       m_time, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
@@ -712,11 +763,11 @@ bool Kinematic::run_kinematic()
       -m_a_move_amplitude, -m_a_move_amplitude_shift);
   } else {
     x_move_l = wsin(
-      m_ssp_time_End_r, m_x_move_period_time,
+      m_ssp_time_end_r, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
       m_x_move_amplitude, m_x_move_amplitude_shift);
     y_move_l = wsin(
-      m_ssp_time_End_r, m_y_move_period_time,
+      m_ssp_time_end_r, m_y_move_period_time,
       m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
       m_y_move_amplitude, m_y_move_amplitude_shift);
     z_move_l = wsin(
@@ -724,23 +775,23 @@ bool Kinematic::run_kinematic()
       m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_l, m_z_move_amplitude,
       m_z_move_amplitude_shift);
     c_move_l = wsin(
-      m_ssp_time_End_r, m_a_move_period_time,
+      m_ssp_time_end_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
       m_a_move_amplitude, m_a_move_amplitude_shift);
     x_move_r = wsin(
-      m_ssp_time_End_r, m_x_move_period_time,
+      m_ssp_time_end_r, m_x_move_period_time,
       m_x_move_phase_shift + 2_pi / m_x_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_x_move_amplitude, -m_x_move_amplitude_shift);
     y_move_r = wsin(
-      m_ssp_time_End_r, m_y_move_period_time,
+      m_ssp_time_end_r, m_y_move_period_time,
       m_y_move_phase_shift + 2_pi / m_y_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_y_move_amplitude, -m_y_move_amplitude_shift);
     z_move_r = wsin(
-      m_ssp_time_End_r, m_z_move_period_time,
+      m_ssp_time_end_r, m_z_move_period_time,
       m_z_move_phase_shift + 2_pi / m_z_move_period_time * m_ssp_time_start_r, m_z_move_amplitude,
       m_z_move_amplitude_shift);
     c_move_r = wsin(
-      m_ssp_time_End_r, m_a_move_period_time,
+      m_ssp_time_end_r, m_a_move_period_time,
       m_a_move_phase_shift + 2_pi / m_a_move_period_time * m_ssp_time_start_r + 1_pi,
       -m_a_move_amplitude, -m_a_move_amplitude_shift);
   }
@@ -813,7 +864,80 @@ bool Kinematic::run_kinematic()
     x_move_l = 0.0;  x_move_r = 0.0;
     y_move_l = 0.0;  y_move_r = 0.0;
     c_move_l = 0.0;  c_move_r = 0.0;
-}
+  }
+
+  // In walk kick inject
+  bool in_left_swing  = (m_time > m_ssp_time_start_l && m_time <= m_ssp_time_end_l);
+  bool in_right_swing = (m_time > m_ssp_time_start_r && m_time <= m_ssp_time_end_r);
+
+  bool kick_leg_is_left  = (kick_leg == KickLeg::LEFT || kick_leg == KickLeg::LEFT_CENTER);
+  bool kick_leg_is_right = (kick_leg == KickLeg::RIGHT || kick_leg == KickLeg::RIGHT_CENTER);
+
+  bool is_center_kick = (kick_leg == KickLeg::LEFT_CENTER || kick_leg == KickLeg::RIGHT_CENTER);
+
+  if (kick_state == KickState::KICKING) {
+    bool still_in_swing = (kick_leg_is_left && in_left_swing) || (kick_leg_is_right && in_right_swing);
+
+    if (still_in_swing) {
+      double swing_start = kick_leg_is_left ? m_ssp_time_start_l : m_ssp_time_start_r;
+      double swing_end = kick_leg_is_left ? m_ssp_time_end_l : m_ssp_time_end_r;
+      double swing_progress = (m_time - swing_start) / (swing_end - swing_start);
+
+      double kick_z_profile = sin(swing_progress * M_PI);
+
+      double kick_x_profile = 0.0;
+      if (swing_progress >= kick_start_ratio && swing_progress <= kick_return_ratio) {
+        double window = kick_return_ratio - kick_start_ratio;
+        double local_t = (swing_progress - kick_start_ratio) / window;
+        if (local_t < 0.2) {
+          double t = local_t / 0.2;
+          kick_x_profile = sin(t * M_PI / 2.0);
+        } else if (local_t < 0.8) {
+          kick_x_profile = 1.0;
+        } else {
+          double t = (local_t - 0.8) / 0.2;
+          kick_x_profile = cos(t * M_PI / 2.0);
+        }
+      }
+
+      double kick_y_profile = 0.0;
+      if (is_center_kick) {
+        if (swing_progress < kick_start_ratio) {
+          double t = swing_progress / kick_start_ratio;
+          kick_y_profile = sin(t * M_PI / 2.0);
+        } else if (swing_progress < kick_return_ratio) {
+          double window = kick_return_ratio - kick_start_ratio;
+          double local_t = (swing_progress - kick_start_ratio) / window;
+          if (local_t < 0.5) {
+            kick_y_profile = 1.0;
+          } else {
+            double t = (local_t - 0.5) / 0.5;
+            kick_y_profile = cos(t * M_PI / 2.0);
+          }
+        } else {
+          kick_y_profile = 0.0;
+        }
+      }
+
+      double kick_x = kick_x_amplitude * kick_x_profile;
+      double kick_y = kick_y_amplitude * kick_y_profile;
+      double kick_z = kick_z_amplitude * kick_z_profile;
+
+      if (kick_leg_is_right) {
+        x_move_r = kick_x;
+        z_move_r = kick_z;
+        if (is_center_kick) y_move_r =  kick_y;
+      } else {
+        x_move_l = kick_x;
+        z_move_l = kick_z;
+        if (is_center_kick) y_move_l = -kick_y;
+      }
+    }
+  }
+
+  if (kick_state == KickState::DONE && m_time == 0) {
+    kick_state = KickState::IDLE;
+  }
 
   keisan::Point3 translation_target;
   translation_target.x = x_swap + x_move_r + x_offset;
@@ -851,6 +975,15 @@ bool Kinematic::should_enable_roll_pause(double roll_abs) const
          actual_walk_phase != WalkPhase::DOUBLE_SUPPORT &&
          x_move <= max_pause_speed &&
          !has_paused_this_cycle;
+}
+
+void Kinematic::trigger_kick(KickLeg leg)
+{
+  if (kick_state != KickState::IDLE) {
+    return;
+  }
+  kick_leg = leg;
+  kick_state = KickState::PREPARE;
 }
 
 }  // namespace aruku

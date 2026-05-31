@@ -383,13 +383,31 @@ bool WalkingManager::process()
       prev_roll_error = roll_error;
 
       if (!is_running()) {
-        prev_roll_error = 0.0;
-        prev_pitch_error = 0.0;
-        pitch_integral = 0.0;
-        roll_integral = 0.0;
-        pid_offset_pitch = 0.0;
-        pid_offset_roll = 0.0;
-        this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
+        bool pitch_balanced = fabs(pitch_error) < 2.5;
+
+        if (!pitch_balanced) {
+          post_stop_timer = 0.0;
+          post_stop_balancing_active = true;
+        } else {
+          if (post_stop_balancing_active) {
+            post_stop_timer += dt;
+          }
+
+          if (post_stop_timer >= 3.0) {
+            prev_roll_error = 0.0;
+            prev_pitch_error = 0.0;
+            pitch_integral = 0.0;
+            roll_integral = 0.0;
+            pid_offset_pitch = 0.0;
+            pid_offset_roll = 0.0;
+            post_stop_timer = 0.0;
+            post_stop_balancing_active = false;
+            this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
+          }
+        }
+      } else {
+        post_stop_timer = 0.0;
+        post_stop_balancing_active = false;
       }
 
       auto angles = kinematic.get_angles();

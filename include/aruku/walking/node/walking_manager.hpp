@@ -107,6 +107,10 @@ private:
   double hip_ankle_ratio_pitch;
   double hip_ankle_ratio_roll;
 
+  double post_stop_timer;
+  bool post_stop_balancing_active;
+  bool post_stop_done;
+
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;
   double odometry_ry_coefficient;

@@ -59,7 +59,10 @@ WalkingManager::WalkingManager()
   d_roll_gain(0.0),
   hip_ankle_ratio_pitch(0.0),
   hip_ankle_ratio_roll(0.0),
-  walk_phase(0)
+  walk_phase(0),
+  post_stop_timer(0.0),
+  post_stop_balancing_active(false),
+  post_stop_done(false)
 {
   using tachimawari::joint::Joint;
   using tachimawari::joint::JointId;
@@ -369,11 +372,14 @@ bool WalkingManager::process()
       double pitch_derivative = (pitch_error - prev_pitch_error);
       double roll_derivative = (roll_error - prev_roll_error);
 
-      //nan guard if dt is 0
+      // nan guard if dt is 0
       pitch_derivative = (dt <= 0.0? 0.0 : pitch_derivative / dt);
       roll_derivative = (dt <= 0.0? 0.0 : roll_derivative / dt);
 
-      pid_offset_pitch = p_pitch_gain * pitch_error + i_pitch_gain * pitch_integral + d_pitch_gain * pitch_derivative;
+      // Use doubled P gain for pitch when post-stop balancing is active
+      double effective_p_pitch_gain = post_stop_balancing_active ? p_pitch_gain * 2.0 : p_pitch_gain;
+
+      pid_offset_pitch = effective_p_pitch_gain * pitch_error + i_pitch_gain * pitch_integral + d_pitch_gain * pitch_derivative;
       pid_offset_pitch = keisan::clamp(pid_offset_pitch, -60.0, 60.0);
 
       pid_offset_roll = p_roll_gain * roll_error + i_roll_gain * roll_integral + d_roll_gain * roll_derivative;
@@ -383,17 +389,16 @@ bool WalkingManager::process()
       prev_roll_error = roll_error;
 
       if (!is_running()) {
-        bool pitch_balanced = fabs(pitch_error) < 2.5;
-
-        if (!pitch_balanced) {
-          post_stop_timer = 0.0;
+        if (!post_stop_done && !post_stop_balancing_active) {
           post_stop_balancing_active = true;
-        } else {
-          if (post_stop_balancing_active) {
-            post_stop_timer += dt;
-          }
+          post_stop_timer = 0.0;
+        }
 
-          if (post_stop_timer >= 3.0) {
+        if (post_stop_balancing_active) {
+          post_stop_timer += dt;
+          bool pitch_balanced = (fabs(pitch_error) < 0.1) && (fabs(pitch_derivative) < 0.1);
+
+          if (pitch_balanced || post_stop_timer >= 3.0) {
             prev_roll_error = 0.0;
             prev_pitch_error = 0.0;
             pitch_integral = 0.0;
@@ -402,12 +407,14 @@ bool WalkingManager::process()
             pid_offset_roll = 0.0;
             post_stop_timer = 0.0;
             post_stop_balancing_active = false;
+            post_stop_done = true;
             this->kinematic.set_actual_walk_phase(WalkPhase::DOUBLE_SUPPORT);
           }
         }
       } else {
         post_stop_timer = 0.0;
         post_stop_balancing_active = false;
+        post_stop_done = false;
       }
 
       auto angles = kinematic.get_angles();

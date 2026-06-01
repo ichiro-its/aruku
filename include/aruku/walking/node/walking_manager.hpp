@@ -109,6 +109,7 @@ private:
 
   double post_stop_timer;
   bool post_stop_balancing_active;
+  bool post_stop_done;
 
   double odometry_fx_coefficient;
   double odometry_ly_coefficient;

@@ -27,14 +27,14 @@
 
 int main(int argc, char * argv[])
 {
-  rclcpp::init(argc, argv);
+  auto args = rclcpp::init_and_remove_ros_arguments(argc, argv);
 
-  if (argc < 2) {
+  if (args.size() < 2) {
     std::cerr << "Please specify the path!" << std::endl;
     return 0;
   }
 
-  std::string path = argv[1];
+  std::string path = args[1];
   auto node = std::make_shared<rclcpp::Node>("aruku_node");
   auto aruku_node = std::make_shared<aruku::ArukuNode>(node);
 
